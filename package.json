@@ -1,0 +1,23 @@
+{
+  "name": "lingualizer",
+  "version": "1.0.0",
+  "description": "a localization utility written in javascript",
+  "main": "index.ts",
+  "scripts": 
+  {
+    "typescript":"./node_modules/.bin/tsc --init",
+    "build":"./node_modules/.bin/tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "tsimper",
+  "license": "ISC",
+  "dependencies": 
+  {
+    "@types/yargs": "^12.0.5",
+    "yargs": "^12.0.5"
+  },
+  "devDependencies": 
+  {
+    "typescript": "^3.2.2"
+  }
+}
