@@ -1,15 +1,15 @@
 
+export type Locale = 'en-US' | 'es-MX' | null;
 
-export function localizeIt(locale: 'en-US'|'es-MX'| string, str:string)
+export var _locale: Locale | null = null;
+
+export function setLocale( locale: Locale )
 {
-    if ( locale.startsWith('en'))
-    {
-        return str;
-    }
-    if ( locale.startsWith('es'))
-    {
-        return 'holla';
-    }
+    _locale = locale;
+    console.log(  `set locale to ${_locale}` );
+}
 
-    return str;
+export function getLocale( ) : Locale
+{
+    return _locale;
 }
