@@ -1,41 +1,51 @@
 {
-  "name": "lingualizer",
-  "version": "1.0.0",
-  "description": "a localization utility written in javascript",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "typescript": "./node_modules/.bin/tsc --init",
-    "build": "./node_modules/.bin/tsc",
-    "prepublish": "npm run build",
-    "pretest": "npm run build",
-    "pub": "npm version patch && npm publish && git push --follow-tags",
-    "test": "./node_modules/.bin/mocha test/**/*.spec.{ts,tsx}"
-  },
-  "author": "tsimper",
-  "license": "ISC",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/simpert/lingualizer.git"
-  },
-  "bugs": {
-    "url": "https://github.com/simpert/lingualizer/issues"
-  },
-  "homepage": "https://github.com/simpert/lingualizer#readme",
-  "dependencies": {
-    "@types/fs-extra": "^5.0.4",
-    "fs-extra": "^7.0.1",
-    "ste-events": "^1.4.10",
-    "yargs": "^12.0.5"
-  },
-  "devDependencies": {
-    "@types/chai": "^4.1.7",
-    "@types/chalk": "^2.2.0",
-    "@types/mocha": "^5.2.5",
-    "chai": "^4.2.0",
-    "chalk": "^2.4.2",
-    "mocha": "^5.2.0",
-    "ts-node": "^7.0.1",
-    "typescript": "^3.2.2"
-  }
+    "name": "lingualizer",
+    "version": "1.0.0",
+    "description": "a localization utility written in javascript",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts":
+    {
+        "build": "./node_modules/.bin/tsc",
+        "prepublish": "npm run build",
+        "pretest": "npm run build",
+        "cli": "ts-node ./lib/cli.ts --port 111 --v",
+        "pub": "npm version patch && npm publish && git push --follow-tags",
+        "test": "./node_modules/.bin/mocha test/**/*.spec.{ts,tsx}"
+    },
+    "bin":
+    {
+        "lingualizer": "dist/cli.js"
+    },
+    "author": "tsimper",
+    "license": "ISC",
+    "repository":
+    {
+        "type": "git",
+        "url": "https://github.com/simpert/lingualizer.git"
+    },
+    "bugs":
+    {
+        "url": "https://github.com/simpert/lingualizer/issues"
+    },
+    "homepage": "https://github.com/simpert/lingualizer#readme",
+    "dependencies":
+    {
+        "@types/fs-extra": "^5.0.4",
+        "@types/yargs": "^12.0.5",
+        "fs-extra": "^7.0.1",
+        "ste-events": "^1.4.10",
+        "yargs": "^12.0.5"
+    },
+    "devDependencies":
+    {
+        "@types/chai": "^4.1.7",
+        "@types/chalk": "^2.2.0",
+        "@types/mocha": "^5.2.5",
+        "chai": "^4.2.0",
+        "chalk": "^2.4.2",
+        "mocha": "^5.2.0",
+        "ts-node": "^7.0.1",
+        "typescript": "^3.2.2"
+    }
 }

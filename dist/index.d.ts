@@ -1,6 +1,8 @@
 export declare type Locale = 'en-US' | 'es-MX' | null;
 export declare const defaultLocale: Locale;
 export declare var _translations: {};
+export declare const defaultranslationFileName = "translations";
+export declare const defaultranslationFileExt = "json";
 export declare var _locale: Locale | null;
 /**
  * set `_translations` to json read from translations.json file according to the currently set locale

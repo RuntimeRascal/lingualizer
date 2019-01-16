@@ -21,6 +21,9 @@ Look in the `package.json` for repository and author info
 > `npm run test`  
 
 # lingualizer CLI
+Once the module has been installed just call into the `cli` tool to set things up in project or to modify translations
+`lingualizer`
+
 > make sure that you are in the project root directory when calling into the cli. this directory will be searched recursively for a folder called `localization` and will work with files directly in this directory.
 
 Getting started

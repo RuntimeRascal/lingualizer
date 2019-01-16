@@ -11,8 +11,8 @@ var path = __importStar(require("path"));
 var fse = __importStar(require("fs-extra"));
 exports.defaultLocale = 'en-US';
 exports._translations = {};
-var defaultranslationFileName = 'translations';
-var defaultranslationFileExt = 'json';
+exports.defaultranslationFileName = 'translations';
+exports.defaultranslationFileExt = 'json';
 exports._locale = null;
 /**
  * set `_translations` to json read from translations.json file according to the currently set locale
@@ -28,9 +28,9 @@ function initTranslations() {
         throw new Error("unable to find a translations directory  at '" + translationsPath + "'.");
         return;
     }
-    var file = path.join(translationsPath, defaultranslationFileName + "." + defaultranslationFileExt);
+    var file = path.join(translationsPath, exports.defaultranslationFileName + "." + exports.defaultranslationFileExt);
     if (exports._locale == exports.defaultLocale && !fse.existsSync(file)) {
-        file = path.join(translationsPath, defaultranslationFileName + "." + exports._locale + "." + defaultranslationFileExt);
+        file = path.join(translationsPath, exports.defaultranslationFileName + "." + exports._locale + "." + exports.defaultranslationFileExt);
     }
     if (!fse.existsSync(file)) {
         throw new Error("unable to find a translations file for '" + exports._locale + "' at " + file + " ");
