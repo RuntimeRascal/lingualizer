@@ -5,6 +5,7 @@ export type Locale = 'en-US' | 'es-MX' | null;
 export const defaultLocale: Locale = 'en-US';
 export var _translations = {};
 export const defaultranslationFileName = 'translations';
+export const defaulLocalizationDirName = 'localization';
 export const defaultranslationFileExt = 'json';
 
 export var _locale: Locale | null = null;

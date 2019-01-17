@@ -1,0 +1,10 @@
+{
+    "ok": "ok",
+    "close": "close",
+    "try-again": "please try again",
+    "options":
+    {
+        "admin": "administrtor",
+        "mode": "mode"
+    }
+}

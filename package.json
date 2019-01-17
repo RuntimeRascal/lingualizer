@@ -9,7 +9,7 @@
         "build": "./node_modules/.bin/tsc",
         "prepublish": "npm run build",
         "pretest": "npm run build",
-        "cli": "ts-node ./lib/cli.ts --port 111 --v",
+        "cli": "ts-node ./lib/cli.ts --version",
         "pub": "npm version patch && npm publish && git push --follow-tags",
         "test": "./node_modules/.bin/mocha test/**/*.spec.{ts,tsx}"
     },
