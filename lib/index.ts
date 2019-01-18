@@ -30,7 +30,17 @@ export class Lingualizer
     private static _instance: Lingualizer = null;
     private _translations = {};
     private _locale: Locale | null = null;
-    private _onLocaleChanged = new EventDispatcher<Lingualizer, LocaleChangedEventArgs>();
+    private _onLocaleChanged: EventDispatcher<Lingualizer, LocaleChangedEventArgs>;
+
+    /**
+     * initialize a the single new instance of Lingualizer
+     */
+    private constructor ()
+    {
+        this._onLocaleChanged = new EventDispatcher<Lingualizer, LocaleChangedEventArgs>();
+        this._locale = Lingualizer.DefaultLocale;
+        this.initTranslations();
+    }
 
     public static get default (): Lingualizer
     {
@@ -54,9 +64,13 @@ export class Lingualizer
      */
     set locale ( locale: Locale )
     {
+        let oldLocale = this._locale;
+        if ( oldLocale == locale )
+            return;
+
         this._locale = locale;
-        this.initTranslations();
-        //TODO: trigger event
+        this.initTranslations( oldLocale );
+
         console.log( `set locale to ${ this._locale }` );
     }
 
@@ -72,6 +86,11 @@ export class Lingualizer
         return this._locale;
     }
 
+    _errorMessages =  [
+        (a) => { return `unable to find a translations directory  at '${a}'.` },
+        ( a,b ) => { return `unable to find a translations file for '${ a }' at ${ b } ` }
+    ];
+
     /**
      * set `_translations` to json read from translations.json file according to the currently set locale
      *
@@ -80,14 +99,11 @@ export class Lingualizer
      * @export
      * @returns 
      */
-    initTranslations ()
+    initTranslations ( oldLocale: Locale = this._locale )
     {
-        let translationsPath = path.join( process.cwd(), 'localization' );
+        let translationsPath = path.join( process.cwd(), Lingualizer.DefaulLocalizationDirName );
         if ( !fse.existsSync( translationsPath ) )
-        {
-            throw new Error( `unable to find a translations directory  at '${ translationsPath }'.` );
-            return;
-        }
+            throw new Error( this._errorMessages[0](translationsPath) );
 
         let file: string = path.join( translationsPath, `${ Lingualizer.DefaultranslationFileName }.${ Lingualizer.DefaultranslationFileExt }` );
         if ( this._locale == Lingualizer.DefaultLocale && !fse.existsSync( file ) )
@@ -97,11 +113,13 @@ export class Lingualizer
 
         if ( !fse.existsSync( file ) )
         {
-            throw new Error( `unable to find a translations file for '${ this._locale }' at ${ file } ` );
-            return;
+            
+            throw new Error( `unable to find a translations file for '${ this._locale }' at ${ file }` );
         }
 
         this._translations = JSON.parse( fse.readFileSync( file, "utf8" ) );
+
+        this._onLocaleChanged.dispatch( this, { oldLocale: oldLocale, newLocale: this._locale } )
     }
 
     static updateDefaults ( configu?: any ): any
