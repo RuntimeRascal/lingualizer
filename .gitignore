@@ -78,3 +78,9 @@ typings/
 
 # DynamoDB Local files
 .dynamodb/
+
+# Generated directories
+localization/
+
+# Test build
+test/dist

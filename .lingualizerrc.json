@@ -1,0 +1,6 @@
+{
+    "defaultLocale": "en-US",
+    "defaultTranslationFileName": "translation",
+    "defaulLocalizationDirName": "localization",
+    "defaultTranslationFileExt": "json"
+}

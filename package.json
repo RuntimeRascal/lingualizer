@@ -9,9 +9,17 @@
         "build": "./node_modules/.bin/tsc",
         "prepublish": "npm run build",
         "pretest": "npm run build",
-        "cli": "ts-node ./lib/cli.ts --version",
+        "cli": "ts-node ./lib/cli.ts get --verbose",
+        "cli2": "ts-node ./lib/cli.ts create -v --locale \"en-US\" --based-off \"https://raw.githubusercontent.com/simpert/lingualizer/master/test/data.json\"",
         "pub": "npm version patch && npm publish && git push --follow-tags",
         "test": "./node_modules/.bin/mocha test/**/*.spec.{ts,tsx}"
+    },
+    "lingualizer":
+    {
+        "defaultLocale": "en-US",
+        "defaultTranslationFileName": "translation",
+        "defaulLocalizationDirName": "localization",
+        "defaultTranslationFileExt": "json"
     },
     "bin":
     {
@@ -33,7 +41,9 @@
     {
         "@types/fs-extra": "^5.0.4",
         "@types/yargs": "^12.0.5",
+        "find-up": "^3.0.0",
         "fs-extra": "^7.0.1",
+        "request": "^2.88.0",
         "ste-events": "^1.4.10",
         "yargs": "^12.0.5"
     },
@@ -41,7 +51,9 @@
     {
         "@types/chai": "^4.1.7",
         "@types/chalk": "^2.2.0",
+        "@types/find-up": "^2.1.1",
         "@types/mocha": "^5.2.5",
+        "@types/request": "^2.48.1",
         "chai": "^4.2.0",
         "chalk": "^2.4.2",
         "mocha": "^5.2.0",

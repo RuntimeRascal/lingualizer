@@ -9,7 +9,6 @@
         "downlevelIteration": true,
         "strict": false,
         "esModuleInterop": true,
-        //"resolveJsonModule": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         /* Source Map Options */
@@ -19,6 +18,5 @@
         // "inlineSources": true,                 /* Emit the source alongside the sourcemaps within a single file; requires '--inlineSourceMap' or '--sourceMap' to be set. */
         /* Enables experimental support for ES7 decorators. */
         /* Enables experimental support for emitting type metadata for decorators. */
-    },
-    "exclude": [ "test/**/*" ]
+    }
 }
