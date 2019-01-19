@@ -58,12 +58,15 @@ Once the module has been installed just call into the `cli` tool to set things u
 > make sure that you are in the project root directory when calling into the cli. this directory will be searched recursively for a folder called `localization` and will work with files directly in this directory.
 
 ## create
+> If you have allready some translation files with ***key*** ***value*** pairs you can create a new translation file and base it off of. Just specify a url to the `json` file with the `--based-off` parameter.  
+
+
 | parameter             | description                                                                                                     |
 | --------------------- | --------------------------------------------------------------------------------------------------------------- |
 | `--locale` or `-l`    | choose  the culture to create translation file for                                                              |
 | `--file-name` or `-f` | if want to create translation file named differently then the default project name then specify a filename here |
 | `--based-off` or `-b` | specify a url of a `json` file to download and set contents of newly created file                               |
-
+| `--force`             | if the file allready exists then overwrite it                                                                   |
 
 ### Examples
 ---
@@ -74,8 +77,99 @@ lingualizer create
 
 *To create a new translations file named `MyApp.es-MX.json` execute:*  
 ```
-lingualizer create --locale es-MX --fileName MyApp
+    lingualizer create --locale es-MX --fileName MyApp
 ```  
+
+
+``` javascript
+    /* will create localization directory if needed and default local with default contents */
+    /* the file name will not have locale in name as default locale is used */
+    /* the file name will be in format '<project-name>.json' */
+    create
+
+    /* will create localization directory if needed and locale es-MX with default contents */
+    /* the file name will not have 'es-MX' in name if default locale is same */
+    /* the file name will be in format '<project-name>.es-MX.json' */
+    create --locale es-MX
+
+    /* will create localization directory if needed and default locale file with contents from url */
+    /* the file name will not have locale in name as default locale is used */
+    /* the file name will be in format '<project-name>.json' */
+    create --based-off "https://raw.githubusercontent.com/simpert/lingualizer/master/test/data.json"
+
+    /* will create localization directory if needed and default local with default contents */
+    /* the file name will not have locale in name as default locale is used */
+    /* the file name will be in format 'translation.json' */
+    create --file-name 'translation'
+
+    /* will create localization directory if needed and default local with default contents */
+    /* the file name will not have locale in name as default locale is used */
+    /* the file name will be in format 'translation.es-MX.json' */
+    create --locale es-MX --file-name 'translation'
+
+    /* will create localization directory if needed and default local with default contents */
+    /* if the file allready existed then it will be overwritten */
+    /* the file name will be in format '<project-name>.json' */
+    create --force
+```
+
+
+## set
+> use the `set` command to create new key value pairs in a translation file 
+
+| parameter                              | description                                                                                                                                      |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `--key` or `-k`  or *first*            | the key to set tag the trasnalted text                                                                                                           |
+| `--value` or `-val` or `v` or *second* | the translated text to assign to the `key`                                                                                                       |
+| `--locale` or `-l`                     | the locale to determine which file to add translation to. this is an *optional* parameter if if not specified the default locale will be assumed |
+
+### Examples
+---
+*To create a new transalted text of 'hello world' assigned to the tag 'intro' execute:*  
+```
+    set intro "hello world" --locale en-US
+```  
+
+``` javascript
+    /* explicit */
+    set --key <key> --value <value> --locale es-MX
+    set -k <key> -v <value> -l es-MX
+   
+    /* implicit and assume default culture */
+    set into "hello"
+
+    /* implicit specify locale */
+    set into "hello" -l es-MX
+```
+
+
+## get
+> use to get the **value** of a **key** from either the default `locale` if non provided or a certain locale.
+
+**The file name as of right now for the `get` command will be searched for using the settings file default filename or if no settings file will use the default of looking up name of the project directory**
+
+executing the `get` command with no arguments will return [if exists] all **key** **value** pairs from default `locale`
+
+### Examples
+``` javascript
+    // get all translations from default locale
+    get
+
+    // get all translations from 'es-MX'
+    get --locale es-MX
+
+    // get translation named 'ok' from default locale
+    get ok
+    
+    // get translation named 'ok' from 'es-MX' locale
+    get ok es-MX
+
+    // get translation named 'ok' from 'es-MX' locale
+    get ok --locale es-MX
+
+    // get translation named 'ok' from 'es-MX' locale
+    get --key ok --locale es-MX
+```
 
 ### Help
 ```
@@ -107,7 +201,7 @@ There is a `localeChanged` event that you may subscribe to in order to get notif
 function onLocalChanged( lingualizer, args )
 {
     /* get the localized string again and use it */
-    let okBtnText = Lingualizer.default.get( 'okBtn' );
+    let okBtnText = lingualizer.get( 'okBtn' );
 }
 
 Lingualizer.default.localeChanged.subscribe( onLocalChanged );

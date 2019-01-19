@@ -9,15 +9,23 @@
         "build": "./node_modules/.bin/tsc",
         "prepublish": "npm run build",
         "pretest": "npm run build",
-        "cli": "ts-node ./lib/cli.ts get --verbose",
-        "cli2": "ts-node ./lib/cli.ts create -v --locale \"en-US\" --based-off \"https://raw.githubusercontent.com/simpert/lingualizer/master/test/data.json\"",
+        "cli": "ts-node ./lib/cli.ts --verbose",
+        "cli-create-from": "ts-node ./lib/cli.ts create --locale es-MX --based-off \"https://raw.githubusercontent.com/simpert/lingualizer/master/test/data.json\"",
+        "cli-set-pos": "ts-node ./lib/cli.ts set keyy valll --verbose --l es-MX",
+        "cli-set": "ts-node ./lib/cli.ts set --key keyy --value valll --locale es-MX --verbose",
+        "cli-additional": "ts-node ./lib/cli.ts get --help",
+        "cli-get-nokey": "ts-node ./lib/cli.ts get",
+        "cli-get-nokey2": "ts-node ./lib/cli.ts get --locale es-MX",
+        "cli-get": "ts-node ./lib/cli.ts get ok es-MX",
+        "cli-get-explicit": "ts-node ./lib/cli.ts get --key close -l es-MX",
+        "cli-get-pos": "ts-node ./lib/cli.ts get ok es-MX",
         "pub": "npm version patch && npm publish && git push --follow-tags",
         "test": "./node_modules/.bin/mocha test/**/*.spec.{ts,tsx}"
     },
     "lingualizer":
     {
         "defaultLocale": "en-US",
-        "defaultTranslationFileName": "translation",
+        "defaultTranslationFileName": "%project%",
         "defaulLocalizationDirName": "localization",
         "defaultTranslationFileExt": "json"
     },

@@ -3,17 +3,23 @@ import * as path from 'path';
 import * as fse from 'fs-extra';
 import * as yargs from 'yargs'
 import request from 'request';
+import chalkpack = require( 'chalk' );
+
+const chalk: chalkpack.Chalk = chalkpack.default;
+const app = chalk.white( 'lingualizer->' );
+const defaultTranslationContents = { "Testing": "We are testing a default tranlated string" };
 
 interface createArgs
 {
     locale?: Locale;
     fileName?: string;
     basedOff?: string;
+    force?: boolean;
 }
 
-export var command = 'create [locale]';
+export var command = 'create [locale] [file-name] [based-off]';
 export var describe = 'create a translation file and the localization directory if needed';
-export var builder = ( yargs: yargs.Argv ) =>
+export var builder = ( yargs ) =>
 {
     return yargs.option( 'locale',
         {
@@ -21,72 +27,104 @@ export var builder = ( yargs: yargs.Argv ) =>
             choices: [ 'es-MX', 'en-US' ],
             alias: [ 'l' ],
             required: false,
-            default: Lingualizer.DefaultLocale,
-        } )
+        } as yargs.Options )
         .option( 'file-name',
             {
                 describe: "The translation filename",
                 alias: [ 'f' ],
                 required: false,
-                default: ''
-            } )
+            } as yargs.Options )
         .option( 'based-off',
             {
                 describe: "url of json file to download and set contents of downloaded file as the new translation file contents",
                 alias: [ 'b' ],
                 required: false,
-                default: ''
-            } )
+            } as yargs.Options )
+        .option( 'force',
+            {
+                describe: "overwrite file if exists",
+                required: false,
+            } as yargs.Options )
         .option( 'verbose',
             {
                 alias: 'v',
                 required: false,
-                default: false,
-            } )
+            } as yargs.Options )
         ;
 }
-export var handler = ( argv: createArgs ) =>
+export var handler = async ( argv: createArgs ) =>
 {
-    if ( argv.fileName && argv.fileName == '' && argv.basedOff && argv.basedOff == '' )
+    let locDir: string = createLocalizationDirectory( argv );
+
+    // if default is set to project then look that up
+    let fileName = Lingualizer.DefaultranslationFileName == '%project%' ? path.basename( process.cwd() ) : Lingualizer.DefaultranslationFileName;
+
+    // if name is specified then use that else use default
+    let justName = argv.fileName || fileName;
+    let name = justName;
+    let getContentFromDefault = false;
+    if ( !argv.locale || argv.locale == Lingualizer.DefaultLocale )
+    // default locale - no locale in name
     {
-        console.log( `no args` );
-        return;
+        name = `${ name }.json`;
+    }
+    else
+    // put the locale in the file name
+    {
+        getContentFromDefault = true;
+        name = `${ name }.${ argv.locale || Lingualizer.DefaultLocale }.json`;
     }
 
-    if ( argv.basedOff !== '' && argv.basedOff )
-    {
-        if ( !validUrl( argv.basedOff ) )
-            return;
+    let filePath = path.join( locDir, name );
 
-        let contents = getJsonFile( argv.basedOff ).then( ( res ) =>
-        {
-            console.log( `Got the contents of json file\n\n${ contents }` );
-        } );
+    if ( fse.existsSync( filePath ) && !argv.force )
+    {
+        console.log( chalk.gray( `${ app } the file allready exists. please use '${ chalk.blue( '--force' ) }' to overwrite it.` ) );
         return;
     }
+    let contents = await getContents( argv, getContentFromDefault, locDir, justName );
 
-    console.log( `creating translation directory with locale: ${ argv.locale }` );
+    fse.writeJSONSync( filePath, contents, { encoding: 'utf8' } );
 
+    console.log( chalk.gray( `${ app } created file: '${ chalk.cyan( name ) }'` ) );
+}
+
+async function getContents ( argv: createArgs, getDefault: boolean, dir: string, name: string )
+{
+    let getFromUrl = argv.basedOff && argv.basedOff !== '' && validUrl( argv.basedOff );
+    let contents: any = defaultTranslationContents;
+    if ( getDefault && !getFromUrl )
+    // get contents from default locale
+    {
+        let defaultLocalePath = path.join( dir, `${ name }.json` );
+        console.log( chalk.gray( `${ app } getting contents from default locale file: '${ chalk.cyan( defaultLocalePath ) }'` ) );
+
+        if ( fse.existsSync( defaultLocalePath ) )
+            contents = fse.readJSONSync( defaultLocalePath );
+    }
+
+    if ( getFromUrl )
+    // get contents from a url
+    {
+        console.log( chalk.gray( `${ app } downloading contents from '${ chalk.cyan( argv.basedOff ) }'` ) )
+        contents = JSON.parse( await getJsonFile( argv.basedOff ) );
+        console.log( chalk.italic.gray( `${ app } downloaded contents '${ chalk.cyan( JSON.stringify( contents ) ) }'` ) )
+    }
+
+    return contents;
+}
+
+function createLocalizationDirectory ( argv: createArgs )
+{
     let locDir = path.join( process.cwd(), Lingualizer.DefaulLocalizationDirName );
+    if ( !fse.existsSync( locDir ) )
+        console.log( chalk.gray( `${ app } created '${ chalk.cyanBright( Lingualizer.DefaulLocalizationDirName ) }' directory` ) );
 
     fse.ensureDirSync( locDir );
-    if ( !fse.existsSync( locDir ) ) throw new Error(
-        `cannot create translation directory at '${ locDir }'` );
+    if ( !fse.existsSync( locDir ) )
+        throw new Error( `${ app } cannot create '${ chalk.cyanBright( Lingualizer.DefaulLocalizationDirName ) }' directory at '${ chalk.red( locDir ) }'` );
 
-    let name = argv.fileName;
-    if ( name == '' )
-        name = path.basename( process.cwd() );
-
-    if ( argv.locale == null || argv.locale == Lingualizer.DefaultLocale )
-        argv.fileName = `${ name }.json`;
-    else
-        argv.fileName = `${ name }.${ argv.locale }.json`;
-
-    let defaultTranslationContents = { "Testing": "We are testing a default tranlated string" };
-
-    //fse.writeFileSync( path.join( locDir, translationFilename ), JSON.stringify( defaultTranslationContents) );
-    fse.writeJSONSync( path.join( locDir, argv.fileName ), defaultTranslationContents, { encoding: 'utf8' } );
-    console.log( `created translation file named: '${ argv.fileName }'` );
+    return locDir;
 }
 
 function validUrl ( url: string )

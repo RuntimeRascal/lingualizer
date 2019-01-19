@@ -1,4 +1,39 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -9,49 +44,88 @@ var __importStar = (this && this.__importStar) || function (mod) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var _1 = require(".");
 var path = __importStar(require("path"));
 var fse = __importStar(require("fs-extra"));
-var yargs = __importStar(require("yargs"));
 var request_1 = __importDefault(require("request"));
-exports.command = 'create [locale] [file-name] [based-off]';
+//import * as chalk from 'chalk';
+var chalkpack = require("chalk");
+var chalk = chalkpack.default;
+exports.command = 'create [locale]';
 exports.describe = 'create a translation file and the localization directory if needed';
-exports.builder = yargs
-    .option('locale', {
-    describe: "The locale",
-    choices: ['es-MX', 'en-US'],
-    alias: ['l'],
-    required: false,
-    default: _1.Lingualizer.DefaultLocale,
-})
-    .option('file-name', {
-    describe: "The translation filename",
-    alias: ['f'],
-    required: false,
-    default: ''
-})
-    // .option( 'based-off',
-    //     {
-    //         describe: "url of json file to download and set contents of downloaded file as the new translation file contents",
-    //         alias: [ 'b' ],
-    //         required: false,
-    //         default: ''
-    //     } )
-    .option('verbose', {
-    alias: 'v',
-    required: false,
-    default: false,
-});
-function validUrl_Old(str) {
-    var regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
-    if (!regex.test(str)) {
-        alert("Please enter valid URL.");
-        return false;
-    }
-    else {
-        return true;
-    }
+exports.builder = function (yargs) {
+    return yargs.option('locale', {
+        describe: "The locale",
+        choices: ['es-MX', 'en-US'],
+        alias: ['l'],
+        required: false,
+        default: _1.Lingualizer.DefaultLocale,
+    })
+        .option('file-name', {
+        describe: "The translation filename",
+        alias: ['f'],
+        required: false,
+        default: ''
+    })
+        .option('based-off', {
+        describe: "url of json file to download and set contents of downloaded file as the new translation file contents",
+        alias: ['b'],
+        required: false,
+        default: ''
+    })
+        .option('verbose', {
+        alias: 'v',
+        required: false,
+        default: false,
+    });
+};
+var defaultTranslationContents = { "Testing": "We are testing a default tranlated string" };
+exports.handler = function (argv) { return __awaiter(_this, void 0, void 0, function () {
+    var locDir, name, contents;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                locDir = createLocalizationDirectory(argv);
+                if (argv.fileName && argv.fileName == '' && argv.basedOff && argv.basedOff == '') 
+                // no args just create the localization folder
+                {
+                    return [2 /*return*/];
+                }
+                name = argv.fileName;
+                if (name == '')
+                    name = path.basename(process.cwd());
+                if (argv.locale == null || argv.locale == _1.Lingualizer.DefaultLocale)
+                    argv.fileName = name + ".json";
+                else
+                    argv.fileName = name + "." + argv.locale + ".json";
+                contents = defaultTranslationContents;
+                if (!(argv.basedOff !== '' && argv.basedOff)) return [3 /*break*/, 2];
+                if (!validUrl(argv.basedOff)) return [3 /*break*/, 2];
+                console.log("downloading contents from '" + argv.basedOff + "'");
+                return [4 /*yield*/, getJsonFile(argv.basedOff)];
+            case 1:
+                contents = _a.sent();
+                console.log("contents of json file\n\n" + contents);
+                _a.label = 2;
+            case 2:
+                fse.writeJSONSync(path.join(locDir, argv.fileName), contents, { encoding: 'utf8' });
+                console.log("created translation file named: '" + argv.fileName + "'");
+                return [2 /*return*/];
+        }
+    });
+}); };
+function getLocalizationDirectory() {
+    return path.join(process.cwd(), _1.Lingualizer.DefaulLocalizationDirName);
+}
+function createLocalizationDirectory(argv) {
+    console.log(chalk.gray("creating translation directory with locale: " + chalk.cyanBright(argv.locale)));
+    var locDir = path.join(process.cwd(), _1.Lingualizer.DefaulLocalizationDirName);
+    fse.ensureDirSync(locDir);
+    if (!fse.existsSync(locDir))
+        throw new Error("cannot create translation directory at '" + locDir + "'");
+    return locDir;
 }
 function validUrl(url) {
     try {
@@ -62,36 +136,6 @@ function validUrl(url) {
     }
     return true;
 }
-exports.handler = function (argv) {
-    if (argv.fileName && argv.fileName == '' && argv.basedOff && argv.basedOff == '') {
-        console.log("no args");
-        return;
-    }
-    if (argv.basedOff !== '' && argv.basedOff) {
-        if (!validUrl(argv.basedOff))
-            return;
-        var contents_1 = getJsonFile(argv.basedOff).then(function (res) {
-            console.log("Got the contents of json file\n\n" + contents_1);
-        });
-        return;
-    }
-    console.log("creating translation directory with locale: " + argv.locale);
-    var locDir = path.join(process.cwd(), _1.Lingualizer.DefaulLocalizationDirName);
-    fse.ensureDirSync(locDir);
-    if (!fse.existsSync(locDir))
-        throw new Error("cannot create translation directory at '" + locDir + "'");
-    var name = argv.fileName;
-    if (name == '')
-        name = path.basename(process.cwd());
-    if (argv.locale == null || argv.locale == _1.Lingualizer.DefaultLocale)
-        argv.fileName = name + ".json";
-    else
-        argv.fileName = name + "." + argv.locale + ".json";
-    var defaultTranslationContents = { "Testing": "We are testing a default tranlated string" };
-    //fse.writeFileSync( path.join( locDir, translationFilename ), JSON.stringify( defaultTranslationContents) );
-    fse.writeJSONSync(path.join(locDir, argv.fileName), defaultTranslationContents, { encoding: 'utf8' });
-    console.log("created translation file named: '" + argv.fileName + "'");
-};
 function getJsonFile(url) {
     return new Promise(function (resolve, reject) {
         var options = {

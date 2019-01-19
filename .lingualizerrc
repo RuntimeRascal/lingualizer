@@ -1,6 +1,6 @@
 {
     "defaultLocale": "en-US",
-    "defaultTranslationFileName": "translation",
+    "defaultTranslationFileName": "%project%",
     "defaulLocalizationDirName": "localization",
     "defaultTranslationFileExt": "json"
 }

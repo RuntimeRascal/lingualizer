@@ -10,8 +10,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var path = __importStar(require("path"));
 var fse = __importStar(require("fs-extra"));
 var findup = __importStar(require("find-up"));
+var ste_events_1 = require("ste-events");
+var util_1 = require("util");
 var configPath = findup.sync(['.lingualizerrc', '.lingualizerrc.json']);
-var config = configPath ? fse.readJSONSync(configPath) : {};
+var configrc = configPath ? fse.readJSONSync(configPath) : {};
 /**
  * singleton lingualizer type to offer all functionality of module
  *
@@ -21,9 +23,19 @@ var config = configPath ? fse.readJSONSync(configPath) : {};
  * @class Lingualizer
  */
 var Lingualizer = /** @class */ (function () {
+    /**
+     * initialize a the single new instance of Lingualizer
+     */
     function Lingualizer() {
+        this._errorMessages = [
+            "unable to find a translations directory  at '%s'.",
+            "unable to find a translations file for '%s' at %s" /* initTranslations sub 1 */
+        ];
         this._translations = {};
         this._locale = null;
+        this._onLocaleChanged = new ste_events_1.EventDispatcher();
+        this._locale = Lingualizer.DefaultLocale;
+        this.initTranslations();
     }
     Object.defineProperty(Lingualizer, "default", {
         get: function () {
@@ -31,6 +43,20 @@ var Lingualizer = /** @class */ (function () {
                 Lingualizer._instance = new Lingualizer();
             //TODO: look for and read in `.lingualizerrc settings
             return Lingualizer._instance;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Lingualizer.prototype, "onLocaleChanged", {
+        /**
+         * subscribe to get notified when the locale changes
+         *
+         * @readonly
+         * @type {IEvent<Lingualizer, LocaleChangedEventArgs>} gives the Lingualizer instance that raised the event and a object containing the old and new locales
+         * @memberof Lingualizer
+         */
+        get: function () {
+            return this._onLocaleChanged.asEvent();
         },
         enumerable: true,
         configurable: true
@@ -53,14 +79,24 @@ var Lingualizer = /** @class */ (function () {
          * @memberof Lingualizer
          */
         set: function (locale) {
+            var oldLocale = this._locale;
+            if (oldLocale == locale)
+                return;
             this._locale = locale;
-            this.initTranslations();
-            //TODO: trigger event
+            this.initTranslations(oldLocale);
             console.log("set locale to " + this._locale);
         },
         enumerable: true,
         configurable: true
     });
+    Lingualizer.prototype.get = function (key) {
+        if (this._translations == null)
+            return '';
+        var value = this._translations[key];
+        if (typeof value === undefined || value == null)
+            return '';
+        return value;
+    };
     /**
      * set `_translations` to json read from translations.json file according to the currently set locale
      *
@@ -69,22 +105,56 @@ var Lingualizer = /** @class */ (function () {
      * @export
      * @returns
      */
-    Lingualizer.prototype.initTranslations = function () {
-        var translationsPath = path.join(process.cwd(), 'localization');
-        if (!fse.existsSync(translationsPath)) {
-            throw new Error("unable to find a translations directory  at '" + translationsPath + "'.");
-            return;
-        }
+    Lingualizer.prototype.initTranslations = function (oldLocale) {
+        if (oldLocale === void 0) { oldLocale = this._locale; }
+        var translationsPath = path.join(process.cwd(), Lingualizer.DefaulLocalizationDirName);
+        if (!fse.existsSync(translationsPath))
+            throw new Error(util_1.format(this._errorMessages[0], translationsPath));
         var file = path.join(translationsPath, Lingualizer.DefaultranslationFileName + "." + Lingualizer.DefaultranslationFileExt);
-        if (this._locale == Lingualizer.DefaultLocale && !fse.existsSync(file)) {
+        if (this._locale == Lingualizer.DefaultLocale && !fse.existsSync(file))
             file = path.join(translationsPath, Lingualizer.DefaultranslationFileName + "." + this._locale + "." + Lingualizer.DefaultranslationFileExt);
-        }
-        if (!fse.existsSync(file)) {
-            throw new Error("unable to find a translations file for '" + this._locale + "' at " + file + " ");
-            return;
-        }
+        if (!fse.existsSync(file))
+            throw new Error(util_1.format(this._errorMessages[1], this._locale, file));
         this._translations = JSON.parse(fse.readFileSync(file, "utf8"));
+        this._onLocaleChanged.dispatch(this, { oldLocale: oldLocale, newLocale: this._locale });
     };
+    /**
+     * # for internal use
+     *
+     * @author tsimper
+     * @date 2019-01-18
+     * @static
+     * @param {*} [configu]
+     * @returns {*}
+     * @memberof Lingualizer
+     */
+    Lingualizer.updateDefaults = function (configu) {
+        var config = configu || configrc;
+        if (config == null)
+            return;
+        if (config.defaultLocale)
+            Lingualizer.DefaultLocale = config.defaultLocale;
+        if (config.defaulLocalizationDirName)
+            Lingualizer.DefaulLocalizationDirName = config.defaulLocalizationDirName;
+        if (config.defaulLocalizationDirName)
+            Lingualizer.DefaultranslationFileName = config.defaulLocalizationDirName;
+        if (config.defaultranslationFileExt)
+            Lingualizer.DefaultranslationFileExt = config.defaultranslationFileExt;
+        return config;
+    };
+    /**
+     * # for internal use
+     *
+     * @author tsimper
+     * @date 2019-01-18
+     * @static
+     * @returns
+     * @memberof Lingualizer
+     */
+    Lingualizer.printDefaults = function () {
+        return "locale: " + Lingualizer.DefaultLocale + " dir: " + Lingualizer.DefaulLocalizationDirName + " file: " + Lingualizer.DefaultranslationFileName + " ext: " + Lingualizer.DefaultranslationFileExt;
+    };
+    /* if config provided, these defaults will be set to config upon file load */
     Lingualizer.DefaultLocale = 'en-US';
     Lingualizer.DefaultranslationFileName = 'translations';
     Lingualizer.DefaulLocalizationDirName = 'localization';
