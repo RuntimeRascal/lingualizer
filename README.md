@@ -1,6 +1,11 @@
 *Github* repo: [lingualizer](https://github.com/simpert/lingualizer)  
 *Github* issues: [lingualizer](https://github.com/simpert/lingualizer/issues)  
 
+> this module is not finished yet and not all functionality will work. It was just created 
+> - create works
+> - get works
+> - set doesnt work
+
 # Lingualizer
 *A simple **nodejs** api for getting translated strings based on a locale and a command line tool for createing translation files and managing the translated strings*  
 
