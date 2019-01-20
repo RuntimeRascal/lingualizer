@@ -30,24 +30,16 @@ export interface IArgV
 }
 
 let argv = yargs
+    .help()
+    .showHelpOnFail( true )
     .usage( 'Usage: $0 [command] [options]' )
     .config( config )
     .pkgConf( 'lingualizer' )
     .command( createC.command, createC.describe, createC.builder, createC.handler )
     .command( getC.command, getC.describe, getC.builder, getC.handler )
     .command( setC.command, setC.describe, setC.builder, setC.handler )
-    .demandCommand()
-    .example( '$0 create --locale en-US --based-off "http://somejsonfile.json"', 'create a en-US translation file named "translation.json" and base it of the contents downloaded from "http://somejsonfile.json"' )
-    .example( '$0 get', `get all key value pairs in default locale if exists` )
-    .example( '$0 get --locale es-MX', `get all key value pairs in 'es-MX' locale if exists` )
-    .example( '$0 get ok-btn', `get the 'ok-btn' value from default locale` )
-    .example( '$0 get ok-btn es-MX', `get the 'ok-btn' value from 'es-MX' locale` )
-    .example( '$0 get ok-btn --locale es-MX', `get the 'ok-btn' value from 'es-MX' locale` )
-    .example( '$0 set --key ok-btn --value "ok" --locale es-MX', `set the 'ok-btn' value from 'es-MX' locale to "ok"` )
-    .help( 'h' )
     .version( require( '../package.json' ).version )
     .epilogue( 'for more information goto: https://github.com/simpert/lingualizer' )
-    .showHelpOnFail( true )
     .fail( ( m, e ) =>
     {
         console.log( chalk.cyan( 'Uh Oh!' ) );

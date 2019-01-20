@@ -1,8 +1,8 @@
 import { Locale, Lingualizer } from ".";
 import * as path from 'path';
 import * as fse from 'fs-extra';
-import * as yargs from 'yargs'
-import request from 'request';
+import * as yarg from 'yargs'
+import * as request from 'request';
 import chalkpack = require( 'chalk' );
 
 const chalk: chalkpack.Chalk = chalkpack.default;
@@ -11,46 +11,50 @@ const defaultTranslationContents = { "Testing": "We are testing a default tranla
 
 interface createArgs
 {
-    locale?: Locale;
+    locale?: string;
     fileName?: string;
     basedOff?: string;
     force?: boolean;
+    verbose?: boolean;
 }
 
 export var command = 'create [locale] [file-name] [based-off]';
 export var describe = 'create a translation file and the localization directory if needed';
-export var builder = ( yargs ) =>
+export var builder = ( yargs: any ) =>
 {
-    return yargs.option( 'locale',
-        {
-            describe: "The locale",
-            choices: [ 'es-MX', 'en-US' ],
-            alias: [ 'l' ],
-            required: false,
-        } as yargs.Options )
+    return yargs
+        .help()
+        .option( 'locale',
+            {
+                describe: "The locale",
+                choices: [ 'es-MX', 'en-US' ],
+                alias: [ 'l' ],
+                required: false,
+            } )
         .option( 'file-name',
             {
                 describe: "The translation filename",
                 alias: [ 'f' ],
                 required: false,
-            } as yargs.Options )
+            } )
         .option( 'based-off',
             {
                 describe: "url of json file to download and set contents of downloaded file as the new translation file contents",
                 alias: [ 'b' ],
                 required: false,
-            } as yargs.Options )
+            } )
         .option( 'force',
             {
                 describe: "overwrite file if exists",
                 required: false,
-            } as yargs.Options )
+            } )
         .option( 'verbose',
             {
                 alias: 'v',
                 required: false,
-            } as yargs.Options )
-        ;
+            } )
+        .demandCommand()
+        .example( '$0 create --locale en-US --based-off "http://somejsonfile.json"', 'create a en-US translation file named "translation.json" and base it of the contents downloaded from "http://somejsonfile.json"' );
 }
 export var handler = async ( argv: createArgs ) =>
 {

@@ -6,14 +6,19 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var path = __importStar(require("path"));
 var fse = __importStar(require("fs-extra"));
 var findup = __importStar(require("find-up"));
 var ste_events_1 = require("ste-events");
 var util_1 = require("util");
+var chalk_1 = __importDefault(require("chalk"));
 var configPath = findup.sync(['.lingualizerrc', '.lingualizerrc.json']);
 var configrc = configPath ? fse.readJSONSync(configPath) : {};
+var app = chalk_1.default.white('lingualizer->');
 /**
  * singleton lingualizer type to offer all functionality of module
  *
@@ -136,8 +141,8 @@ var Lingualizer = /** @class */ (function () {
             Lingualizer.DefaultLocale = config.defaultLocale;
         if (config.defaulLocalizationDirName)
             Lingualizer.DefaulLocalizationDirName = config.defaulLocalizationDirName;
-        if (config.defaulLocalizationDirName)
-            Lingualizer.DefaultranslationFileName = config.defaulLocalizationDirName;
+        if (config.defaultranslationFileName)
+            Lingualizer.DefaultranslationFileName = config.defaultranslationFileName;
         if (config.defaultranslationFileExt)
             Lingualizer.DefaultranslationFileExt = config.defaultranslationFileExt;
         return config;
@@ -152,11 +157,11 @@ var Lingualizer = /** @class */ (function () {
      * @memberof Lingualizer
      */
     Lingualizer.printDefaults = function () {
-        return "locale: " + Lingualizer.DefaultLocale + " dir: " + Lingualizer.DefaulLocalizationDirName + " file: " + Lingualizer.DefaultranslationFileName + " ext: " + Lingualizer.DefaultranslationFileExt;
+        console.log(chalk_1.default.gray(app + " " + chalk_1.default.bold.green('Default Settings') + " locale: " + chalk_1.default.cyan(Lingualizer.DefaultLocale) + " directory: " + chalk_1.default.cyan(Lingualizer.DefaulLocalizationDirName) + " file: " + chalk_1.default.cyan(Lingualizer.DefaultranslationFileName) + " ext: '" + chalk_1.default.cyan(Lingualizer.DefaultranslationFileExt) + "'"));
     };
     /* if config provided, these defaults will be set to config upon file load */
     Lingualizer.DefaultLocale = 'en-US';
-    Lingualizer.DefaultranslationFileName = 'translations';
+    Lingualizer.DefaultranslationFileName = '%project%';
     Lingualizer.DefaulLocalizationDirName = 'localization';
     Lingualizer.DefaultranslationFileExt = 'json';
     Lingualizer._instance = null;

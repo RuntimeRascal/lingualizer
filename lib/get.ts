@@ -1,7 +1,7 @@
-import { Locale, Lingualizer } from ".";
+import { Lingualizer } from ".";
 import * as path from 'path';
 import * as fse from 'fs-extra';
-import * as yargs from 'yargs'
+import * as yarg from 'yargs'
 import chalkpack = require( 'chalk' );
 
 const chalk: chalkpack.Chalk = chalkpack.default;
@@ -16,30 +16,35 @@ interface getArgs
 
 export var command = 'get [key] [locale]';
 export var describe = 'get a key from a certain locale or default in no locale';
-export var builder = ( yargs ) =>
+export var builder = ( yargs: yarg.Argv<getArgs> ) =>
 {
     return yargs
+        .help()
         .positional( 'key',
             {
                 type: 'string',
                 describe: "The key to set translation for",
                 alias: [ 'k' ],
-                required: false
-            } as yargs.PositionalOptions )
+                //required: false
+            } )
         .positional( 'locale',
             {
                 describe: "The locale",
                 choices: [ 'es-MX', 'en-US' ],
                 alias: [ 'l', 'loc' ],
-                required: false
-            } as yargs.PositionalOptions )
+                // required: false
+            } )
         .option( 'verbose',
             {
                 alias: 'v',
                 required: false,
-            } as yargs.Options )
-        .demandOption( 'key', 'key: ' )
-        ;
+            } )
+        .demandCommand()
+        .example( '$0 get', `get all key value pairs in default locale if exists` )
+        .example( '$0 get --locale es-MX', `get all key value pairs in 'es-MX' locale if exists` )
+        .example( '$0 get ok-btn', `get the 'ok-btn' value from default locale` )
+        .example( '$0 get ok-btn es-MX', `get the 'ok-btn' value from 'es-MX' locale` )
+        .example( '$0 get ok-btn --locale es-MX', `get the 'ok-btn' value from 'es-MX' locale` );
 }
 
 export var handler = ( argv: getArgs ) =>

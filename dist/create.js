@@ -50,10 +50,11 @@ var _1 = require(".");
 var path = __importStar(require("path"));
 var fse = __importStar(require("fs-extra"));
 var request_1 = __importDefault(require("request"));
-//import * as chalk from 'chalk';
 var chalkpack = require("chalk");
 var chalk = chalkpack.default;
-exports.command = 'create [locale]';
+var app = chalk.white('lingualizer->');
+var defaultTranslationContents = { "Testing": "We are testing a default tranlated string" };
+exports.command = 'create [locale] [file-name] [based-off]';
 exports.describe = 'create a translation file and the localization directory if needed';
 exports.builder = function (yargs) {
     return yargs.option('locale', {
@@ -61,70 +62,99 @@ exports.builder = function (yargs) {
         choices: ['es-MX', 'en-US'],
         alias: ['l'],
         required: false,
-        default: _1.Lingualizer.DefaultLocale,
     })
         .option('file-name', {
         describe: "The translation filename",
         alias: ['f'],
         required: false,
-        default: ''
     })
         .option('based-off', {
         describe: "url of json file to download and set contents of downloaded file as the new translation file contents",
         alias: ['b'],
         required: false,
-        default: ''
+    })
+        .option('force', {
+        describe: "overwrite file if exists",
+        required: false,
     })
         .option('verbose', {
         alias: 'v',
         required: false,
-        default: false,
-    });
+    })
+        .help('help')
+        .example('$0 create --locale en-US --based-off "http://somejsonfile.json"', 'create a en-US translation file named "translation.json" and base it of the contents downloaded from "http://somejsonfile.json"');
 };
-var defaultTranslationContents = { "Testing": "We are testing a default tranlated string" };
 exports.handler = function (argv) { return __awaiter(_this, void 0, void 0, function () {
-    var locDir, name, contents;
+    var locDir, fileName, justName, name, getContentFromDefault, filePath, contents;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 locDir = createLocalizationDirectory(argv);
-                if (argv.fileName && argv.fileName == '' && argv.basedOff && argv.basedOff == '') 
-                // no args just create the localization folder
+                fileName = _1.Lingualizer.DefaultranslationFileName == '%project%' ? path.basename(process.cwd()) : _1.Lingualizer.DefaultranslationFileName;
+                justName = argv.fileName || fileName;
+                name = justName;
+                getContentFromDefault = false;
+                if (!argv.locale || argv.locale == _1.Lingualizer.DefaultLocale) 
+                // default locale - no locale in name
                 {
+                    name = name + ".json";
+                }
+                else 
+                // put the locale in the file name
+                {
+                    getContentFromDefault = true;
+                    name = name + "." + (argv.locale || _1.Lingualizer.DefaultLocale) + ".json";
+                }
+                filePath = path.join(locDir, name);
+                if (fse.existsSync(filePath) && !argv.force) {
+                    console.log(chalk.gray(app + " the file allready exists. please use '" + chalk.blue('--force') + "' to overwrite it."));
                     return [2 /*return*/];
                 }
-                name = argv.fileName;
-                if (name == '')
-                    name = path.basename(process.cwd());
-                if (argv.locale == null || argv.locale == _1.Lingualizer.DefaultLocale)
-                    argv.fileName = name + ".json";
-                else
-                    argv.fileName = name + "." + argv.locale + ".json";
-                contents = defaultTranslationContents;
-                if (!(argv.basedOff !== '' && argv.basedOff)) return [3 /*break*/, 2];
-                if (!validUrl(argv.basedOff)) return [3 /*break*/, 2];
-                console.log("downloading contents from '" + argv.basedOff + "'");
-                return [4 /*yield*/, getJsonFile(argv.basedOff)];
+                return [4 /*yield*/, getContents(argv, getContentFromDefault, locDir, justName)];
             case 1:
                 contents = _a.sent();
-                console.log("contents of json file\n\n" + contents);
-                _a.label = 2;
-            case 2:
-                fse.writeJSONSync(path.join(locDir, argv.fileName), contents, { encoding: 'utf8' });
-                console.log("created translation file named: '" + argv.fileName + "'");
+                fse.writeJSONSync(filePath, contents, { encoding: 'utf8' });
+                console.log(chalk.gray(app + " created file: '" + chalk.cyan(name) + "'"));
                 return [2 /*return*/];
         }
     });
 }); };
-function getLocalizationDirectory() {
-    return path.join(process.cwd(), _1.Lingualizer.DefaulLocalizationDirName);
+function getContents(argv, getDefault, dir, name) {
+    return __awaiter(this, void 0, void 0, function () {
+        var getFromUrl, contents, defaultLocalePath, _a, _b;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
+                case 0:
+                    getFromUrl = argv.basedOff && argv.basedOff !== '' && validUrl(argv.basedOff);
+                    contents = defaultTranslationContents;
+                    if (getDefault && !getFromUrl) 
+                    // get contents from default locale
+                    {
+                        defaultLocalePath = path.join(dir, name + ".json");
+                        console.log(chalk.gray(app + " getting contents from default locale file: '" + chalk.cyan(defaultLocalePath) + "'"));
+                        if (fse.existsSync(defaultLocalePath))
+                            contents = fse.readJSONSync(defaultLocalePath);
+                    }
+                    if (!getFromUrl) return [3 /*break*/, 2];
+                    console.log(chalk.gray(app + " downloading contents from '" + chalk.cyan(argv.basedOff) + "'"));
+                    _b = (_a = JSON).parse;
+                    return [4 /*yield*/, getJsonFile(argv.basedOff)];
+                case 1:
+                    contents = _b.apply(_a, [_c.sent()]);
+                    console.log(chalk.italic.gray(app + " downloaded contents '" + chalk.cyan(JSON.stringify(contents)) + "'"));
+                    _c.label = 2;
+                case 2: return [2 /*return*/, contents];
+            }
+        });
+    });
 }
 function createLocalizationDirectory(argv) {
-    console.log(chalk.gray("creating translation directory with locale: " + chalk.cyanBright(argv.locale)));
     var locDir = path.join(process.cwd(), _1.Lingualizer.DefaulLocalizationDirName);
+    if (!fse.existsSync(locDir))
+        console.log(chalk.gray(app + " created '" + chalk.cyanBright(_1.Lingualizer.DefaulLocalizationDirName) + "' directory"));
     fse.ensureDirSync(locDir);
     if (!fse.existsSync(locDir))
-        throw new Error("cannot create translation directory at '" + locDir + "'");
+        throw new Error(app + " cannot create '" + chalk.cyanBright(_1.Lingualizer.DefaulLocalizationDirName) + "' directory at '" + chalk.red(locDir) + "'");
     return locDir;
 }
 function validUrl(url) {
