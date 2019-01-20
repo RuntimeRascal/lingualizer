@@ -1,21 +1,11 @@
 "use strict";
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var path = __importStar(require("path"));
-var fse = __importStar(require("fs-extra"));
-var findup = __importStar(require("find-up"));
+var path = require("path");
+var fse = require("fs-extra");
+var findup = require("find-up");
 var ste_events_1 = require("ste-events");
 var util_1 = require("util");
-var chalk_1 = __importDefault(require("chalk"));
+var chalk_1 = require("chalk");
 var configPath = findup.sync(['.lingualizerrc', '.lingualizerrc.json']);
 var configrc = configPath ? fse.readJSONSync(configPath) : {};
 var app = chalk_1.default.white('lingualizer->');

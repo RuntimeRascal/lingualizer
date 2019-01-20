@@ -34,22 +34,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var _1 = require(".");
-var path = __importStar(require("path"));
-var fse = __importStar(require("fs-extra"));
-var request_1 = __importDefault(require("request"));
+var path = require("path");
+var fse = require("fs-extra");
+var request = require("request");
 var chalkpack = require("chalk");
 var chalk = chalkpack.default;
 var app = chalk.white('lingualizer->');
@@ -57,7 +47,9 @@ var defaultTranslationContents = { "Testing": "We are testing a default tranlate
 exports.command = 'create [locale] [file-name] [based-off]';
 exports.describe = 'create a translation file and the localization directory if needed';
 exports.builder = function (yargs) {
-    return yargs.option('locale', {
+    return yargs
+        .help()
+        .option('locale', {
         describe: "The locale",
         choices: ['es-MX', 'en-US'],
         alias: ['l'],
@@ -81,7 +73,7 @@ exports.builder = function (yargs) {
         alias: 'v',
         required: false,
     })
-        .help('help')
+        .demandCommand()
         .example('$0 create --locale en-US --based-off "http://somejsonfile.json"', 'create a en-US translation file named "translation.json" and base it of the contents downloaded from "http://somejsonfile.json"');
 };
 exports.handler = function (argv) { return __awaiter(_this, void 0, void 0, function () {
@@ -174,7 +166,7 @@ function getJsonFile(url) {
             qs: { '': '' },
             headers: { Accept: 'application/json' }
         };
-        request_1.default(options, function (error, response, body) {
+        request(options, function (error, response, body) {
             if (error)
                 reject(error);
             resolve(body);
