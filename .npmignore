@@ -1,2 +1,8 @@
 lib/
 test/dist
+.vscode/
+.changelogrc
+.lingualizerrc
+.lingualizerrc.json
+.jsbeautifyrc
+test/data.json
