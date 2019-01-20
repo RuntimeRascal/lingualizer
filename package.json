@@ -1,11 +1,10 @@
 {
     "name": "lingualizer",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "a localization utility written in javascript",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
-    "scripts":
-    {
+    "scripts": {
         "build": "./node_modules/.bin/tsc",
         "prepublish": "npm run build",
         "pretest": "npm run build",
@@ -25,31 +24,26 @@
         "pub": "npm version patch && npm publish && git push --follow-tags",
         "test": "./node_modules/.bin/mocha test/**/*.spec.{ts,tsx}"
     },
-    "lingualizer":
-    {
+    "lingualizer": {
         "defaultLocale": "en-US",
         "defaultTranslationFileName": "%project%",
         "defaulLocalizationDirName": "localization",
         "defaultTranslationFileExt": "json"
     },
-    "bin":
-    {
+    "bin": {
         "lingualizer": "dist/cli.js"
     },
     "author": "tsimper",
     "license": "ISC",
-    "repository":
-    {
+    "repository": {
         "type": "git",
         "url": "https://github.com/simpert/lingualizer.git"
     },
-    "bugs":
-    {
+    "bugs": {
         "url": "https://github.com/simpert/lingualizer/issues"
     },
     "homepage": "https://github.com/simpert/lingualizer#readme",
-    "dependencies":
-    {
+    "dependencies": {
         "@types/fs-extra": "^5.0.4",
         "@types/yargs": "^12.0.5",
         "find-up": "^3.0.0",
@@ -58,8 +52,7 @@
         "ste-events": "^1.4.10",
         "yargs": "^12.0.5"
     },
-    "devDependencies":
-    {
+    "devDependencies": {
         "@types/chai": "^4.1.7",
         "@types/chalk": "^2.2.0",
         "@types/find-up": "^2.1.1",
