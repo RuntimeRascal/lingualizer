@@ -1,8 +1,8 @@
-*Github* repo: [lingualizer](https://github.com/simpert/lingualizer)
-*Github* issues: [lingualizer](https://github.com/simpert/lingualizer/issues)
+*Github* repo: [lingualizer](https://github.com/simpert/lingualizer)  
+*Github* issues: [lingualizer](https://github.com/simpert/lingualizer/issues)  
 
 # Lingualizer
-*A simple api for getting translated strings based on a locale and a command line tool for createing translation files and managing the translated strings*  
+*A simple **nodejs** api for getting translated strings based on a locale and a command line tool for createing translation files and managing the translated strings*  
 
 ## Installation 
 *to install just run*   
@@ -19,6 +19,36 @@
 > `yarn run test`  
 > or  
 > `npm run test`  
+
+# Getting started
+*a very simple javascript based api to get translated strings from localization files*  
+ 
+The module can be accessed through a singleton so just import the modules and call into the instance.
+
+> the modules is written in `typescript` and includes all definitions so discovering members of the `Lingualizer` class should be pretty easy.
+
+``` javascript
+/* import the module's singlton */
+import {Lingualizer} from 'lingualizer';
+
+/* set the locale */
+Lingualizer.default.setLocale( 'es-MX' );
+
+/* get a localized string */
+let okBtnText = Lingualizer.default.get( 'okBtn' );
+```
+
+There is a `localeChanged` event that you may subscribe to in order to get notified when the locale changes.
+
+``` javascript
+function onLocalChanged( lingualizer, args )
+{
+    /* get the localized string again and use it */
+    let okBtnText = lingualizer.get( 'okBtn' );
+}
+
+Lingualizer.default.localeChanged.subscribe( onLocalChanged );
+
 
 # Configuration
 > Lingualizer support common rc config pattern and config in *package.json* as per `yargs` module.  
@@ -157,32 +187,4 @@ lingualizer get --help
 lingualizer set --help
 ```    
 
-# Getting started
-*a very simple javascript based api to get translated strings from localization files*  
- 
-The module can be accessed through a singleton so just import the modules and call into the instance.
-
-> the modules is written in `typescript` and includes all definitions so discovering members of the `Lingualizer` class should be pretty easy.
-
-``` javascript
-/* import the module's singlton */
-import {Lingualizer} from 'lingualizer';
-
-/* set the locale */
-Lingualizer.default.setLocale( 'es-MX' );
-
-/* get a localized string */
-let okBtnText = Lingualizer.default.get( 'okBtn' );
-```
-
-There is a `localeChanged` event that you may subscribe to in order to get notified when the locale changes.
-
-``` javascript
-function onLocalChanged( lingualizer, args )
-{
-    /* get the localized string again and use it */
-    let okBtnText = lingualizer.get( 'okBtn' );
-}
-
-Lingualizer.default.localeChanged.subscribe( onLocalChanged );
 ```  
