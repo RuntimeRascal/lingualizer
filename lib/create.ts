@@ -2,164 +2,106 @@ import { Locale, Lingualizer } from ".";
 import * as path from 'path';
 import * as fse from 'fs-extra';
 import * as yarg from 'yargs'
-import * as request from 'request';
-import chalkpack = require( 'chalk' );
+import { IArgV, getLocalizationDirectory, log, chalk, terminalPrefix, getFileName, getJsonFile, isValidUrl } from "./common";
 
-const chalk: chalkpack.Chalk = chalkpack.default;
-const app = chalk.white( 'lingualizer->' );
 const defaultTranslationContents = { "Testing": "We are testing a default tranlated string" };
 
-interface createArgs
-{
-    locale?: string;
-    fileName?: string;
-    basedOff?: string;
-    force?: boolean;
-    verbose?: boolean;
-}
-
-export var command = 'create [locale] [file-name] [based-off]';
+export var command = 'create [locale] [based-off] [force]';
 export var describe = 'create a translation file and the localization directory if needed';
-export var builder = ( yargs: any ) =>
+export var builder = ( yargs: yarg.Argv<IArgV> ) =>
 {
     return yargs
-        .help()
-        .option( 'locale',
+        //.help()
+        .positional( 'locale',
             {
                 describe: "The locale",
                 choices: [ 'es-MX', 'en-US' ],
                 alias: [ 'l' ],
-                required: false,
             } )
-        .option( 'file-name',
-            {
-                describe: "The translation filename",
-                alias: [ 'f' ],
-                required: false,
-            } )
-        .option( 'based-off',
+        .positional( 'based-off',
             {
                 describe: "url of json file to download and set contents of downloaded file as the new translation file contents",
                 alias: [ 'b' ],
-                required: false,
             } )
-        .option( 'force',
+        .positional( 'force',
             {
                 describe: "overwrite file if exists",
-                required: false,
             } )
         .option( 'verbose',
             {
                 alias: 'v',
                 required: false,
             } )
-        .demandCommand()
+        //.demandCommand()
         .example( '$0 create --locale en-US --based-off "http://somejsonfile.json"', 'create a en-US translation file named "translation.json" and base it of the contents downloaded from "http://somejsonfile.json"' );
 }
-export var handler = async ( argv: createArgs ) =>
+export var handler = async ( argv: IArgV ) =>
 {
-    let locDir: string = createLocalizationDirectory( argv );
+    let locDir = ensureLocalizationDirectory();
 
-    // if default is set to project then look that up
-    let fileName = Lingualizer.DefaultranslationFileName == '%project%' ? path.basename( process.cwd() ) : Lingualizer.DefaultranslationFileName;
+    let fileName = getFileName( argv );
 
-    // if name is specified then use that else use default
-    let justName = argv.fileName || fileName;
-    let name = justName;
-    let getContentFromDefault = false;
-    if ( !argv.locale || argv.locale == Lingualizer.DefaultLocale )
-    // default locale - no locale in name
-    {
-        name = `${ name }.json`;
-    }
-    else
-    // put the locale in the file name
-    {
-        getContentFromDefault = true;
-        name = `${ name }.${ argv.locale || Lingualizer.DefaultLocale }.json`;
-    }
-
-    let filePath = path.join( locDir, name );
-
+    let filePath = path.join( locDir, fileName );
     if ( fse.existsSync( filePath ) && !argv.force )
     {
-        console.log( chalk.gray( `${ app } the file allready exists. please use '${ chalk.blue( '--force' ) }' to overwrite it.` ) );
+        log( `the file allready exists. please use '${ chalk.blue( '--force' ) }' to overwrite it.` );
         return;
     }
-    let contents = await getContents( argv, getContentFromDefault, locDir, justName );
+
+    let defaultLocaleFilePath: string = null;
+    if ( argv.locale && argv.locale !== Lingualizer.DefaultLocale )
+        defaultLocaleFilePath = path.join( locDir, `${ Lingualizer.DefaultranslationFileName }.json` );
+
+    let contents = await getContents( argv, defaultLocaleFilePath );
 
     fse.writeJSONSync( filePath, contents, { encoding: 'utf8' } );
 
-    console.log( chalk.gray( `${ app } created file: '${ chalk.cyan( name ) }'` ) );
+    log( `created file: '${ chalk.cyan( fileName ) }'` );
 }
 
-async function getContents ( argv: createArgs, getDefault: boolean, dir: string, name: string )
+/**
+ * get the contents to write to translation file
+ * @param argv the arguments passed to script
+ * @param getDefault wether or not to get the contents from the default locale file. this is for translated files so to allow not createing the file with all the default locale keys to translate from
+ * @param defaultFilePath path to the default file in order to base off default locale file contents or `null` to base off default content
+ */
+async function getContents ( argv: IArgV, defaultFilePath: string )
 {
-    let getFromUrl = argv.basedOff && argv.basedOff !== '' && validUrl( argv.basedOff );
+    let getFromUrl = argv.basedOff && argv.basedOff !== '' && isValidUrl( argv.basedOff );
+
+    // contents will be set to default
     let contents: any = defaultTranslationContents;
-    if ( getDefault && !getFromUrl )
+
+    if ( defaultFilePath != null && fse.existsSync( defaultFilePath ) && !getFromUrl )
     // get contents from default locale
     {
-        let defaultLocalePath = path.join( dir, `${ name }.json` );
-        console.log( chalk.gray( `${ app } getting contents from default locale file: '${ chalk.cyan( defaultLocalePath ) }'` ) );
-
-        if ( fse.existsSync( defaultLocalePath ) )
-            contents = fse.readJSONSync( defaultLocalePath );
+        log( `getting contents from default locale file: '${ chalk.cyan( defaultFilePath ) }'` );
+        contents = fse.readJSONSync( defaultFilePath );
     }
 
     if ( getFromUrl )
     // get contents from a url
     {
-        console.log( chalk.gray( `${ app } downloading contents from '${ chalk.cyan( argv.basedOff ) }'` ) )
-        contents = JSON.parse( await getJsonFile( argv.basedOff ) );
-        console.log( chalk.italic.gray( `${ app } downloaded contents '${ chalk.cyan( JSON.stringify( contents ) ) }'` ) )
+        log( `downloading contents from '${ chalk.cyan( argv.basedOff ) }'` )
+        contents = JSON.parse( await getJsonFile( argv.basedOff, null ) );
+        log( `downloaded contents '${ chalk.cyan( JSON.stringify( contents ) ) }'` )
     }
 
     return contents;
 }
 
-function createLocalizationDirectory ( argv: createArgs )
+/**
+ * create the localization directory if it does not allready exist
+ */
+function ensureLocalizationDirectory ()
 {
-    let locDir = path.join( process.cwd(), Lingualizer.DefaulLocalizationDirName );
+    let locDir = getLocalizationDirectory();
     if ( !fse.existsSync( locDir ) )
-        console.log( chalk.gray( `${ app } created '${ chalk.cyanBright( Lingualizer.DefaulLocalizationDirName ) }' directory` ) );
+        log( `created '${ chalk.cyanBright( Lingualizer.DefaulLocalizationDirName ) }' directory` );
 
     fse.ensureDirSync( locDir );
     if ( !fse.existsSync( locDir ) )
-        throw new Error( `${ app } cannot create '${ chalk.cyanBright( Lingualizer.DefaulLocalizationDirName ) }' directory at '${ chalk.red( locDir ) }'` );
+        throw new Error( `${ terminalPrefix } cannot create '${ chalk.cyanBright( Lingualizer.DefaulLocalizationDirName ) }' directory at '${ chalk.red( locDir ) }'` );
 
     return locDir;
-}
-
-function validUrl ( url: string )
-{
-    try
-    {
-        let uri = new URL( url );
-    } catch ( error )
-    {
-        return false;
-    }
-    return true;
-}
-
-function getJsonFile ( url: string ): Promise<string>
-{
-    return new Promise<string>( ( resolve, reject ) =>
-    {
-        var options: request.Options = {
-            method: 'GET',
-            url: 'https://raw.githubusercontent.com/simpert/lingualizer/master/test/data.json',
-            qs: { '': '' },
-            headers: { Accept: 'application/json' }
-        };
-
-        request( options, ( error: any, response: request.Response, body: any ) =>
-        {
-            if ( error )
-                reject( error );
-
-            resolve( body );
-        } );
-    } );
 }

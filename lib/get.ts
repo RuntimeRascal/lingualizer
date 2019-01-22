@@ -2,21 +2,11 @@ import { Lingualizer } from ".";
 import * as path from 'path';
 import * as fse from 'fs-extra';
 import * as yarg from 'yargs'
-import chalkpack = require( 'chalk' );
-
-const chalk: chalkpack.Chalk = chalkpack.default;
-const app = chalk.white( 'lingualizer->' );
-
-interface getArgs
-{
-    locale?: string;
-    key?: string;
-    verbose?: string;
-}
+import { getLocale, getFileName, IArgV, getLocalizationDirectory, chalk, terminalPrefix, log } from "./common";
 
 export var command = 'get [key] [locale]';
 export var describe = 'get a key from a certain locale or default in no locale';
-export var builder = ( yargs: yarg.Argv<getArgs> ) =>
+export var builder = ( yargs: yarg.Argv<IArgV> ) =>
 {
     return yargs
         .help()
@@ -25,14 +15,12 @@ export var builder = ( yargs: yarg.Argv<getArgs> ) =>
                 type: 'string',
                 describe: "The key to set translation for",
                 alias: [ 'k' ],
-                //required: false
             } )
         .positional( 'locale',
             {
                 describe: "The locale",
                 choices: [ 'es-MX', 'en-US' ],
                 alias: [ 'l', 'loc' ],
-                // required: false
             } )
         .option( 'verbose',
             {
@@ -47,48 +35,43 @@ export var builder = ( yargs: yarg.Argv<getArgs> ) =>
         .example( '$0 get ok-btn --locale es-MX', `get the 'ok-btn' value from 'es-MX' locale` );
 }
 
-export var handler = ( argv: getArgs ) =>
+export var handler = ( argv: IArgV ) =>
 {
-    let locale = argv.locale || Lingualizer.DefaultLocale;
+    let locale = getLocale( argv as IArgV );
     if ( argv.verbose )
-        console.log( chalk.gray( `${ app } get loc: '${ chalk.cyan( locale ) }' key: '${ chalk.cyan( argv.key ) }'` ) );
+        log( `get loc: '${ chalk.cyan( locale ) }' key: '${ chalk.cyan( argv.key ) }'` );
 
-    let fileName = Lingualizer.DefaultranslationFileName == '%project%' ? path.basename( process.cwd() ) : Lingualizer.DefaultranslationFileName;
-    if ( locale !== Lingualizer.DefaultLocale )
-        fileName = `${ fileName }.${ locale }.json`;
-    else
-        fileName = `${ fileName }.json`;
+    let fileName = getFileName( argv );
+    let filePath = path.join( getLocalizationDirectory(), fileName );
 
-    let filePath = path.join( process.cwd(), Lingualizer.DefaulLocalizationDirName, fileName );
-    //let files = fse.readdir( locDir );
     if ( !fse.existsSync( filePath ) )
     {
-        console.log( chalk.gray( `${ app } ${ chalk.bgRedBright( `cannot find translation file at: '${ chalk.bgBlue( filePath ) }'. please create it first` ) }` ) );
+        log( `${ chalk.bgRedBright( `cannot find translation file at: '${ chalk.bgBlue( filePath ) }'. please create it first` ) }` );
         return;
     }
 
     let json = fse.readJSONSync( filePath );
-
     let value = undefined;
-    // if no key given show all key values
     if ( argv.key )
     {
         value = json[ argv.key ];
         if ( typeof value == undefined || !value )
         {
-            console.log( chalk.gray( `${ app } cannot find key ${ chalk.cyan( argv.key ) }` ) )
+            log( `cannot find key ${ chalk.cyan( argv.key ) }` );
             return;
         }
 
-        console.log( chalk.gray( `${ app } key: '${ chalk.cyan( argv.key ) }' value: '${ chalk.cyan( value ) }'` ) )
+        printTranslation( argv.key, value );
     }
-    else
+    else // if no key given show all key values
     {
         printMembers( json );
-
-        // value = JSON.stringify( json );
     }
+}
 
+function printTranslation ( key: string, value: string )
+{
+    log( `'${ chalk.cyan( key ) }' : '${ chalk.cyan( value ) }'` );
 }
 
 function printMembers ( obj: any, prefix: string = '' )
@@ -99,13 +82,9 @@ function printMembers ( obj: any, prefix: string = '' )
         {
             const v = obj[ key ];
             if ( typeof v == typeof '' )
-            {
-                console.log( chalk.gray( `${ app } key: '${ chalk.cyan( `${ prefix }${ prefix == '' ? '' : '.' }${ key }` ) }' value: '${ chalk.cyan( JSON.stringify( v ) ) }'` ) );
-            }
+                printTranslation( `${ prefix }${ prefix == '' ? '' : '.' }${ key }`, JSON.stringify( v ) );
             else
-            {
                 printMembers( v, key );
-            }
         }
     }
 }

@@ -14,45 +14,62 @@
     */
     "version": "0.2.0",
     "configurations": [
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Launch Program",
-            "program": "${workspaceFolder}\\lib\\cli.ts",
-            "outFiles": [
-                "${workspaceFolder}/**/*.js"
-            ]
-        },
-        {
-            "name": " Current Typescript File",
-            "type": "node",
-            "request": "launch",
-            "args": [ "${relativeFile}" ],
-            "runtimeArgs": [ "--nolazy", "-r", "ts-node/register" ],
-            "sourceMaps": true,
-            "cwd": "${workspaceRoot}",
-            "protocol": "inspector"
-        },
-        {
-            "name": "Mocha",
-            "type": "node",
-            "request": "launch",
-            "sourceMaps": true,
-            "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
-            "args": [ "${workspaceFolder}/test/**/*.spec.{ts,tsx}" ],
-            "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen"
-        },
-        {
-            "name": "Mocha Current",
-            "type": "node",
-            "request": "launch",
-            "sourceMaps": true,
-            "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
-            "args": [ "--colors", "--reporter", "spec", "--timeout", "0", "--require", "ts-node/register", "${file}"
-            ],
-            "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen"
-        }
-    ]
+    {
+        "type": "node",
+        "request": "launch",
+        "name": "Launch Program",
+        "program": "${workspaceFolder}\\lib\\cli.ts",
+        "args": [ "--help" ],
+        "outFiles": [ "${workspaceFolder}/**/*.js" ]
+    },
+    {
+        "name": " Current Typescript File",
+        "type": "node",
+        "request": "launch",
+        "args": [ "${relativeFile}" ],
+        "runtimeArgs": [ "--nolazy", "-r", "ts-node/register" ],
+        "sourceMaps": true,
+        "cwd": "${workspaceRoot}",
+        "protocol": "inspector"
+    },
+    {
+        "name": " Debug Cli Command Typescript File",
+        "type": "node",
+        "request": "launch",
+        "args": [ "${relativeFile}", "set", //
+            "test", //
+            "testing out set", //
+            "es-MX", //
+            "--verbose" //
+        ],
+        "runtimeArgs": [ "--nolazy", //
+            "-r", //
+            "ts-node/register", //
+        ],
+        "sourceMaps": true,
+        "cwd": "${workspaceRoot}",
+        "protocol": "inspector"
+    },
+    {
+        "name": "Mocha",
+        "type": "node",
+        "request": "launch",
+        "sourceMaps": true,
+        "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+        "args": [ "${workspaceFolder}/test/**/*.spec.{ts,tsx}" ],
+        "console": "integratedTerminal",
+        "internalConsoleOptions": "neverOpen"
+    },
+    {
+        "name": "Mocha Current",
+        "type": "node",
+        "request": "launch",
+        "sourceMaps": true,
+        "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+        "args": [ "--colors", "--reporter", "spec", "--timeout", "0", "--require", "ts-node/register",
+            "${file}"
+        ],
+        "console": "integratedTerminal",
+        "internalConsoleOptions": "neverOpen"
+    } ]
 }

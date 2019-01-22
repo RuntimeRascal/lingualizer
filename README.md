@@ -53,7 +53,13 @@ function onLocalChanged( lingualizer, args )
 }
 
 Lingualizer.default.localeChanged.subscribe( onLocalChanged );
+```  
 
+you can organize your translations by category or page or whatever by createing nested keys and getting then as so:  
+
+``` javascript
+    var optionsTitle = Lingualizer.default.get( 'options.title' );
+```
 
 # Configuration
 > Lingualizer support common rc config pattern and config in *package.json* as per `yargs` module.  

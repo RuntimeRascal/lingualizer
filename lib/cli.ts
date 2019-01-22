@@ -5,29 +5,12 @@ import * as getC from './get';
 import * as setC from './set';
 import * as createC from './create';
 import { Lingualizer } from '.';
-import chalkpack = require( 'chalk' );
+import { log, chalk } from './common';
+//import chalkpack = require( 'chalk' );
 
-const chalk: chalkpack.Chalk = chalkpack.default;
-const app = chalk.white( 'lingualizer->' );
+//const chalk: chalkpack.Chalk = chalkpack.default;
 
 const config = Lingualizer.updateDefaults();
-
-export interface IArgV
-{
-    verbose?: boolean;
-    v?: boolean;
-    version?: boolean;
-    defaultLocale?: string;
-    defaultranslationFileName?: string;
-    defaulLocalizationDirName?: string;
-    defaultranslationFileExt?: string;
-    key?: string;
-    k?: string;
-    locale?: string;
-    l?: string;
-    $0: string
-    _: string;
-}
 
 let argv = yargs
     .help()
@@ -42,11 +25,17 @@ let argv = yargs
     .epilogue( 'for more information goto: https://github.com/simpert/lingualizer' )
     .fail( ( m, e ) =>
     {
-        console.log( chalk.cyan( 'Uh Oh!' ) );
-        console.log( `${ chalk.white.bgRed( m ) }` );
-        console.log();
-        console.log( chalk.bold.italic.cyan( 'HELP' ) )
-        console.log( chalk.bold.italic.cyan( '----------------------------' ) )
+        if ( m == null && e == null )
+            return;
+
+        if ( e )
+            console.error( e );
+
+        log( chalk.cyan( 'Uh Oh!' ) );
+        log( `${ chalk.white.bgRed( m ) }` );
+        log();
+        log( chalk.bold.italic.cyan( 'HELP' ) )
+        log( chalk.bold.italic.cyan( '----------------------------' ) )
         yargs.showHelp();
     } )
     .argv;
