@@ -2,52 +2,50 @@ import * as yargs from 'yargs'
 import * as chai from 'chai';
 import * as fse from 'fs-extra';
 import * as path from 'path';
-import { Lingualizer } from '../lib';
+import * as createC from '../lib/create'
+import * as helper from "./helper";
+import { IArgV } from '../lib/common';
+
 var expect = chai.expect;
+
+//before( helper.createTestDirStructure )
+after( helper.cleanup )
+beforeEach( helper.cleanup )
 
 describe( 'create command', () =>
 {
     it( `expect create --help output to contain "_mocha [command]"`, async () =>
     {
-        // Initialize parser using the command module
-        const parser = yargs.command( require( '../lib/create' ) ).help();
-
-        // Run the command module with --help as argument
-        const output: string = await new Promise( ( resolve ) =>
+        const output = await new Promise( ( resolve ) =>
         {
-            parser.parse( "--help", ( err, argv, output ) =>
-            {
-                resolve( output );
-            } )
+            yargs.command( createC.command, createC.describe, createC.builder, createC.handler )
+                .help()
+                .parse( `--help`, async ( err: any, argv: IArgV, output: string ) =>
+                {
+                    console.log( output );
+                    let result = await argv.asyncResult;
+                    resolve( output );
+                } )
         } );
 
-        expect( ( new RegExp( /_mocha [command]/im ) ).test( output ) ).to.be.true;
+        expect( ( new RegExp( /_mocha [command]/im ) ).test( output as string ) ).to.be.true;
     } ).timeout( 0 );
 
-    it( `expect create `, async () =>
+    it( `expect create with --locale 'en-US' and --based-off set to create default translation file`, async () =>
     {
-        // Initialize parser using the command module
-        const parser = yargs.command( require( '../lib/create' ) ).help();
-
-        // Run the command module with --help as argument
-        const output: string = await new Promise( ( resolve ) =>
+        const output = await new Promise( ( resolve ) =>
         {
-            parser.parse( "create --locale en-US --based-off \"https://raw.githubusercontent.com/simpert/lingualizer/master/test/data.json\"", ( err, argv, output ) =>
-            {
-                resolve( output );
-            } )
+            yargs.command( createC.command, createC.describe, createC.builder, createC.handler )
+                .help()
+                .parse( `create --locale en-US --based-off \"https://raw.githubusercontent.com/simpert/lingualizer/master/test/data.json\"`, async ( err: any, argv: IArgV, output: string ) =>
+                {
+                    console.log( output );
+                    let result = await argv.asyncResult;
+                    resolve( result );
+                } )
         } );
 
-        expect( true ).to.be.true;
+        expect( output ).to.contain( 'created file:', 'command output contains \'created file:\'' );
+        expect( fse.existsSync( path.join( __dirname, '../localization/lingualizer.json' ) ) ).to.be.equal( true, 'file exists on local machine' );
     } ).timeout( 0 );
 } );
-
-function cleanup ()
-{
-    debugger;
-    let locDirPath = path.resolve( Lingualizer.DefaulLocalizationDirName );
-    if ( fse.existsSync( locDirPath ) )
-    {
-        fse.removeSync( locDirPath );
-    }
-}

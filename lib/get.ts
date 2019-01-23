@@ -6,10 +6,9 @@ import { getLocale, getFileName, IArgV, getLocalizationDirectory, chalk, termina
 
 export var command = 'get [key] [locale]';
 export var describe = 'get a key from a certain locale or default in no locale';
-export var builder = ( yargs: yarg.Argv<IArgV> ) =>
+export var builder = ( yargs ) =>
 {
     return yargs
-        .help()
         .positional( 'key',
             {
                 type: 'string',
@@ -27,7 +26,6 @@ export var builder = ( yargs: yarg.Argv<IArgV> ) =>
                 alias: 'v',
                 required: false,
             } )
-        .demandCommand()
         .example( '$0 get', `get all key value pairs in default locale if exists` )
         .example( '$0 get --locale es-MX', `get all key value pairs in 'es-MX' locale if exists` )
         .example( '$0 get ok-btn', `get the 'ok-btn' value from default locale` )

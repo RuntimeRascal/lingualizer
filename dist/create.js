@@ -39,137 +39,98 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var _1 = require(".");
 var path = require("path");
 var fse = require("fs-extra");
-var request = require("request");
-var chalkpack = require("chalk");
-var chalk = chalkpack.default;
-var app = chalk.white('lingualizer->');
+var common_1 = require("./common");
 var defaultTranslationContents = { "Testing": "We are testing a default tranlated string" };
-exports.command = 'create [locale] [file-name] [based-off]';
+exports.command = 'create [locale] [based-off] [force]';
 exports.describe = 'create a translation file and the localization directory if needed';
 exports.builder = function (yargs) {
     return yargs
-        .help()
-        .option('locale', {
+        //.help()
+        .positional('locale', {
         describe: "The locale",
         choices: ['es-MX', 'en-US'],
         alias: ['l'],
-        required: false,
     })
-        .option('file-name', {
-        describe: "The translation filename",
-        alias: ['f'],
-        required: false,
-    })
-        .option('based-off', {
+        .positional('based-off', {
         describe: "url of json file to download and set contents of downloaded file as the new translation file contents",
         alias: ['b'],
-        required: false,
     })
-        .option('force', {
+        .positional('force', {
         describe: "overwrite file if exists",
-        required: false,
     })
         .option('verbose', {
         alias: 'v',
         required: false,
     })
-        .demandCommand()
+        //.demandCommand()
         .example('$0 create --locale en-US --based-off "http://somejsonfile.json"', 'create a en-US translation file named "translation.json" and base it of the contents downloaded from "http://somejsonfile.json"');
 };
 exports.handler = function (argv) { return __awaiter(_this, void 0, void 0, function () {
-    var locDir, fileName, justName, name, getContentFromDefault, filePath, contents;
+    var locDir, fileName, filePath, defaultLocaleFilePath, contents;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                locDir = createLocalizationDirectory(argv);
-                fileName = _1.Lingualizer.DefaultranslationFileName == '%project%' ? path.basename(process.cwd()) : _1.Lingualizer.DefaultranslationFileName;
-                justName = argv.fileName || fileName;
-                name = justName;
-                getContentFromDefault = false;
-                if (!argv.locale || argv.locale == _1.Lingualizer.DefaultLocale) 
-                // default locale - no locale in name
-                {
-                    name = name + ".json";
-                }
-                else 
-                // put the locale in the file name
-                {
-                    getContentFromDefault = true;
-                    name = name + "." + (argv.locale || _1.Lingualizer.DefaultLocale) + ".json";
-                }
-                filePath = path.join(locDir, name);
+                locDir = ensureLocalizationDirectory();
+                fileName = common_1.getFileName(argv);
+                filePath = path.join(locDir, fileName);
                 if (fse.existsSync(filePath) && !argv.force) {
-                    console.log(chalk.gray(app + " the file allready exists. please use '" + chalk.blue('--force') + "' to overwrite it."));
+                    common_1.log("the file allready exists. please use '" + common_1.chalk.blue('--force') + "' to overwrite it.");
                     return [2 /*return*/];
                 }
-                return [4 /*yield*/, getContents(argv, getContentFromDefault, locDir, justName)];
+                defaultLocaleFilePath = null;
+                if (argv.locale && argv.locale !== _1.Lingualizer.DefaultLocale)
+                    defaultLocaleFilePath = path.join(locDir, _1.Lingualizer.DefaultranslationFileName + ".json");
+                return [4 /*yield*/, getContents(argv, defaultLocaleFilePath)];
             case 1:
                 contents = _a.sent();
                 fse.writeJSONSync(filePath, contents, { encoding: 'utf8' });
-                console.log(chalk.gray(app + " created file: '" + chalk.cyan(name) + "'"));
+                common_1.log("created file: '" + common_1.chalk.cyan(fileName) + "'");
                 return [2 /*return*/];
         }
     });
 }); };
-function getContents(argv, getDefault, dir, name) {
+/**
+ * get the contents to write to translation file
+ * @param argv the arguments passed to script
+ * @param getDefault wether or not to get the contents from the default locale file. this is for translated files so to allow not createing the file with all the default locale keys to translate from
+ * @param defaultFilePath path to the default file in order to base off default locale file contents or `null` to base off default content
+ */
+function getContents(argv, defaultFilePath) {
     return __awaiter(this, void 0, void 0, function () {
-        var getFromUrl, contents, defaultLocalePath, _a, _b;
+        var getFromUrl, contents, _a, _b;
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
-                    getFromUrl = argv.basedOff && argv.basedOff !== '' && validUrl(argv.basedOff);
+                    getFromUrl = argv.basedOff && argv.basedOff !== '' && common_1.isValidUrl(argv.basedOff);
                     contents = defaultTranslationContents;
-                    if (getDefault && !getFromUrl) 
+                    if (defaultFilePath != null && fse.existsSync(defaultFilePath) && !getFromUrl) 
                     // get contents from default locale
                     {
-                        defaultLocalePath = path.join(dir, name + ".json");
-                        console.log(chalk.gray(app + " getting contents from default locale file: '" + chalk.cyan(defaultLocalePath) + "'"));
-                        if (fse.existsSync(defaultLocalePath))
-                            contents = fse.readJSONSync(defaultLocalePath);
+                        common_1.log("getting contents from default locale file: '" + common_1.chalk.cyan(defaultFilePath) + "'");
+                        contents = fse.readJSONSync(defaultFilePath);
                     }
                     if (!getFromUrl) return [3 /*break*/, 2];
-                    console.log(chalk.gray(app + " downloading contents from '" + chalk.cyan(argv.basedOff) + "'"));
+                    common_1.log("downloading contents from '" + common_1.chalk.cyan(argv.basedOff) + "'");
                     _b = (_a = JSON).parse;
-                    return [4 /*yield*/, getJsonFile(argv.basedOff)];
+                    return [4 /*yield*/, common_1.getJsonFile(argv.basedOff, null)];
                 case 1:
                     contents = _b.apply(_a, [_c.sent()]);
-                    console.log(chalk.italic.gray(app + " downloaded contents '" + chalk.cyan(JSON.stringify(contents)) + "'"));
+                    common_1.log("downloaded contents '" + common_1.chalk.cyan(JSON.stringify(contents)) + "'");
                     _c.label = 2;
                 case 2: return [2 /*return*/, contents];
             }
         });
     });
 }
-function createLocalizationDirectory(argv) {
-    var locDir = path.join(process.cwd(), _1.Lingualizer.DefaulLocalizationDirName);
+/**
+ * create the localization directory if it does not allready exist
+ */
+function ensureLocalizationDirectory() {
+    var locDir = common_1.getLocalizationDirectory();
     if (!fse.existsSync(locDir))
-        console.log(chalk.gray(app + " created '" + chalk.cyanBright(_1.Lingualizer.DefaulLocalizationDirName) + "' directory"));
+        common_1.log("created '" + common_1.chalk.cyanBright(_1.Lingualizer.DefaulLocalizationDirName) + "' directory");
     fse.ensureDirSync(locDir);
     if (!fse.existsSync(locDir))
-        throw new Error(app + " cannot create '" + chalk.cyanBright(_1.Lingualizer.DefaulLocalizationDirName) + "' directory at '" + chalk.red(locDir) + "'");
+        throw new Error(common_1.terminalPrefix + " cannot create '" + common_1.chalk.cyanBright(_1.Lingualizer.DefaulLocalizationDirName) + "' directory at '" + common_1.chalk.red(locDir) + "'");
     return locDir;
-}
-function validUrl(url) {
-    try {
-        var uri = new URL(url);
-    }
-    catch (error) {
-        return false;
-    }
-    return true;
-}
-function getJsonFile(url) {
-    return new Promise(function (resolve, reject) {
-        var options = {
-            method: 'GET',
-            url: 'https://raw.githubusercontent.com/simpert/lingualizer/master/test/data.json',
-            qs: { '': '' },
-            headers: { Accept: 'application/json' }
-        };
-        request(options, function (error, response, body) {
-            if (error)
-                reject(error);
-            resolve(body);
-        });
-    });
 }

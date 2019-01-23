@@ -1,19 +1,22 @@
 
 
 import * as chai from 'chai';
-import { getLocale, setLocale, Locale } from '../lib'
+import { Lingualizer, Locale } from '../lib/index'
 
 var expect = chai.expect;
 var should = chai.should();
 
-describe('index', () => {
-    it('getLocale should return null', () => {
-        expect(getLocale()).to.be.null;
-    });
+describe( 'index', () =>
+{
+    it( 'getLocale should return null', () =>
+    {
+        expect( Lingualizer.default.locale ).to.be.null;
+    } );
 
-    it.skip('setLocale should set locale to es-MX', () => {
+    it.skip( 'setLocale should set locale to es-MX', () =>
+    {
         let locale: Locale = 'es-MX';
-        setLocale(locale);
-        expect(getLocale()).to.equal(locale);
-    });
-});
+        Lingualizer.default.locale = locale;
+        expect( Lingualizer.default.locale ).to.equal( locale );
+    } );
+} );

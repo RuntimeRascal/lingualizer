@@ -11,6 +11,7 @@ export const terminalPrefix = chalk.white( 'lingualizer->' );
 export function log ( message: any = '' )
 {
     console.log( chalk.gray( `${ terminalPrefix } ${ message }` ) );
+    return message;
 }
 
 export interface IArgV
@@ -32,6 +33,7 @@ export interface IArgV
     l?: string;
     $0: string
     _: string;
+    asyncResult: Promise<any>;
 }
 
 export function getLocale ( argv: IArgV )
@@ -120,4 +122,47 @@ export async function getJsonFile ( url: string = null, filePath: string = null 
                 resolve( body );
             } );
         } );
+}
+
+/**
+ * so yargs lib says is async but return promise from handler and will not wait for resolution
+ * get json contents from a file or from a url
+ * @param url a url that will return a json file
+ * @param filePath a complete filepath to a valid json file
+ */
+export function getJsonFileSync ( url: string = null, filePath: string = null ): string
+{
+    let urlGood = url != null && url && url != '' && isValidUrl( url );
+    let filePathGood = filePath != null && filePath && filePath != '';
+
+    if ( !urlGood && !filePathGood )
+    {
+        log( chalk.red( `no valid json file can be found` ) );
+        return;
+    }
+
+    if ( filePathGood )
+    {
+        let contents = fse.readFileSync( filePath );
+        return contents.toString();
+    }
+}
+
+export function writeFile ( filePath: string, contents: any ): boolean
+{
+    if ( filePath == null || !filePath || !fse.existsSync( path.dirname( filePath ) ) )
+    {
+        log( chalk.red( `cannot write file to: '${ filePath }' you must provide valid path of which directory exists.` ) );
+        return false;
+    }
+
+    if ( contents == null )
+        contents = '';
+
+    if ( typeof contents != 'string' )
+        contents = JSON.stringify( contents );
+
+    fse.writeFileSync( filePath, contents, { encoding: 'utf8' } );
+
+    return fse.existsSync( filePath );
 }

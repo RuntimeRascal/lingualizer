@@ -1,0 +1,10 @@
+{
+    "ok": "Vale",
+    "close": "Cerca",
+    "try-again": "por favor inténtelo de nuevo",
+    "options":
+    {
+        "admin": "Administrador",
+        "mode": "Modo"
+    }
+}

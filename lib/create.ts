@@ -1,4 +1,4 @@
-import { Locale, Lingualizer } from ".";
+import { Lingualizer } from ".";
 import * as path from 'path';
 import * as fse from 'fs-extra';
 import * as yarg from 'yargs'
@@ -11,7 +11,6 @@ export var describe = 'create a translation file and the localization directory 
 export var builder = ( yargs: yarg.Argv<IArgV> ) =>
 {
     return yargs
-        //.help()
         .positional( 'locale',
             {
                 describe: "The locale",
@@ -32,31 +31,36 @@ export var builder = ( yargs: yarg.Argv<IArgV> ) =>
                 alias: 'v',
                 required: false,
             } )
-        //.demandCommand()
         .example( '$0 create --locale en-US --based-off "http://somejsonfile.json"', 'create a en-US translation file named "translation.json" and base it of the contents downloaded from "http://somejsonfile.json"' );
 }
-export var handler = async ( argv: IArgV ) =>
+export async function handler ( argv: IArgV )
 {
-    let locDir = ensureLocalizationDirectory();
-
-    let fileName = getFileName( argv );
-
-    let filePath = path.join( locDir, fileName );
-    if ( fse.existsSync( filePath ) && !argv.force )
+    argv.asyncResult = new Promise<string>( async ( resolve ) =>
     {
-        log( `the file allready exists. please use '${ chalk.blue( '--force' ) }' to overwrite it.` );
-        return;
-    }
+        let locDir = ensureLocalizationDirectory();
 
-    let defaultLocaleFilePath: string = null;
-    if ( argv.locale && argv.locale !== Lingualizer.DefaultLocale )
-        defaultLocaleFilePath = path.join( locDir, `${ Lingualizer.DefaultranslationFileName }.json` );
+        let fileName = getFileName( argv );
 
-    let contents = await getContents( argv, defaultLocaleFilePath );
+        let filePath = path.join( locDir, fileName );
+        if ( fse.existsSync( filePath ) && !argv.force )
+        {
+            resolve( log( `the file allready exists. please use '${ chalk.blue( '--force' ) }' to overwrite it.` ) );
+            return;
+        }
 
-    fse.writeJSONSync( filePath, contents, { encoding: 'utf8' } );
+        let defaultLocaleFilePath: string = null;
+        if ( argv.locale && argv.locale !== Lingualizer.DefaultLocale )
+            defaultLocaleFilePath = path.join( locDir, `${ Lingualizer.DefaultranslationFileName }.json` );
 
-    log( `created file: '${ chalk.cyan( fileName ) }'` );
+        let contents = await getContents( argv, defaultLocaleFilePath );
+
+        fse.writeJSONSync( filePath, contents, { encoding: 'utf8' } );
+
+        resolve( log( `created file: '${ chalk.cyan( fileName ) }'` ) );
+    } );
+
+    return await argv.asyncResult;
+
 }
 
 /**

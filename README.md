@@ -99,12 +99,11 @@ Once the module has been installed just call into the `cli` tool to set things u
 > If you have allready some translation files with ***key*** ***value*** pairs you can create a new translation file and base it off of. Just specify a url to the `json` file with the `--based-off` parameter.  
 
 
-| parameter             | description                                                                                                                    |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `--locale` or `-l`    | choose  the culture to create translation file for                                                                             |
-| `--file-name` or `-f` | **[obsolete]** if want to create translation file named differently then the default project name then specify a filename here |
-| `--based-off` or `-b` | specify a url of a `json` file to download and set contents of newly created file                                              |
-| `--force`             | if the file allready exists then overwrite it                                                                                  |
+| parameter             | description                                                                       |
+| --------------------- | --------------------------------------------------------------------------------- |
+| `--locale` or `-l`    | choose  the culture to create translation file for                                |
+| `--based-off` or `-b` | specify a url of a `json` file to download and set contents of newly created file |
+| `--force`             | if the file allready exists then overwrite it                                     |
 
 ### Examples
 ---
@@ -123,16 +122,6 @@ Once the module has been installed just call into the `cli` tool to set things u
     // the file name will not have locale in name as default locale is used */
     // the file name will be in format '<project-name>.json' */
     create --based-off "https://raw.githubusercontent.com/simpert/lingualizer/master/test/data.json"
-
-    // will create localization directory if needed and default local with default contents */
-    // the file name will not have locale in name as default locale is used */
-    // the file name will be in format 'translation.json' */
-    create --file-name 'translation'
-
-    // will create localization directory if needed and default local with default contents */
-    // the file name will not have locale in name as default locale is used */
-    // the file name will be in format 'translation.es-MX.json' */
-    create --locale es-MX --file-name 'translation'
 
     // will create localization directory if needed and default local with default contents */
     // if the file allready existed then it will be overwritten */

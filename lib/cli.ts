@@ -6,9 +6,6 @@ import * as setC from './set';
 import * as createC from './create';
 import { Lingualizer } from '.';
 import { log, chalk } from './common';
-//import chalkpack = require( 'chalk' );
-
-//const chalk: chalkpack.Chalk = chalkpack.default;
 
 const config = Lingualizer.updateDefaults();
 

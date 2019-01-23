@@ -6,9 +6,9 @@ var getC = require("./get");
 var setC = require("./set");
 var createC = require("./create");
 var _1 = require(".");
-var chalkpack = require("chalk");
-var chalk = chalkpack.default;
-var app = chalk.white('lingualizer->');
+var common_1 = require("./common");
+//import chalkpack = require( 'chalk' );
+//const chalk: chalkpack.Chalk = chalkpack.default;
 var config = _1.Lingualizer.updateDefaults();
 var argv = yargs
     .help()
@@ -22,11 +22,15 @@ var argv = yargs
     .version(require('../package.json').version)
     .epilogue('for more information goto: https://github.com/simpert/lingualizer')
     .fail(function (m, e) {
-    console.log(chalk.cyan('Uh Oh!'));
-    console.log("" + chalk.white.bgRed(m));
-    console.log();
-    console.log(chalk.bold.italic.cyan('HELP'));
-    console.log(chalk.bold.italic.cyan('----------------------------'));
+    if (m == null && e == null)
+        return;
+    if (e)
+        console.error(e);
+    common_1.log(common_1.chalk.cyan('Uh Oh!'));
+    common_1.log("" + common_1.chalk.white.bgRed(m));
+    common_1.log();
+    common_1.log(common_1.chalk.bold.italic.cyan('HELP'));
+    common_1.log(common_1.chalk.bold.italic.cyan('----------------------------'));
     yargs.showHelp();
 })
     .argv;
