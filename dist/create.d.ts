@@ -5,4 +5,4 @@ export declare var describe: string;
 export declare var builder: (yargs: yarg.Argv<IArgV>) => yarg.Argv<yarg.Omit<IArgV, "verbose"> & {
     verbose: unknown;
 }>;
-export declare var handler: (argv: IArgV) => Promise<void>;
+export declare function handler(argv: IArgV): Promise<any>;

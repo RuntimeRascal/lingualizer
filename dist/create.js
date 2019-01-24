@@ -34,7 +34,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var _1 = require(".");
 var path = require("path");
@@ -45,7 +44,6 @@ exports.command = 'create [locale] [based-off] [force]';
 exports.describe = 'create a translation file and the localization directory if needed';
 exports.builder = function (yargs) {
     return yargs
-        //.help()
         .positional('locale', {
         describe: "The locale",
         choices: ['es-MX', 'en-US'],
@@ -62,33 +60,45 @@ exports.builder = function (yargs) {
         alias: 'v',
         required: false,
     })
-        //.demandCommand()
         .example('$0 create --locale en-US --based-off "http://somejsonfile.json"', 'create a en-US translation file named "translation.json" and base it of the contents downloaded from "http://somejsonfile.json"');
 };
-exports.handler = function (argv) { return __awaiter(_this, void 0, void 0, function () {
-    var locDir, fileName, filePath, defaultLocaleFilePath, contents;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                locDir = ensureLocalizationDirectory();
-                fileName = common_1.getFileName(argv);
-                filePath = path.join(locDir, fileName);
-                if (fse.existsSync(filePath) && !argv.force) {
-                    common_1.log("the file allready exists. please use '" + common_1.chalk.blue('--force') + "' to overwrite it.");
-                    return [2 /*return*/];
-                }
-                defaultLocaleFilePath = null;
-                if (argv.locale && argv.locale !== _1.Lingualizer.DefaultLocale)
-                    defaultLocaleFilePath = path.join(locDir, _1.Lingualizer.DefaultranslationFileName + ".json");
-                return [4 /*yield*/, getContents(argv, defaultLocaleFilePath)];
-            case 1:
-                contents = _a.sent();
-                fse.writeJSONSync(filePath, contents, { encoding: 'utf8' });
-                common_1.log("created file: '" + common_1.chalk.cyan(fileName) + "'");
-                return [2 /*return*/];
-        }
+function handler(argv) {
+    return __awaiter(this, void 0, void 0, function () {
+        var _this = this;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    argv.asyncResult = new Promise(function (resolve) { return __awaiter(_this, void 0, void 0, function () {
+                        var locDir, fileName, filePath, defaultLocaleFilePath, contents;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    locDir = ensureLocalizationDirectory();
+                                    fileName = common_1.getFileName(argv);
+                                    filePath = path.join(locDir, fileName);
+                                    if (fse.existsSync(filePath) && !argv.force) {
+                                        resolve(common_1.log("the file allready exists. please use '" + common_1.chalk.blue('--force') + "' to overwrite it."));
+                                        return [2 /*return*/];
+                                    }
+                                    defaultLocaleFilePath = null;
+                                    if (argv.locale && argv.locale !== _1.Lingualizer.DefaultLocale)
+                                        defaultLocaleFilePath = path.join(locDir, _1.Lingualizer.DefaultranslationFileName + ".json");
+                                    return [4 /*yield*/, getContents(argv, defaultLocaleFilePath)];
+                                case 1:
+                                    contents = _a.sent();
+                                    fse.writeJSONSync(filePath, contents, { encoding: 'utf8' });
+                                    resolve(common_1.log("created file: '" + common_1.chalk.cyan(fileName) + "'"));
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); });
+                    return [4 /*yield*/, argv.asyncResult];
+                case 1: return [2 /*return*/, _a.sent()];
+            }
+        });
     });
-}); };
+}
+exports.handler = handler;
 /**
  * get the contents to write to translation file
  * @param argv the arguments passed to script

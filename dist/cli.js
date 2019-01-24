@@ -7,8 +7,6 @@ var setC = require("./set");
 var createC = require("./create");
 var _1 = require(".");
 var common_1 = require("./common");
-//import chalkpack = require( 'chalk' );
-//const chalk: chalkpack.Chalk = chalkpack.default;
 var config = _1.Lingualizer.updateDefaults();
 var argv = yargs
     .help()

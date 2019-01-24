@@ -7,7 +7,6 @@ exports.command = 'get [key] [locale]';
 exports.describe = 'get a key from a certain locale or default in no locale';
 exports.builder = function (yargs) {
     return yargs
-        .help()
         .positional('key', {
         type: 'string',
         describe: "The key to set translation for",
@@ -22,7 +21,6 @@ exports.builder = function (yargs) {
         alias: 'v',
         required: false,
     })
-        .demandCommand()
         .example('$0 get', "get all key value pairs in default locale if exists")
         .example('$0 get --locale es-MX', "get all key value pairs in 'es-MX' locale if exists")
         .example('$0 get ok-btn', "get the 'ok-btn' value from default locale")

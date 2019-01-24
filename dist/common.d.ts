@@ -1,7 +1,7 @@
 import chalkpack = require('chalk');
 export declare const chalk: chalkpack.Chalk;
 export declare const terminalPrefix: string;
-export declare function log(message?: any): void;
+export declare function log(message?: any): any;
 export interface IArgV {
     verbose?: boolean;
     basedOff?: string;
@@ -20,6 +20,7 @@ export interface IArgV {
     l?: string;
     $0: string;
     _: string;
+    asyncResult: Promise<any>;
 }
 export declare function getLocale(argv: IArgV): string;
 export declare function shouldUseProjectName(): boolean;
@@ -39,3 +40,11 @@ export declare function isValidUrl(url: string): boolean;
  * @param filePath a complete filepath to a valid json file
  */
 export declare function getJsonFile(url?: string, filePath?: string): Promise<string>;
+/**
+ * so yargs lib says is async but return promise from handler and will not wait for resolution
+ * get json contents from a file or from a url
+ * @param url a url that will return a json file
+ * @param filePath a complete filepath to a valid json file
+ */
+export declare function getJsonFileSync(url?: string, filePath?: string): string;
+export declare function writeFile(filePath: string, contents: any): boolean;
