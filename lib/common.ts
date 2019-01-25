@@ -47,6 +47,16 @@ export function shouldUseProjectName ()
 }
 
 /**
+ * gets the name of the localization directory considering project dir name lookup
+ */
+export function getLocalizationFileName ()
+{
+    return shouldUseProjectName()
+        ? path.basename( process.cwd() )
+        : Lingualizer.DefaultranslationFileName;
+}
+
+/**
  * gets the path to the localization directory according to the default directory name
  */
 export function getLocalizationDirectory ()
@@ -55,13 +65,13 @@ export function getLocalizationDirectory ()
 }
 
 /**
- * 
+ * given the locale will return the file name
  * @param locale the given locale, if none then assume default
  */
 export function getFileName ( argv: IArgV )
 {
     let locale = getLocale( argv );
-    let fileName = shouldUseProjectName() ? path.basename( process.cwd() ) : Lingualizer.DefaultranslationFileName;
+    let fileName = getLocalizationFileName();
     if ( locale !== Lingualizer.DefaultLocale )
         fileName = `${ fileName }.${ locale }.json`;
     else

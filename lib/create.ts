@@ -2,7 +2,7 @@ import { Lingualizer } from ".";
 import * as path from 'path';
 import * as fse from 'fs-extra';
 import * as yarg from 'yargs'
-import { IArgV, getLocalizationDirectory, log, chalk, terminalPrefix, getFileName, getJsonFile, isValidUrl } from "./common";
+import { IArgV, getLocalizationDirectory, log, chalk, terminalPrefix, getFileName, getJsonFile, isValidUrl, getLocalizationFileName } from "./common";
 
 const defaultTranslationContents = { "Testing": "We are testing a default tranlated string" };
 
@@ -50,7 +50,7 @@ export async function handler ( argv: IArgV )
 
         let defaultLocaleFilePath: string = null;
         if ( argv.locale && argv.locale !== Lingualizer.DefaultLocale )
-            defaultLocaleFilePath = path.join( locDir, `${ Lingualizer.DefaultranslationFileName }.json` );
+            defaultLocaleFilePath = path.join( locDir, `${ getLocalizationFileName() }.json` );
 
         let contents = await getContents( argv, defaultLocaleFilePath );
 

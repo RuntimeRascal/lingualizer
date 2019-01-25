@@ -4,6 +4,7 @@ import * as findup from 'find-up';
 import { EventDispatcher, IEvent } from "ste-events";
 import { format } from 'util';
 import chalk from 'chalk';
+import { getLocalizationDirectory, getLocalizationFileName } from './common';
 
 
 const configPath = findup.sync( [ '.lingualizerrc', '.lingualizerrc.json' ] );
@@ -11,7 +12,48 @@ const configrc = configPath ? fse.readJSONSync( configPath ) : {}
 const app = chalk.white( 'lingualizer->' );
 
 /* specifies all possible locale's */
-export type Locale = 'en-US' | 'es-MX' | null;
+export type Locale = 'en-US' |
+    'es-MX' |
+    'fr-FR' |
+    'nl-NL' |
+    'de-DE' |
+    'it-IT' |
+    'pol' |
+    'el-GR' |
+    'pt-BR' |
+    'pt-PT' |
+    'ar-SA' |
+    'zh-CHT' |
+    'ko-KR' |
+    'ja-JP' |
+    'vi-VN' |
+    'ro-RO' |
+    'ru-RU' |
+    'bg-BG' |
+    'id-ID' |
+    'mk-MK' |
+    'th-TH' |
+    'zh-CHS' |
+    'tr-TR' |
+    null;
+
+interface ILocale
+{
+    locale: Locale;
+    tag: string;
+    language: string;
+}
+var Lookup: ILocale[] = [
+    { locale: 'en-US', tag: 'English', language: 'United States' },
+    { locale: 'es-MX', tag: 'Spanish', language: 'Mexico' },
+    { locale: 'fr-FR', tag: 'French', language: 'France' },
+    { locale: 'nl-NL', tag: 'Dutch', language: 'Netherlands' },
+    { locale: 'de-DE', tag: 'German', language: 'Germany' },
+    { locale: 'it-IT', tag: 'Italian', language: 'Italian' },
+    { locale: 'pol', tag: 'Polish', language: 'Poland' },
+];
+
+/* specifies data args to pass to subscribers on locale changed event raised */
 export type LocaleChangedEventArgs = {
     oldLocale: Locale;
     newLocale: Locale;
@@ -31,12 +73,14 @@ export class Lingualizer
         `unable to find a translations directory  at '%s'.`, /* initTranslations sub 0 */
         `unable to find a translations file for '%s' at %s` /* initTranslations sub 1 */
     ];
+
     /* if config provided, these defaults will be set to config upon file load */
     public static DefaultLocale: Locale = 'en-US';
     public static DefaultranslationFileName = '%project%';
     public static DefaulLocalizationDirName = 'localization';
     public static DefaultranslationFileExt = 'json';
     private static _instance: Lingualizer = null;
+    private _defaultLocaleTranslations = {};
     private _translations = {};
     private _locale: Locale | null = null;
     private _onLocaleChanged: EventDispatcher<Lingualizer, LocaleChangedEventArgs>;
@@ -78,7 +122,7 @@ export class Lingualizer
      *
      * @memberof Lingualizer
      */
-    set locale ( locale: Locale )
+    public set locale ( locale: Locale )
     {
         let oldLocale = this._locale;
         if ( oldLocale == locale )
@@ -87,7 +131,7 @@ export class Lingualizer
         this._locale = locale;
         this.initTranslations( oldLocale );
 
-        console.log( `set locale to ${ this._locale }` );
+        //console.log( `set locale to ${ this._locale }` );
     }
 
     /**
@@ -97,19 +141,42 @@ export class Lingualizer
      * @type {Locale}
      * @memberof Lingualizer
      */
-    get locale (): Locale
+    public get locale (): Locale
     {
         return this._locale;
     }
 
-    get ( key: string ): string
+    /**
+     * get a keys value from translated locale or default locale if non-default locale is set and the key cannot be found
+     *
+     * @author tsimper
+     * @date 2019-01-24
+     * @param {string} key the name of the string to look up
+     * @returns {string} the tranlated string or default if no translation found or default locale set and if no default returns null
+     * @memberof Lingualizer
+     */
+    public get ( key: string ): string
     {
-        if ( this._translations == null )
+        if ( this._defaultLocaleTranslations == null && this._translations == null )
             return '';
 
-        let value = this._translations[ key ];
-        if ( typeof value === undefined || value == null )
-            return '';
+        let value: string = null;
+        if ( this.locale !== Lingualizer.DefaultLocale && this._translations !== null )
+        {
+            if ( typeof this._translations[ key ] !== 'undefined' )
+            {
+                value = this._translations[ key ];
+                if ( typeof value !== undefined && value !== null )
+                    return value;
+            }
+        }
+
+        // allways try to return the string from default tranlation file even if cant find a translated one
+        if ( this._defaultLocaleTranslations !== null )
+        {
+            if ( typeof this._defaultLocaleTranslations[ key ] !== 'undefined' )
+                value = this._defaultLocaleTranslations[ key ];
+        }
 
         return value;
     }
@@ -122,22 +189,43 @@ export class Lingualizer
      * @export
      * @returns 
      */
-    initTranslations ( oldLocale: Locale = this._locale )
+    public initTranslations ( oldLocale: Locale = this._locale )
     {
-        let translationsPath = path.join( process.cwd(), Lingualizer.DefaulLocalizationDirName );
+        let translationsPath = getLocalizationDirectory();
         if ( !fse.existsSync( translationsPath ) )
             throw new Error( format( this._errorMessages[ 0 ], translationsPath ) );
 
-        let file: string = path.join( translationsPath, `${ Lingualizer.DefaultranslationFileName }.${ Lingualizer.DefaultranslationFileExt }` );
-        if ( this._locale == Lingualizer.DefaultLocale && !fse.existsSync( file ) )
-            file = path.join( translationsPath, `${ Lingualizer.DefaultranslationFileName }.${ this._locale }.${ Lingualizer.DefaultranslationFileExt }` );
+        let defaultFile: string = path.join( translationsPath, `${ getLocalizationFileName() }.${ Lingualizer.DefaultranslationFileExt }` );
+        let localeFile: string = path.join( translationsPath, `${ getLocalizationFileName() }.${ this.locale }.${ Lingualizer.DefaultranslationFileExt }` );
 
-        if ( !fse.existsSync( file ) )
-            throw new Error( format( this._errorMessages[ 1 ], this._locale, file ) );
 
-        this._translations = JSON.parse( fse.readFileSync( file, "utf8" ) );
+        // allways try load the default locale translations as we dish them if translated cant be found and it's the most common
+        //  as in what would be loaded at starup only changing if set locale to non-default
+        if ( fse.existsSync( defaultFile ) )
+        {
+            this._defaultLocaleTranslations = JSON.parse( fse.readFileSync( defaultFile, "utf8" ) );
+            this._onLocaleChanged.dispatch( this, { oldLocale: oldLocale, newLocale: this._locale } );
+        }
+        else
+        {
+            if ( this.locale == Lingualizer.DefaultLocale )
+                throw new Error( format( this._errorMessages[ 1 ], this._locale, defaultFile ) );
+        }
 
-        this._onLocaleChanged.dispatch( this, { oldLocale: oldLocale, newLocale: this._locale } )
+
+        if ( this.locale !== Lingualizer.DefaultLocale )
+        // try load non-default locale
+        {
+            if ( fse.existsSync( localeFile ) )
+            {
+                this._translations = JSON.parse( fse.readFileSync( localeFile, "utf8" ) );
+                this._onLocaleChanged.dispatch( this, { oldLocale: oldLocale, newLocale: this._locale } );
+            } else
+            {
+                //console.log( `${ terminalPrefix } requested locale translation file cannot be found.` );
+                throw new Error( format( this._errorMessages[ 1 ], this._locale, defaultFile ) );
+            }
+        }
     }
 
     /**
@@ -182,7 +270,7 @@ export class Lingualizer
      */
     static printDefaults ()
     {
-        console.log( chalk.gray( `${ app } ${ chalk.bold.green( 'Default Settings' ) } locale: ${ chalk.cyan( Lingualizer.DefaultLocale ) } directory: ${ chalk.cyan( Lingualizer.DefaulLocalizationDirName ) } file: ${ chalk.cyan( Lingualizer.DefaultranslationFileName ) } ext: '${ chalk.cyan( Lingualizer.DefaultranslationFileExt ) }'` ) );
+        console.log( chalk.gray( `${ app } ${ chalk.bold.green( 'Default Settings' ) } locale: ${ chalk.cyan( Lingualizer.DefaultLocale ) } directory: ${ chalk.cyan( Lingualizer.DefaulLocalizationDirName ) } file: ${ chalk.cyan( getLocalizationFileName() ) } ext: '${ chalk.cyan( Lingualizer.DefaultranslationFileExt ) }'` ) );
     }
 }
 

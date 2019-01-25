@@ -2,6 +2,7 @@
     "ok": "ok",
     "close": "close",
     "try-again": "please try again",
+    "only-in-default": "default key only",
     "options":
     {
         "admin": "administrtor",
