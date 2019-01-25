@@ -2,5 +2,6 @@
     "defaultLocale": "en-US",
     "defaultTranslationFileName": "%project%",
     "defaulLocalizationDirName": "localization",
-    "defaultTranslationFileExt": "json"
+    "defaultTranslationFileExt": "json",
+    "cwd": ""
 }

@@ -65,7 +65,8 @@ create a `.lingualizerrc` or `.lingualizerrc.json` file in your project
     "defaultLocale": "en-US",
     "defaultTranslationFileName": "%project%",
     "defaulLocalizationDirName": "localization",
-    "defaultTranslationFileExt": "json"
+    "defaultTranslationFileExt": "json",
+    "cwd": "" /* this will be joined using path.join to the current cwd. its to allow choosing a different directory path */
 }
 ```  
 
@@ -76,7 +77,8 @@ create a `lingualizer` node in the `package.json` configuration
         "defaultLocale": "en-US",
         "defaultTranslationFileName": "%project%",
         "defaulLocalizationDirName": "localization",
-        "defaultTranslationFileExt": "json"
+        "defaultTranslationFileExt": "json",
+        "cwd": "" /* this will be joined using path.join to the current cwd. its to allow choosing a different directory path */
     },
 ```   
 

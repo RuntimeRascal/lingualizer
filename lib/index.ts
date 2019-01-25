@@ -79,6 +79,7 @@ export class Lingualizer
     public static DefaultranslationFileName = '%project%';
     public static DefaulLocalizationDirName = 'localization';
     public static DefaultranslationFileExt = 'json';
+    public static Cwd = '';
     private static _instance: Lingualizer = null;
     private _defaultLocaleTranslations = {};
     private _translations = {};
@@ -256,6 +257,9 @@ export class Lingualizer
 
         if ( config.defaultranslationFileExt )
             Lingualizer.DefaultranslationFileExt = config.defaultranslationFileExt;
+
+        if ( config.cwd )
+            Lingualizer.Cwd = config.cwd;
 
         return config;
     }

@@ -61,7 +61,7 @@ export function getLocalizationFileName ()
  */
 export function getLocalizationDirectory ()
 {
-    return path.join( process.cwd(), Lingualizer.DefaulLocalizationDirName );
+    return path.join( process.cwd(), Lingualizer.Cwd, Lingualizer.DefaulLocalizationDirName );
 }
 
 /**
