@@ -52,3 +52,4 @@ export declare function getJsonFile(url?: string, filePath?: string): Promise<st
  */
 export declare function getJsonFileSync(url?: string, filePath?: string): string;
 export declare function writeFile(filePath: string, contents: any): boolean;
+export declare function getValue(obj: object, dotSeperatedKey: string): any;

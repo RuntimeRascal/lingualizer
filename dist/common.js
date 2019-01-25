@@ -175,3 +175,38 @@ function writeFile(filePath, contents) {
     return fse.existsSync(filePath);
 }
 exports.writeFile = writeFile;
+function getValue(obj, dotSeperatedKey) {
+    if (dotSeperatedKey.lastIndexOf('.') == -1) {
+        return obj[dotSeperatedKey];
+    }
+    var tokens = dotSeperatedKey.split('.');
+    var allButLast = dotSeperatedKey.substring(0, dotSeperatedKey.lastIndexOf('.'));
+    var val = null;
+    var value = getKeysValue(obj, allButLast, tokens[tokens.length - 1], '', val);
+    return value;
+}
+exports.getValue = getValue;
+;
+function getKeysValue(obj, searchWholeKey, lastKey, wholeKey, foundVal) {
+    if (wholeKey === void 0) { wholeKey = ''; }
+    if (foundVal === void 0) { foundVal = null; }
+    if (!searchWholeKey) 
+    // there isnt any nesting to do so just update addKey on root
+    {
+        foundVal = obj[lastKey];
+        return foundVal;
+    }
+    for (var key in obj) {
+        var thisKey = "" + wholeKey + key;
+        if (thisKey == searchWholeKey) {
+            foundVal = obj[key][lastKey];
+            if (foundVal != null)
+                return foundVal;
+        }
+        else if (typeof obj[key] == 'object') {
+            foundVal = getKeysValue(obj[key], searchWholeKey, lastKey, key + ".");
+            if (foundVal != null)
+                return foundVal;
+        }
+    }
+}

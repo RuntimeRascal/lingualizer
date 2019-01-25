@@ -109,16 +109,16 @@ var Lingualizer = /** @class */ (function () {
             return '';
         var value = null;
         if (this.locale !== Lingualizer.DefaultLocale && this._translations !== null) {
-            if (typeof this._translations[key] !== 'undefined') {
-                value = this._translations[key];
-                if (typeof value !== undefined && value !== null)
-                    return value;
+            var getVal = common_1.getValue(this._translations, key);
+            if (typeof getVal !== 'undefined') {
+                return getVal;
             }
         }
         // allways try to return the string from default tranlation file even if cant find a translated one
         if (this._defaultLocaleTranslations !== null) {
-            if (typeof this._defaultLocaleTranslations[key] !== 'undefined')
-                value = this._defaultLocaleTranslations[key];
+            var getVal = common_1.getValue(this._defaultLocaleTranslations, key);
+            if (typeof getVal !== 'undefined')
+                value = getVal;
         }
         return value;
     };
