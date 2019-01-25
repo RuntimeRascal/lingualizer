@@ -68,8 +68,8 @@ create a `.lingualizerrc` or `.lingualizerrc.json` file in your project
 ``` json
 {
     "defaultLocale": "en-US",
-    "defaultTranslationFileName": "filenameeee",
-    "defaulLocalizationDirName": "loccccdir",
+    "defaultTranslationFileName": "%project%",
+    "defaulLocalizationDirName": "localization",
     "defaultTranslationFileExt": "json"
 }
 ```  
@@ -79,7 +79,7 @@ create a `lingualizer` node in the `package.json` configuration
     "lingualizer":
     {
         "defaultLocale": "en-US",
-        "defaultTranslationFileName": "translation",
+        "defaultTranslationFileName": "%project%",
         "defaulLocalizationDirName": "localization",
         "defaultTranslationFileExt": "json"
     },
