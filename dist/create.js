@@ -82,7 +82,7 @@ function handler(argv) {
                                     }
                                     defaultLocaleFilePath = null;
                                     if (argv.locale && argv.locale !== _1.Lingualizer.DefaultLocale)
-                                        defaultLocaleFilePath = path.join(locDir, _1.Lingualizer.DefaultranslationFileName + ".json");
+                                        defaultLocaleFilePath = path.join(locDir, common_1.getLocalizationFileName() + ".json");
                                     return [4 /*yield*/, getContents(argv, defaultLocaleFilePath)];
                                 case 1:
                                     contents = _a.sent();

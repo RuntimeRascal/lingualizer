@@ -57,6 +57,15 @@ function shouldUseProjectName() {
 }
 exports.shouldUseProjectName = shouldUseProjectName;
 /**
+ * gets the name of the localization directory considering project dir name lookup
+ */
+function getLocalizationFileName() {
+    return shouldUseProjectName()
+        ? path.basename(process.cwd())
+        : _1.Lingualizer.DefaultranslationFileName;
+}
+exports.getLocalizationFileName = getLocalizationFileName;
+/**
  * gets the path to the localization directory according to the default directory name
  */
 function getLocalizationDirectory() {
@@ -64,12 +73,12 @@ function getLocalizationDirectory() {
 }
 exports.getLocalizationDirectory = getLocalizationDirectory;
 /**
- *
+ * given the locale will return the file name
  * @param locale the given locale, if none then assume default
  */
 function getFileName(argv) {
     var locale = getLocale(argv);
-    var fileName = shouldUseProjectName() ? path.basename(process.cwd()) : _1.Lingualizer.DefaultranslationFileName;
+    var fileName = getLocalizationFileName();
     if (locale !== _1.Lingualizer.DefaultLocale)
         fileName = fileName + "." + locale + ".json";
     else

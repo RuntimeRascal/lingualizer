@@ -1,5 +1,5 @@
 import { IEvent } from "ste-events";
-export declare type Locale = 'en-US' | 'es-MX' | null;
+export declare type Locale = 'en-US' | 'es-MX' | 'fr-FR' | 'nl-NL' | 'de-DE' | 'it-IT' | 'pol' | 'el-GR' | 'pt-BR' | 'pt-PT' | 'ar-SA' | 'zh-CHT' | 'ko-KR' | 'ja-JP' | 'vi-VN' | 'ro-RO' | 'ru-RU' | 'bg-BG' | 'id-ID' | 'mk-MK' | 'th-TH' | 'zh-CHS' | 'tr-TR' | null;
 export declare type LocaleChangedEventArgs = {
     oldLocale: Locale;
     newLocale: Locale;
@@ -19,6 +19,7 @@ export declare class Lingualizer {
     static DefaulLocalizationDirName: string;
     static DefaultranslationFileExt: string;
     private static _instance;
+    private _defaultLocaleTranslations;
     private _translations;
     private _locale;
     private _onLocaleChanged;
@@ -49,6 +50,15 @@ export declare class Lingualizer {
     * @memberof Lingualizer
     */
     locale: Locale;
+    /**
+     * get a keys value from translated locale or default locale if non-default locale is set and the key cannot be found
+     *
+     * @author tsimper
+     * @date 2019-01-24
+     * @param {string} key the name of the string to look up
+     * @returns {string} the tranlated string or default if no translation found or default locale set and if no default returns null
+     * @memberof Lingualizer
+     */
     get(key: string): string;
     /**
      * set `_translations` to json read from translations.json file according to the currently set locale

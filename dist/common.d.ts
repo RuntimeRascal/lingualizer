@@ -25,11 +25,15 @@ export interface IArgV {
 export declare function getLocale(argv: IArgV): string;
 export declare function shouldUseProjectName(): boolean;
 /**
+ * gets the name of the localization directory considering project dir name lookup
+ */
+export declare function getLocalizationFileName(): string;
+/**
  * gets the path to the localization directory according to the default directory name
  */
 export declare function getLocalizationDirectory(): string;
 /**
- *
+ * given the locale will return the file name
  * @param locale the given locale, if none then assume default
  */
 export declare function getFileName(argv: IArgV): string;
