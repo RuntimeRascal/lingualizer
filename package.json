@@ -1,14 +1,23 @@
 {
     "name": "lingualizer",
-    "version": "1.0.8",
-    "keywords": [ "localization", "localize", "translate", "translation", "locale", "globalization", "i18n",
-        "internationalization", "node", "nodejs", "nodejs localization"
+    "version": "1.0.9",
+    "keywords": [
+        "localization",
+        "localize",
+        "translate",
+        "translation",
+        "locale",
+        "globalization",
+        "i18n",
+        "internationalization",
+        "node",
+        "nodejs",
+        "nodejs localization"
     ],
     "description": "A simple nodejs api for getting translated strings based on a locale and a command line tool for createing translation files and managing the translated strings",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
-    "scripts":
-    {
+    "scripts": {
         "build": "./node_modules/.bin/tsc",
         "test-build": "./node_modules/.bin/tsc --project ./test",
         "prepublish": "npm run build",
@@ -38,24 +47,20 @@
         "pub": "npm version patch && npm publish && git push --follow-tags",
         "test": "./node_modules/.bin/mocha test/**/*.spec.{ts,tsx}"
     },
-    "bin":
-    {
+    "bin": {
         "lingualizer": "dist/cli.js"
     },
     "author": "tsimper",
     "license": "ISC",
-    "repository":
-    {
+    "repository": {
         "type": "git",
         "url": "https://github.com/simpert/lingualizer.git"
     },
-    "bugs":
-    {
+    "bugs": {
         "url": "https://github.com/simpert/lingualizer/issues"
     },
     "homepage": "https://github.com/simpert/lingualizer#readme",
-    "dependencies":
-    {
+    "dependencies": {
         "@types/fs-extra": "^5.0.4",
         "@types/yargs": "^12.0.5",
         "chalk": "^2.4.2",
@@ -65,8 +70,7 @@
         "ste-events": "^1.4.10",
         "yargs": "^12.0.5"
     },
-    "devDependencies":
-    {
+    "devDependencies": {
         "@types/chai": "^4.1.7",
         "@types/chalk": "^2.2.0",
         "@types/find-up": "^2.1.1",
