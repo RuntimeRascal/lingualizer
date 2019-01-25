@@ -69,7 +69,7 @@ exports.getLocalizationFileName = getLocalizationFileName;
  * gets the path to the localization directory according to the default directory name
  */
 function getLocalizationDirectory() {
-    return path.join(process.cwd(), _1.Lingualizer.DefaulLocalizationDirName);
+    return path.join(process.cwd(), _1.Lingualizer.Cwd, _1.Lingualizer.DefaulLocalizationDirName);
 }
 exports.getLocalizationDirectory = getLocalizationDirectory;
 /**

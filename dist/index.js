@@ -182,6 +182,8 @@ var Lingualizer = /** @class */ (function () {
             Lingualizer.DefaultranslationFileName = config.defaultranslationFileName;
         if (config.defaultranslationFileExt)
             Lingualizer.DefaultranslationFileExt = config.defaultranslationFileExt;
+        if (config.cwd)
+            Lingualizer.Cwd = config.cwd;
         return config;
     };
     /**
@@ -201,6 +203,7 @@ var Lingualizer = /** @class */ (function () {
     Lingualizer.DefaultranslationFileName = '%project%';
     Lingualizer.DefaulLocalizationDirName = 'localization';
     Lingualizer.DefaultranslationFileExt = 'json';
+    Lingualizer.Cwd = '';
     Lingualizer._instance = null;
     return Lingualizer;
 }());
