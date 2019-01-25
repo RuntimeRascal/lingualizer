@@ -4,7 +4,7 @@ import * as findup from 'find-up';
 import { EventDispatcher, IEvent } from "ste-events";
 import { format } from 'util';
 import chalk from 'chalk';
-import { getLocalizationDirectory, getLocalizationFileName } from './common';
+import { getLocalizationDirectory, getLocalizationFileName, getValue } from './common';
 
 
 const configPath = findup.sync( [ '.lingualizerrc', '.lingualizerrc.json' ] );
@@ -163,19 +163,20 @@ export class Lingualizer
         let value: string = null;
         if ( this.locale !== Lingualizer.DefaultLocale && this._translations !== null )
         {
-            if ( typeof this._translations[ key ] !== 'undefined' )
+            let getVal = getValue( this._translations, key );
+            if ( typeof getVal !== 'undefined' )
             {
-                value = this._translations[ key ];
-                if ( typeof value !== undefined && value !== null )
-                    return value;
+                return getVal;
             }
         }
 
         // allways try to return the string from default tranlation file even if cant find a translated one
         if ( this._defaultLocaleTranslations !== null )
         {
-            if ( typeof this._defaultLocaleTranslations[ key ] !== 'undefined' )
-                value = this._defaultLocaleTranslations[ key ];
+            let getVal = getValue( this._defaultLocaleTranslations, key );
+
+            if ( typeof getVal !== 'undefined' )
+                value = getVal;
         }
 
         return value;

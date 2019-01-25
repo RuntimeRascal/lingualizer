@@ -53,6 +53,17 @@ describe( 'index', () =>
     it( `get '${ onlyInDefaultKey }' should return '${ onlyInDefaultValue }' for 'es-MX' even know doesnt exist in that locale`, () =>
     {
         Lingualizer.default.locale = 'es-MX';
-        expect( Lingualizer.default.get( onlyInDefaultValue ) ).to.equal( onlyInDefaultValue );
+        let val = Lingualizer.default.get( onlyInDefaultKey );
+        expect( val ).to.equal( onlyInDefaultValue );
+    } );
+
+    const nestedKey = 'titlebar.welcome';
+    const nestedValue = 'Welcome to SMSE v%s';
+
+    it( `get '${ nestedKey }' should return '${ nestedValue }'`, () =>
+    {
+        Lingualizer.default.locale = 'en-US';
+        let val = Lingualizer.default.get( nestedKey );
+        expect( val ).to.equal( nestedValue );
     } );
 } );

@@ -176,3 +176,46 @@ export function writeFile ( filePath: string, contents: any ): boolean
 
     return fse.existsSync( filePath );
 }
+
+export function getValue ( obj: object, dotSeperatedKey: string )
+{
+    if ( dotSeperatedKey.lastIndexOf( '.' ) == -1 )
+    {
+        return obj[ dotSeperatedKey ];
+    }
+
+    let tokens = dotSeperatedKey.split( '.' );
+    let allButLast = dotSeperatedKey.substring( 0, dotSeperatedKey.lastIndexOf( '.' ) );
+
+    let val = null;
+    let value = getKeysValue( obj, allButLast, tokens[ tokens.length - 1 ], '', val );
+
+    return value;
+};
+
+function getKeysValue ( obj: object, searchWholeKey: string, lastKey: string, wholeKey = '', foundVal = null ): boolean
+{
+    if ( !searchWholeKey )
+    // there isnt any nesting to do so just update addKey on root
+    {
+        foundVal = obj[ lastKey ];
+        return foundVal;
+    }
+
+    for ( const key in obj ) 
+    {
+        let thisKey = `${ wholeKey }${ key }`;
+        if ( thisKey == searchWholeKey )
+        {
+            foundVal = obj[ key ][ lastKey ];
+            if ( foundVal != null )
+                return foundVal;
+        }
+        else if ( typeof obj[ key ] == 'object' )
+        {
+            foundVal = getKeysValue( obj[ key ], searchWholeKey, lastKey, `${ key }.` );
+            if ( foundVal != null )
+                return foundVal;
+        }
+    }
+}

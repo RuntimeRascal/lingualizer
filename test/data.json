@@ -7,5 +7,19 @@
     {
         "admin": "administrtor",
         "mode": "mode"
+    },
+    "update":
+    {
+        "check": "checking for updates. . .",
+        "available":
+        {
+            "title": "Smse Update Available",
+            "message": "\\tdownloading now. . ."
+        }
+    },
+    "no-key-found": "",
+    "titlebar":
+    {
+        "welcome": "Welcome to SMSE v%s"
     }
 }
