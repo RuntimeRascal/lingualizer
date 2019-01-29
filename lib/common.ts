@@ -54,7 +54,7 @@ export function getLocalizationFileName ( cmd: boolean )
 {
     if ( shouldUseProjectName() )
     {
-        let mypath = root.path;
+        let mypath = process.cwd();
         if ( cmd && Lingualizer.CmdCwd )
             mypath = path.join( mypath, Lingualizer.CmdCwd );
 
@@ -62,7 +62,7 @@ export function getLocalizationFileName ( cmd: boolean )
             mypath = path.join( mypath, Lingualizer.Cwd );
 
         if ( !mypath )
-            mypath = root.path;
+            mypath = process.cwd();
 
         return path.basename( mypath );
     }
@@ -76,7 +76,7 @@ export function getLocalizationFileName ( cmd: boolean )
  */
 export function getLocalizationDirectoryPath ( cmd: boolean )
 {
-    let mypath = root.path;
+    let mypath = process.cwd();
     if ( cmd && Lingualizer.CmdCwd )
         mypath = path.join( mypath, Lingualizer.CmdCwd );
 
@@ -84,7 +84,7 @@ export function getLocalizationDirectoryPath ( cmd: boolean )
         mypath = path.join( mypath, Lingualizer.Cwd );
 
     if ( !mypath )
-        mypath = root.path;
+        mypath = process.cwd();
 
     return path.join( mypath, Lingualizer.DefaulLocalizationDirName );
 }
