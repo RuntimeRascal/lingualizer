@@ -7,11 +7,6 @@ var ste_events_1 = require("ste-events");
 var util_1 = require("util");
 var chalk_1 = require("chalk");
 var common_1 = require("./common");
-var configPath = findup.sync(['.lingualizerrc', '.lingualizerrc.json']);
-var configrc = configPath ? fse.readJSONSync(configPath) : null;
-if (!configrc || configrc == null) {
-    //TODO: read in from package json
-}
 var app = chalk_1.default.white('lingualizer->');
 var Lookup = [
     { locale: 'en-US', tag: 'English', language: 'United States' },
@@ -59,6 +54,7 @@ var Lingualizer = /** @class */ (function () {
         this._translations = {};
         this._locale = null;
         this._onLocaleChanged = new ste_events_1.EventDispatcher();
+        Lingualizer.updateDefaults();
         this._locale = Lingualizer.DefaultLocale;
         this.initTranslations();
     }
@@ -190,22 +186,41 @@ var Lingualizer = /** @class */ (function () {
      * @memberof Lingualizer
      */
     Lingualizer.updateDefaults = function (configu) {
-        var config = configu || configrc;
-        if (config == null)
+        if (typeof Lingualizer.config == 'undefined' || !Lingualizer.config) 
+        // try to find the config
+        {
+            if (!configu) {
+                var configPath = findup.sync(['.lingualizerrc', '.lingualizerrc.json']);
+                Lingualizer.config = configPath ? fse.readJSONSync(configPath) : null;
+                if (!Lingualizer.config || Lingualizer.config == null) {
+                    //TODO: read in from package json
+                }
+            }
+            else {
+                Lingualizer.config = configu;
+            }
+            if (typeof Lingualizer.config == 'undefined' || !Lingualizer.config)
+                return;
+        }
+        else {
+            // we have allready gotten config so dont get it again.
+            // we dont want cli and index to interfere with eachother
             return;
-        if (config.defaultLocale)
-            Lingualizer.DefaultLocale = config.defaultLocale;
-        if (config.defaulLocalizationDirName)
-            Lingualizer.DefaulLocalizationDirName = config.defaulLocalizationDirName;
-        if (config.defaultranslationFileName)
-            Lingualizer.DefaultranslationFileName = config.defaultranslationFileName;
-        if (config.defaultranslationFileExt)
-            Lingualizer.DefaultranslationFileExt = config.defaultranslationFileExt;
-        if (config.cmdCwd)
-            Lingualizer.CmdCwd = config.cmdCwd;
-        if (config.cwd)
-            Lingualizer.Cwd = config.cwd;
-        return config;
+        }
+        // set all static defaults
+        if (typeof Lingualizer.config.defaultLocale != undefined)
+            Lingualizer.DefaultLocale = Lingualizer.config.defaultLocale;
+        if (typeof Lingualizer.config.defaulLocalizationDirName != undefined)
+            Lingualizer.DefaulLocalizationDirName = Lingualizer.config.defaulLocalizationDirName;
+        if (typeof Lingualizer.config.defaultTranslationFileName != undefined)
+            Lingualizer.DefaultranslationFileName = Lingualizer.config.defaultTranslationFileName;
+        if (typeof Lingualizer.config.defaultTranslationFileExt != undefined)
+            Lingualizer.DefaultranslationFileExt = Lingualizer.config.defaultTranslationFileExt;
+        if (typeof Lingualizer.config.cmdCwd != undefined)
+            Lingualizer.CmdCwd = Lingualizer.config.cmdCwd;
+        if (typeof Lingualizer.config.cwd != undefined)
+            Lingualizer.Cwd = Lingualizer.config.cwd;
+        return Lingualizer.config;
     };
     /**
      * # for internal use
@@ -217,7 +232,7 @@ var Lingualizer = /** @class */ (function () {
      * @memberof Lingualizer
      */
     Lingualizer.printDefaults = function () {
-        console.log(chalk_1.default.gray(app + " " + chalk_1.default.bold.green('Default Settings') + " locale: " + chalk_1.default.cyan(Lingualizer.DefaultLocale) + " directory: " + chalk_1.default.cyan(Lingualizer.DefaulLocalizationDirName) + " file: " + chalk_1.default.cyan(common_1.getLocalizationFileName(false)) + " ext: '" + chalk_1.default.cyan(Lingualizer.DefaultranslationFileExt) + "'"));
+        console.log(chalk_1.default.gray(app + " " + chalk_1.default.bold.green('Default Settings') + " \n        locale    : " + chalk_1.default.cyan(Lingualizer.DefaultLocale) + " \n        directory : " + chalk_1.default.cyan(Lingualizer.DefaulLocalizationDirName) + " \n        file      : " + chalk_1.default.cyan(common_1.getLocalizationFileName(false)) + " \n        ext       : '" + chalk_1.default.cyan(Lingualizer.DefaultranslationFileExt) + "'\n        cwd       : '" + chalk_1.default.cyan(Lingualizer.Cwd) + "'\n        cmd cwd   : '" + chalk_1.default.cyan(Lingualizer.CmdCwd) + "'\n        "));
     };
     /* if config provided, these defaults will be set to config upon file load */
     Lingualizer.DefaultLocale = 'en-US';

@@ -71,6 +71,7 @@ export declare class Lingualizer {
      * @returns
      */
     initTranslations(oldLocale?: Locale): void;
+    private static config;
     /**
      * # for internal use
      *
