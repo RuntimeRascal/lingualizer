@@ -71,10 +71,6 @@ function handler(argv) {
             if (argv.verbose) {
                 common_1.log("get loc: '" + common_1.chalk.cyan(locale) + "' key: '" + common_1.chalk.cyan(argv.key) + "'");
             }
-            if (!argv.key) {
-                resolve(common_1.log(common_1.chalk.red('you must provide a valid key')));
-                return [2 /*return*/];
-            }
             fileName = common_1.getFileName(argv);
             filePath = path.join(common_1.getLocalizationDirectory(), fileName);
             if (!fse.existsSync(filePath)) {

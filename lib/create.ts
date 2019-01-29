@@ -2,7 +2,7 @@ import { Lingualizer } from ".";
 import * as path from 'path';
 import * as fse from 'fs-extra';
 import * as yarg from 'yargs'
-import { IArgV, getLocalizationDirectory, log, chalk, terminalPrefix, getFileName, getJsonFile, isValidUrl, getLocalizationFileName } from "./common";
+import { IArgV, getLocalizationDirectoryPath, log, chalk, terminalPrefix, getFileNameWithExtention, getJsonFile, isValidUrl, getLocalizationFileName } from "./common";
 
 const defaultTranslationContents = { "Testing": "We are testing a default tranlated string" };
 
@@ -39,7 +39,7 @@ export async function handler ( argv: IArgV )
     {
         let locDir = ensureLocalizationDirectory();
 
-        let fileName = getFileName( argv );
+        let fileName = getFileNameWithExtention( argv, true );
 
         let filePath = path.join( locDir, fileName );
         if ( fse.existsSync( filePath ) && !argv.force )
@@ -50,7 +50,7 @@ export async function handler ( argv: IArgV )
 
         let defaultLocaleFilePath: string = null;
         if ( argv.locale && argv.locale !== Lingualizer.DefaultLocale )
-            defaultLocaleFilePath = path.join( locDir, `${ getLocalizationFileName() }.json` );
+            defaultLocaleFilePath = path.join( locDir, `${ getLocalizationFileName( true ) }.json` );
 
         let contents = await getContents( argv, defaultLocaleFilePath );
 
@@ -99,7 +99,7 @@ async function getContents ( argv: IArgV, defaultFilePath: string )
  */
 function ensureLocalizationDirectory ()
 {
-    let locDir = getLocalizationDirectory();
+    let locDir = getLocalizationDirectoryPath( true );
     if ( !fse.existsSync( locDir ) )
         log( `created '${ chalk.cyanBright( Lingualizer.DefaulLocalizationDirName ) }' directory` );
 

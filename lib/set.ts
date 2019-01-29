@@ -1,8 +1,7 @@
 import * as path from 'path';
 import * as fse from 'fs-extra';
 import * as yarg from 'yargs'
-import { getLocale, IArgV, getLocalizationDirectory, getFileName, log, getJsonFile, chalk, terminalPrefix, getJsonFileSync, writeFile } from "./common";
-
+import { getLocale, IArgV, getLocalizationDirectoryPath, getFileNameWithExtention, log, getJsonFile, chalk, terminalPrefix, writeFile } from "./common";
 
 export var command = 'set [key] [value] [locale]';
 export var describe = 'set a value to the key for a certain locale or default locale if no locale is provided';
@@ -48,8 +47,8 @@ export async function handler ( argv: IArgV )
             return;
         }
 
-        let locDir = getLocalizationDirectory();
-        let fileName = getFileName( argv );
+        let locDir = getLocalizationDirectoryPath( true );
+        let fileName = getFileNameWithExtention( argv, true );
         let filePath = path.join( locDir, fileName );
         if ( !fse.existsSync( filePath ) )
         {

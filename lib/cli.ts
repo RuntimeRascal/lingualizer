@@ -14,7 +14,7 @@ let argv = yargs
     .showHelpOnFail( true )
     .usage( 'Usage: $0 [command] [options]' )
     .config( config )
-    .pkgConf( 'lingualizer' )
+    //.pkgConf( 'lingualizer' )
     .command( createC.command, createC.describe, createC.builder, createC.handler )
     .command( getC.command, getC.describe, getC.builder, getC.handler )
     .command( setC.command, setC.describe, setC.builder, setC.handler )

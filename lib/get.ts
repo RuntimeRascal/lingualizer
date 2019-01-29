@@ -1,8 +1,6 @@
-import { Lingualizer } from ".";
 import * as path from 'path';
 import * as fse from 'fs-extra';
-import * as yarg from 'yargs'
-import { getLocale, getFileName, IArgV, getLocalizationDirectory, chalk, terminalPrefix, log, getValue } from "./common";
+import { getLocale, getFileNameWithExtention, IArgV, getLocalizationDirectoryPath, chalk, terminalPrefix, log, getNestedValueFromJson } from "./common";
 
 export var command = 'get [key] [locale]';
 export var describe = 'get a key from a certain locale or default in no locale';
@@ -43,14 +41,8 @@ export function handler ( argv: IArgV )
             log( `get loc: '${ chalk.cyan( locale ) }' key: '${ chalk.cyan( argv.key ) }'` );
         }
 
-        if ( !argv.key )
-        {
-            resolve( log( chalk.red( 'you must provide a valid key' ) ) );
-            return;
-        }
-
-        let fileName = getFileName( argv );
-        let filePath = path.join( getLocalizationDirectory(), fileName );
+        let fileName = getFileNameWithExtention( argv, true );
+        let filePath = path.join( getLocalizationDirectoryPath( true ), fileName );
 
         if ( !fse.existsSync( filePath ) )
         {
@@ -62,7 +54,7 @@ export function handler ( argv: IArgV )
         let value = undefined;
         if ( argv.key )
         {
-            value = getValue( json, argv.key );
+            value = getNestedValueFromJson( json, argv.key );
             //value = json[ argv.key ];
             if ( typeof value == undefined || !value )
             {

@@ -61,7 +61,7 @@ exports.shouldUseProjectName = shouldUseProjectName;
  */
 function getLocalizationFileName() {
     return shouldUseProjectName()
-        ? path.basename(process.cwd())
+        ? path.basename(path.join(process.cwd(), _1.Lingualizer.Cwd))
         : _1.Lingualizer.DefaultranslationFileName;
 }
 exports.getLocalizationFileName = getLocalizationFileName;

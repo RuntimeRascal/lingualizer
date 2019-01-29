@@ -3,5 +3,6 @@
     "defaultTranslationFileName": "%project%",
     "defaulLocalizationDirName": "localization",
     "defaultTranslationFileExt": "json",
+    "cmdCwd": "",
     "cwd": ""
 }

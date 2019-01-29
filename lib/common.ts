@@ -2,6 +2,7 @@ import { Lingualizer } from ".";
 import * as path from 'path';
 import * as fse from 'fs-extra';
 import * as request from 'request';
+import * as root from 'app-root-path';
 
 import chalkpack = require( 'chalk' );
 
@@ -49,29 +50,53 @@ export function shouldUseProjectName ()
 /**
  * gets the name of the localization directory considering project dir name lookup
  */
-export function getLocalizationFileName ()
+export function getLocalizationFileName ( cmd: boolean )
 {
-    return shouldUseProjectName()
-        ? path.basename( process.cwd() )
-        : Lingualizer.DefaultranslationFileName;
+    if ( shouldUseProjectName() )
+    {
+        let mypath = root.path;
+        if ( cmd && Lingualizer.CmdCwd )
+            mypath = path.join( mypath, Lingualizer.CmdCwd );
+
+        if ( !cmd && Lingualizer.Cwd )
+            mypath = path.join( mypath, Lingualizer.Cwd );
+
+        if ( !mypath )
+            mypath = root.path;
+
+        return path.basename( mypath );
+    }
+
+    return Lingualizer.DefaultranslationFileName;
+
 }
 
 /**
  * gets the path to the localization directory according to the default directory name
  */
-export function getLocalizationDirectory ()
+export function getLocalizationDirectoryPath ( cmd: boolean )
 {
-    return path.join( process.cwd(), Lingualizer.Cwd, Lingualizer.DefaulLocalizationDirName );
+    let mypath = root.path;
+    if ( cmd && Lingualizer.CmdCwd )
+        mypath = path.join( mypath, Lingualizer.CmdCwd );
+
+    if ( !cmd && Lingualizer.Cwd )
+        mypath = path.join( mypath, Lingualizer.Cwd );
+
+    if ( !mypath )
+        mypath = root.path;
+
+    return path.join( mypath, Lingualizer.DefaulLocalizationDirName );
 }
 
 /**
  * given the locale will return the file name
  * @param locale the given locale, if none then assume default
  */
-export function getFileName ( argv: IArgV )
+export function getFileNameWithExtention ( argv: IArgV, cmd: boolean )
 {
     let locale = getLocale( argv );
-    let fileName = getLocalizationFileName();
+    let fileName = getLocalizationFileName( cmd );
     if ( locale !== Lingualizer.DefaultLocale )
         fileName = `${ fileName }.${ locale }.json`;
     else
@@ -134,30 +159,6 @@ export async function getJsonFile ( url: string = null, filePath: string = null 
         } );
 }
 
-/**
- * so yargs lib says is async but return promise from handler and will not wait for resolution
- * get json contents from a file or from a url
- * @param url a url that will return a json file
- * @param filePath a complete filepath to a valid json file
- */
-export function getJsonFileSync ( url: string = null, filePath: string = null ): string
-{
-    let urlGood = url != null && url && url != '' && isValidUrl( url );
-    let filePathGood = filePath != null && filePath && filePath != '';
-
-    if ( !urlGood && !filePathGood )
-    {
-        log( chalk.red( `no valid json file can be found` ) );
-        return;
-    }
-
-    if ( filePathGood )
-    {
-        let contents = fse.readFileSync( filePath );
-        return contents.toString();
-    }
-}
-
 export function writeFile ( filePath: string, contents: any ): boolean
 {
     if ( filePath == null || !filePath || !fse.existsSync( path.dirname( filePath ) ) )
@@ -177,7 +178,7 @@ export function writeFile ( filePath: string, contents: any ): boolean
     return fse.existsSync( filePath );
 }
 
-export function getValue ( obj: object, dotSeperatedKey: string )
+export function getNestedValueFromJson ( obj: object, dotSeperatedKey: string )
 {
     if ( dotSeperatedKey.lastIndexOf( '.' ) == -1 )
     {
@@ -188,12 +189,12 @@ export function getValue ( obj: object, dotSeperatedKey: string )
     let allButLast = dotSeperatedKey.substring( 0, dotSeperatedKey.lastIndexOf( '.' ) );
 
     let val = null;
-    let value = getKeysValue( obj, allButLast, tokens[ tokens.length - 1 ], '', val );
+    let value = valueSearch( obj, allButLast, tokens[ tokens.length - 1 ], '', val );
 
     return value;
 };
 
-function getKeysValue ( obj: object, searchWholeKey: string, lastKey: string, wholeKey = '', foundVal = null ): boolean
+function valueSearch ( obj: object, searchWholeKey: string, lastKey: string, wholeKey = '', foundVal = null ): boolean
 {
     if ( !searchWholeKey )
     // there isnt any nesting to do so just update addKey on root
@@ -213,7 +214,7 @@ function getKeysValue ( obj: object, searchWholeKey: string, lastKey: string, wh
         }
         else if ( typeof obj[ key ] == 'object' )
         {
-            foundVal = getKeysValue( obj[ key ], searchWholeKey, lastKey, `${ key }.` );
+            foundVal = valueSearch( obj[ key ], searchWholeKey, lastKey, `${ key }.` );
             if ( foundVal != null )
                 return foundVal;
         }
