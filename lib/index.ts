@@ -321,7 +321,8 @@ export class Lingualizer
      */
     static printDefaults ()
     {
-        console.log( chalk.gray( `${ app } ${ chalk.bold.green( '------- Default Settings -------' ) } 
+        console.log( chalk.gray( `${ app } 
+        ${ chalk.bold.green( '------- Default Settings -------' ) } 
         Locale    : '${ chalk.cyan( Lingualizer.DefaultLocale ) }' 
         Directory : '${ chalk.cyan( Lingualizer.DefaulLocalizationDirName ) }'
         File      : '${ chalk.cyan( getLocalizationFileName( false ) ) }' 
@@ -329,8 +330,8 @@ export class Lingualizer
         Cwd       : '${ chalk.cyan( Lingualizer.Cwd ) }'
         Cmd Cwd   : '${ chalk.cyan( Lingualizer.CmdCwd ) }'
 
-        Translation Directory : '${ chalk.cyan( getLocalizationDirectoryPath( false ) ) }'
-        Translation Filename  : '${ chalk.cyan( getLocalizationFileName( false ) ) }'
+        Directory : '${ chalk.cyan( getLocalizationDirectoryPath( false ) ) }'
+        Filename  : '${ chalk.cyan( `${ getLocalizationFileName( false ) }.${ Lingualizer.DefaultranslationFileExt }` ) }'
         ${chalk.bold.green( '--------------------------------' ) }` ) );
     }
 }
