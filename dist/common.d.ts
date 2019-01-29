@@ -27,16 +27,16 @@ export declare function shouldUseProjectName(): boolean;
 /**
  * gets the name of the localization directory considering project dir name lookup
  */
-export declare function getLocalizationFileName(): string;
+export declare function getLocalizationFileName(cmd: boolean): string;
 /**
  * gets the path to the localization directory according to the default directory name
  */
-export declare function getLocalizationDirectory(): string;
+export declare function getLocalizationDirectoryPath(cmd: boolean): string;
 /**
  * given the locale will return the file name
  * @param locale the given locale, if none then assume default
  */
-export declare function getFileName(argv: IArgV): string;
+export declare function getFileNameWithExtention(argv: IArgV, cmd: boolean): string;
 export declare function isValidUrl(url: string): boolean;
 /**
  * get json contents from a file or from a url
@@ -44,12 +44,5 @@ export declare function isValidUrl(url: string): boolean;
  * @param filePath a complete filepath to a valid json file
  */
 export declare function getJsonFile(url?: string, filePath?: string): Promise<string>;
-/**
- * so yargs lib says is async but return promise from handler and will not wait for resolution
- * get json contents from a file or from a url
- * @param url a url that will return a json file
- * @param filePath a complete filepath to a valid json file
- */
-export declare function getJsonFileSync(url?: string, filePath?: string): string;
 export declare function writeFile(filePath: string, contents: any): boolean;
-export declare function getValue(obj: object, dotSeperatedKey: string): any;
+export declare function getNestedValueFromJson(obj: object, dotSeperatedKey: string): any;

@@ -39,6 +39,7 @@ var _1 = require(".");
 var path = require("path");
 var fse = require("fs-extra");
 var request = require("request");
+var root = require("app-root-path");
 var chalkpack = require("chalk");
 exports.chalk = chalkpack.default;
 exports.terminalPrefix = exports.chalk.white('lingualizer->');
@@ -59,33 +60,48 @@ exports.shouldUseProjectName = shouldUseProjectName;
 /**
  * gets the name of the localization directory considering project dir name lookup
  */
-function getLocalizationFileName() {
-    return shouldUseProjectName()
-        ? path.basename(path.join(process.cwd(), _1.Lingualizer.Cwd))
-        : _1.Lingualizer.DefaultranslationFileName;
+function getLocalizationFileName(cmd) {
+    if (shouldUseProjectName()) {
+        var mypath = root.path;
+        if (cmd && _1.Lingualizer.CmdCwd)
+            mypath = path.join(mypath, _1.Lingualizer.CmdCwd);
+        if (!cmd && _1.Lingualizer.Cwd)
+            mypath = path.join(mypath, _1.Lingualizer.Cwd);
+        if (!mypath)
+            mypath = root.path;
+        return path.basename(mypath);
+    }
+    return _1.Lingualizer.DefaultranslationFileName;
 }
 exports.getLocalizationFileName = getLocalizationFileName;
 /**
  * gets the path to the localization directory according to the default directory name
  */
-function getLocalizationDirectory() {
-    return path.join(process.cwd(), _1.Lingualizer.Cwd, _1.Lingualizer.DefaulLocalizationDirName);
+function getLocalizationDirectoryPath(cmd) {
+    var mypath = root.path;
+    if (cmd && _1.Lingualizer.CmdCwd)
+        mypath = path.join(mypath, _1.Lingualizer.CmdCwd);
+    if (!cmd && _1.Lingualizer.Cwd)
+        mypath = path.join(mypath, _1.Lingualizer.Cwd);
+    if (!mypath)
+        mypath = root.path;
+    return path.join(mypath, _1.Lingualizer.DefaulLocalizationDirName);
 }
-exports.getLocalizationDirectory = getLocalizationDirectory;
+exports.getLocalizationDirectoryPath = getLocalizationDirectoryPath;
 /**
  * given the locale will return the file name
  * @param locale the given locale, if none then assume default
  */
-function getFileName(argv) {
+function getFileNameWithExtention(argv, cmd) {
     var locale = getLocale(argv);
-    var fileName = getLocalizationFileName();
+    var fileName = getLocalizationFileName(cmd);
     if (locale !== _1.Lingualizer.DefaultLocale)
         fileName = fileName + "." + locale + ".json";
     else
         fileName = fileName + ".json";
     return fileName;
 }
-exports.getFileName = getFileName;
+exports.getFileNameWithExtention = getFileNameWithExtention;
 function isValidUrl(url) {
     try {
         var uri = new URL(url);
@@ -141,27 +157,6 @@ function getJsonFile(url, filePath) {
     });
 }
 exports.getJsonFile = getJsonFile;
-/**
- * so yargs lib says is async but return promise from handler and will not wait for resolution
- * get json contents from a file or from a url
- * @param url a url that will return a json file
- * @param filePath a complete filepath to a valid json file
- */
-function getJsonFileSync(url, filePath) {
-    if (url === void 0) { url = null; }
-    if (filePath === void 0) { filePath = null; }
-    var urlGood = url != null && url && url != '' && isValidUrl(url);
-    var filePathGood = filePath != null && filePath && filePath != '';
-    if (!urlGood && !filePathGood) {
-        log(exports.chalk.red("no valid json file can be found"));
-        return;
-    }
-    if (filePathGood) {
-        var contents = fse.readFileSync(filePath);
-        return contents.toString();
-    }
-}
-exports.getJsonFileSync = getJsonFileSync;
 function writeFile(filePath, contents) {
     if (filePath == null || !filePath || !fse.existsSync(path.dirname(filePath))) {
         log(exports.chalk.red("cannot write file to: '" + filePath + "' you must provide valid path of which directory exists."));
@@ -175,19 +170,19 @@ function writeFile(filePath, contents) {
     return fse.existsSync(filePath);
 }
 exports.writeFile = writeFile;
-function getValue(obj, dotSeperatedKey) {
+function getNestedValueFromJson(obj, dotSeperatedKey) {
     if (dotSeperatedKey.lastIndexOf('.') == -1) {
         return obj[dotSeperatedKey];
     }
     var tokens = dotSeperatedKey.split('.');
     var allButLast = dotSeperatedKey.substring(0, dotSeperatedKey.lastIndexOf('.'));
     var val = null;
-    var value = getKeysValue(obj, allButLast, tokens[tokens.length - 1], '', val);
+    var value = valueSearch(obj, allButLast, tokens[tokens.length - 1], '', val);
     return value;
 }
-exports.getValue = getValue;
+exports.getNestedValueFromJson = getNestedValueFromJson;
 ;
-function getKeysValue(obj, searchWholeKey, lastKey, wholeKey, foundVal) {
+function valueSearch(obj, searchWholeKey, lastKey, wholeKey, foundVal) {
     if (wholeKey === void 0) { wholeKey = ''; }
     if (foundVal === void 0) { foundVal = null; }
     if (!searchWholeKey) 
@@ -204,7 +199,7 @@ function getKeysValue(obj, searchWholeKey, lastKey, wholeKey, foundVal) {
                 return foundVal;
         }
         else if (typeof obj[key] == 'object') {
-            foundVal = getKeysValue(obj[key], searchWholeKey, lastKey, key + ".");
+            foundVal = valueSearch(obj[key], searchWholeKey, lastKey, key + ".");
             if (foundVal != null)
                 return foundVal;
         }

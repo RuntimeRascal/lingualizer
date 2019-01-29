@@ -71,8 +71,8 @@ function handler(argv) {
             if (argv.verbose) {
                 common_1.log("get loc: '" + common_1.chalk.cyan(locale) + "' key: '" + common_1.chalk.cyan(argv.key) + "'");
             }
-            fileName = common_1.getFileName(argv);
-            filePath = path.join(common_1.getLocalizationDirectory(), fileName);
+            fileName = common_1.getFileNameWithExtention(argv, true);
+            filePath = path.join(common_1.getLocalizationDirectoryPath(true), fileName);
             if (!fse.existsSync(filePath)) {
                 resolve(common_1.log("" + common_1.chalk.bgRedBright("cannot find translation file at: '" + common_1.chalk.bgBlue(filePath) + "'. please create it first")));
                 return [2 /*return*/];
@@ -80,7 +80,7 @@ function handler(argv) {
             json = fse.readJSONSync(filePath);
             value = undefined;
             if (argv.key) {
-                value = common_1.getValue(json, argv.key);
+                value = common_1.getNestedValueFromJson(json, argv.key);
                 //value = json[ argv.key ];
                 if (typeof value == undefined || !value) {
                     resolve(common_1.log("cannot find key " + common_1.chalk.cyan(argv.key)));

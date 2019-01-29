@@ -78,8 +78,8 @@ function handler(argv) {
                                 resolve(common_1.log(common_1.chalk.red('you must provide a valid key and value')));
                                 return [2 /*return*/];
                             }
-                            locDir = common_1.getLocalizationDirectory();
-                            fileName = common_1.getFileName(argv);
+                            locDir = common_1.getLocalizationDirectoryPath(true);
+                            fileName = common_1.getFileNameWithExtention(argv, true);
                             filePath = path.join(locDir, fileName);
                             if (!fse.existsSync(filePath)) {
                                 resolve(common_1.log("" + common_1.chalk.bgRedBright("cannot find translation file at: '" + common_1.chalk.bgBlue(filePath) + "'. please create it first")));

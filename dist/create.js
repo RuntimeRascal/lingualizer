@@ -74,7 +74,7 @@ function handler(argv) {
                             switch (_a.label) {
                                 case 0:
                                     locDir = ensureLocalizationDirectory();
-                                    fileName = common_1.getFileName(argv);
+                                    fileName = common_1.getFileNameWithExtention(argv, true);
                                     filePath = path.join(locDir, fileName);
                                     if (fse.existsSync(filePath) && !argv.force) {
                                         resolve(common_1.log("the file allready exists. please use '" + common_1.chalk.blue('--force') + "' to overwrite it."));
@@ -82,7 +82,7 @@ function handler(argv) {
                                     }
                                     defaultLocaleFilePath = null;
                                     if (argv.locale && argv.locale !== _1.Lingualizer.DefaultLocale)
-                                        defaultLocaleFilePath = path.join(locDir, common_1.getLocalizationFileName() + ".json");
+                                        defaultLocaleFilePath = path.join(locDir, common_1.getLocalizationFileName(true) + ".json");
                                     return [4 /*yield*/, getContents(argv, defaultLocaleFilePath)];
                                 case 1:
                                     contents = _a.sent();
@@ -136,7 +136,7 @@ function getContents(argv, defaultFilePath) {
  * create the localization directory if it does not allready exist
  */
 function ensureLocalizationDirectory() {
-    var locDir = common_1.getLocalizationDirectory();
+    var locDir = common_1.getLocalizationDirectoryPath(true);
     if (!fse.existsSync(locDir))
         common_1.log("created '" + common_1.chalk.cyanBright(_1.Lingualizer.DefaulLocalizationDirName) + "' directory");
     fse.ensureDirSync(locDir);

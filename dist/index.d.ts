@@ -19,6 +19,7 @@ export declare class Lingualizer {
     static DefaulLocalizationDirName: string;
     static DefaultranslationFileExt: string;
     static Cwd: string;
+    static CmdCwd: string;
     private static _instance;
     private _defaultLocaleTranslations;
     private _translations;

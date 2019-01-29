@@ -8,7 +8,10 @@ var util_1 = require("util");
 var chalk_1 = require("chalk");
 var common_1 = require("./common");
 var configPath = findup.sync(['.lingualizerrc', '.lingualizerrc.json']);
-var configrc = configPath ? fse.readJSONSync(configPath) : {};
+var configrc = configPath ? fse.readJSONSync(configPath) : null;
+if (!configrc || configrc == null) {
+    //TODO: read in from package json
+}
 var app = chalk_1.default.white('lingualizer->');
 var Lookup = [
     { locale: 'en-US', tag: 'English', language: 'United States' },
@@ -18,6 +21,22 @@ var Lookup = [
     { locale: 'de-DE', tag: 'German', language: 'Germany' },
     { locale: 'it-IT', tag: 'Italian', language: 'Italian' },
     { locale: 'pol', tag: 'Polish', language: 'Poland' },
+    { locale: 'el-GR', tag: 'Greek ', language: 'Greece' },
+    { locale: 'pt-BR', tag: 'Portuguese', language: 'Brazil' },
+    { locale: 'pt-PT', tag: 'Portuguese', language: 'Portugal' },
+    { locale: 'ar-SA', tag: 'Arabic', language: 'Arabic' },
+    { locale: 'zh-CHT', tag: 'Chinese', language: 'Traditional' },
+    { locale: 'ko-KR', tag: 'Korean', language: 'Korea' },
+    { locale: 'ja-JP', tag: 'Japanese', language: 'Japan' },
+    { locale: 'vi-VN', tag: 'Vietnamese', language: 'Vietnamese' },
+    { locale: 'ro-RO', tag: 'Romanian', language: 'Romanian' },
+    { locale: 'ru-RU', tag: 'Russian', language: 'Russian' },
+    { locale: 'bg-BG', tag: 'Bulgarian', language: 'Bulgarian' },
+    { locale: 'id-ID', tag: 'Indonesian ', language: 'Indonesia' },
+    { locale: 'mk-MK', tag: 'Macedonian', language: 'Macedonian' },
+    { locale: 'th-TH', tag: 'Thai', language: 'Thailand' },
+    { locale: 'zh-CHS', tag: 'Chinese ', language: 'Simplified' },
+    { locale: 'tr-TR', tag: 'Turkish', language: 'Turkey' },
 ];
 /**
  * singleton lingualizer type to offer all functionality of module
@@ -109,14 +128,14 @@ var Lingualizer = /** @class */ (function () {
             return '';
         var value = null;
         if (this.locale !== Lingualizer.DefaultLocale && this._translations !== null) {
-            var getVal = common_1.getValue(this._translations, key);
+            var getVal = common_1.getNestedValueFromJson(this._translations, key);
             if (typeof getVal !== 'undefined') {
                 return getVal;
             }
         }
         // allways try to return the string from default tranlation file even if cant find a translated one
         if (this._defaultLocaleTranslations !== null) {
-            var getVal = common_1.getValue(this._defaultLocaleTranslations, key);
+            var getVal = common_1.getNestedValueFromJson(this._defaultLocaleTranslations, key);
             if (typeof getVal !== 'undefined')
                 value = getVal;
         }
@@ -132,11 +151,11 @@ var Lingualizer = /** @class */ (function () {
      */
     Lingualizer.prototype.initTranslations = function (oldLocale) {
         if (oldLocale === void 0) { oldLocale = this._locale; }
-        var translationsPath = common_1.getLocalizationDirectory();
+        var translationsPath = common_1.getLocalizationDirectoryPath(false);
         if (!fse.existsSync(translationsPath))
             throw new Error(util_1.format(this._errorMessages[0], translationsPath));
-        var defaultFile = path.join(translationsPath, common_1.getLocalizationFileName() + "." + Lingualizer.DefaultranslationFileExt);
-        var localeFile = path.join(translationsPath, common_1.getLocalizationFileName() + "." + this.locale + "." + Lingualizer.DefaultranslationFileExt);
+        var defaultFile = path.join(translationsPath, common_1.getLocalizationFileName(false) + "." + Lingualizer.DefaultranslationFileExt);
+        var localeFile = path.join(translationsPath, common_1.getLocalizationFileName(false) + "." + this.locale + "." + Lingualizer.DefaultranslationFileExt);
         // allways try load the default locale translations as we dish them if translated cant be found and it's the most common
         //  as in what would be loaded at starup only changing if set locale to non-default
         if (fse.existsSync(defaultFile)) {
@@ -182,6 +201,8 @@ var Lingualizer = /** @class */ (function () {
             Lingualizer.DefaultranslationFileName = config.defaultranslationFileName;
         if (config.defaultranslationFileExt)
             Lingualizer.DefaultranslationFileExt = config.defaultranslationFileExt;
+        if (config.cmdCwd)
+            Lingualizer.CmdCwd = config.cmdCwd;
         if (config.cwd)
             Lingualizer.Cwd = config.cwd;
         return config;
@@ -196,7 +217,7 @@ var Lingualizer = /** @class */ (function () {
      * @memberof Lingualizer
      */
     Lingualizer.printDefaults = function () {
-        console.log(chalk_1.default.gray(app + " " + chalk_1.default.bold.green('Default Settings') + " locale: " + chalk_1.default.cyan(Lingualizer.DefaultLocale) + " directory: " + chalk_1.default.cyan(Lingualizer.DefaulLocalizationDirName) + " file: " + chalk_1.default.cyan(common_1.getLocalizationFileName()) + " ext: '" + chalk_1.default.cyan(Lingualizer.DefaultranslationFileExt) + "'"));
+        console.log(chalk_1.default.gray(app + " " + chalk_1.default.bold.green('Default Settings') + " locale: " + chalk_1.default.cyan(Lingualizer.DefaultLocale) + " directory: " + chalk_1.default.cyan(Lingualizer.DefaulLocalizationDirName) + " file: " + chalk_1.default.cyan(common_1.getLocalizationFileName(false)) + " ext: '" + chalk_1.default.cyan(Lingualizer.DefaultranslationFileExt) + "'"));
     };
     /* if config provided, these defaults will be set to config upon file load */
     Lingualizer.DefaultLocale = 'en-US';
@@ -204,6 +225,7 @@ var Lingualizer = /** @class */ (function () {
     Lingualizer.DefaulLocalizationDirName = 'localization';
     Lingualizer.DefaultranslationFileExt = 'json';
     Lingualizer.Cwd = '';
+    Lingualizer.CmdCwd = '';
     Lingualizer._instance = null;
     return Lingualizer;
 }());
