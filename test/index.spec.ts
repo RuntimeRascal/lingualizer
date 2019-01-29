@@ -7,8 +7,8 @@ import * as helper from "./helper";
 var expect = chai.expect;
 var should = chai.should();
 
-before( helper.createTestDirStructure )
-after( helper.cleanup )
+//before( helper.createTestDirStructure )
+//after( helper.cleanup )
 
 describe( 'index', () =>
 {

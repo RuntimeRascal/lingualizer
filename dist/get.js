@@ -65,7 +65,7 @@ exports.builder = function (yargs) {
 function handler(argv) {
     var _this = this;
     argv.asyncResult = new Promise(function (resolve) { return __awaiter(_this, void 0, void 0, function () {
-        var locale, fileName, filePath, json, value;
+        var locale, fileName, filePath, json, value, valueToReturn;
         return __generator(this, function (_a) {
             locale = common_1.getLocale(argv);
             if (argv.verbose) {
@@ -79,6 +79,7 @@ function handler(argv) {
             }
             json = fse.readJSONSync(filePath);
             value = undefined;
+            valueToReturn = '';
             if (argv.key) {
                 value = common_1.getNestedValueFromJson(json, argv.key);
                 //value = json[ argv.key ];
@@ -86,13 +87,14 @@ function handler(argv) {
                     resolve(common_1.log("cannot find key " + common_1.chalk.cyan(argv.key)));
                     return [2 /*return*/];
                 }
+                valueToReturn = argv.key + " : " + value;
                 printTranslation(argv.key, value);
             }
             else // if no key given show all key values
              {
-                printMembers(json);
+                valueToReturn = printMembers(json);
             }
-            resolve(value);
+            resolve(valueToReturn);
             return [2 /*return*/];
         });
     }); });
@@ -102,15 +104,20 @@ exports.handler = handler;
 function printTranslation(key, value) {
     common_1.log("'" + common_1.chalk.cyan(key) + "' : '" + common_1.chalk.cyan(value) + "'");
 }
-function printMembers(obj, prefix) {
+function printMembers(obj, prefix, running) {
     if (prefix === void 0) { prefix = ''; }
+    if (running === void 0) { running = ''; }
+    var str = "";
     for (var key in obj) {
         if (obj.hasOwnProperty(key)) {
             var v = obj[key];
-            if (typeof v == typeof '')
+            if (typeof v == typeof '') {
+                str += "" + prefix + (prefix == '' ? '' : '.') + key + " : " + JSON.stringify(v) + "\n";
                 printTranslation("" + prefix + (prefix == '' ? '' : '.') + key, JSON.stringify(v));
+            }
             else
-                printMembers(v, key);
+                printMembers(v, key, str);
         }
     }
+    return str;
 }

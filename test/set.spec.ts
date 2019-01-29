@@ -6,8 +6,8 @@ import * as helper from "./helper";
 
 var expect = chai.expect;
 
-before( helper.createTestDirStructure )
-after( helper.cleanup )
+//before( helper.createTestDirStructure )
+//after( helper.cleanup )
 
 describe( 'set command', () =>
 {

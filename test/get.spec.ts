@@ -6,8 +6,9 @@ import * as helper from "./helper";
 
 var expect = chai.expect;
 
-before( helper.createTestDirStructure )
-after( helper.cleanup )
+
+//before( helper.createTestDirStructure )
+//after( helper.cleanup )
 
 describe( 'get command', () =>
 {
@@ -15,7 +16,7 @@ describe( 'get command', () =>
     const testKey2 = 'try-again';
     const testValue2 = 'please try again';
 
-    it( `given no args should return helpfull message`, async () =>
+    it( `given no args should return all keys and values`, async () =>
     {
         const output = await new Promise( ( resolve ) =>
         {
@@ -27,10 +28,15 @@ describe( 'get command', () =>
                 } )
         } );
 
-        expect( new RegExp( /you must provide a valid key/im ).test( output as string ) )
-            .to
-            .be
-            .true;
+
+        let result = `ok : "ok"
+close : "close"
+try-again : "please try again"
+only-in-default : "default key only"
+no-key-found : ""\n`;
+
+        expect( result ).to.equal( output as string );
+
     } ).timeout( 0 );
 
     it( `given key '${ testKey }' should return value`, async () =>

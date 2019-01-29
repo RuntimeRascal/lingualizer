@@ -1,5 +1,6 @@
 import * as fse from 'fs-extra';
 import * as path from 'path';
+import chalk from 'chalk';
 
 const root = path.join( __dirname, '../' );
 
@@ -11,32 +12,36 @@ const root = path.join( __dirname, '../' );
 
 export function createTestDirStructure () 
 {
-    if ( fse.existsSync( path.join( __dirname, '../localization' ) ) )
+    console.log( chalk.bgCyan.yellow( 'before hook -> ensure localization direcoty' ) );
+
+    if ( fse.existsSync( path.join( root, 'localization' ) ) )
     {
-        fse.removeSync( path.join( __dirname, '../localization' ) );
+        fse.removeSync( path.join( root, 'localization' ) );
     }
 
     //if ( !fse.existsSync( path.join( __dirname, '../localization' ) ) )
     //{
     fse.ensureDir( path.join( root, 'localization' ) );
-    if ( !fse.existsSync( path.join( __dirname, '../localization/lingualizer.json' ) ) )
+    if ( !fse.existsSync( path.join( root, 'localization/lingualizer.json' ) ) )
     {
         let contents = fse.readFileSync( path.join( __dirname, './data.json' ) );
-        fse.writeFileSync( path.join( __dirname, '../localization/lingualizer.json' ), contents );
+        fse.writeFileSync( path.join( root, 'localization/lingualizer.json' ), contents );
     }
 
-    if ( !fse.existsSync( path.join( __dirname, '../localization/lingualizer.es-MX.json' ) ) )
+    if ( !fse.existsSync( path.join( root, 'localization/lingualizer.es-MX.json' ) ) )
     {
         let contents = fse.readFileSync( path.join( __dirname, './data.es-MX.json' ) );
-        fse.writeFileSync( path.join( __dirname, '../localization/lingualizer.es-MX.json' ), contents );
+        fse.writeFileSync( path.join( root, 'localization/lingualizer.es-MX.json' ), contents );
     }
     //}
 };
 
 export function cleanup ()
 {
-    if ( fse.existsSync( path.join( __dirname, '../localization' ) ) )
+    console.log( chalk.bgCyan.yellow( 'after hook -> delete localization directory' ) );
+
+    if ( fse.existsSync( path.join( root, 'localization' ) ) )
     {
-        fse.removeSync( path.join( __dirname, '../localization' ) );
+        fse.removeSync( path.join( root, 'localization' ) );
     }
 };

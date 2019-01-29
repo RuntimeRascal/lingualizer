@@ -52,6 +52,7 @@ export function handler ( argv: IArgV )
 
         let json = fse.readJSONSync( filePath );
         let value = undefined;
+        let valueToReturn = '';
         if ( argv.key )
         {
             value = getNestedValueFromJson( json, argv.key );
@@ -62,13 +63,15 @@ export function handler ( argv: IArgV )
                 return;
             }
 
+            valueToReturn = `${ argv.key } : ${ value }`;
+
             printTranslation( argv.key, value );
         }
         else // if no key given show all key values
         {
-            printMembers( json );
+            valueToReturn = printMembers( json );
         }
-        resolve( value );
+        resolve( valueToReturn );
     } );
 
     return argv.asyncResult;
@@ -79,17 +82,23 @@ function printTranslation ( key: string, value: string )
     log( `'${ chalk.cyan( key ) }' : '${ chalk.cyan( value ) }'` );
 }
 
-function printMembers ( obj: any, prefix: string = '' )
+function printMembers ( obj: any, prefix: string = '', running = '' )
 {
+    let str = "";
     for ( const key in obj )
     {
         if ( obj.hasOwnProperty( key ) )
         {
             const v = obj[ key ];
             if ( typeof v == typeof '' )
+            {
+                str += `${ prefix }${ prefix == '' ? '' : '.' }${ key } : ${ JSON.stringify( v ) }\n`;
                 printTranslation( `${ prefix }${ prefix == '' ? '' : '.' }${ key }`, JSON.stringify( v ) );
+            }
             else
-                printMembers( v, key );
+                printMembers( v, key, str );
         }
     }
+
+    return str;
 }

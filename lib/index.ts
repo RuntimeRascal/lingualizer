@@ -7,13 +7,6 @@ import chalk from 'chalk';
 import { getLocalizationDirectoryPath, getLocalizationFileName, getNestedValueFromJson } from './common';
 
 
-const configPath = findup.sync( [ '.lingualizerrc', '.lingualizerrc.json' ] );
-const configrc = configPath ? fse.readJSONSync( configPath ) : null
-if ( !configrc || configrc == null )
-{
-    //TODO: read in from package json
-
-}
 const app = chalk.white( 'lingualizer->' );
 
 /* specifies all possible locale's */
@@ -115,6 +108,7 @@ export class Lingualizer
     private constructor ()
     {
         this._onLocaleChanged = new EventDispatcher<Lingualizer, LocaleChangedEventArgs>();
+        Lingualizer.updateDefaults();
         this._locale = Lingualizer.DefaultLocale;
         this.initTranslations();
     }
@@ -253,6 +247,8 @@ export class Lingualizer
         }
     }
 
+    private static config: any;
+
     /**
      * # for internal use
      *
@@ -265,29 +261,53 @@ export class Lingualizer
      */
     static updateDefaults ( configu?: any ): any
     {
-        let config = configu || configrc;
-        if ( config == null )
+        if ( typeof Lingualizer.config == 'undefined' || !Lingualizer.config )
+        // try to find the config
+        {
+            if ( !configu )
+            {
+                const configPath = findup.sync( [ '.lingualizerrc', '.lingualizerrc.json' ] );
+                Lingualizer.config = configPath ? fse.readJSONSync( configPath ) : null
+                if ( !Lingualizer.config || Lingualizer.config == null )
+                {
+                    //TODO: read in from package json
+
+                }
+            } else
+            {
+                Lingualizer.config = configu;
+            }
+
+            if ( typeof Lingualizer.config == 'undefined' || !Lingualizer.config )
+                return;
+        }
+        else
+        {
+            // we have allready gotten config so dont get it again.
+            // we dont want cli and index to interfere with eachother
             return;
+        }
 
-        if ( config.defaultLocale )
-            Lingualizer.DefaultLocale = config.defaultLocale;
+        // set all static defaults
+        if ( typeof Lingualizer.config.defaultLocale != undefined )
+            Lingualizer.DefaultLocale = Lingualizer.config.defaultLocale;
 
-        if ( config.defaulLocalizationDirName )
-            Lingualizer.DefaulLocalizationDirName = config.defaulLocalizationDirName;
+        if ( typeof Lingualizer.config.defaulLocalizationDirName != undefined )
+            Lingualizer.DefaulLocalizationDirName = Lingualizer.config.defaulLocalizationDirName;
 
-        if ( config.defaultranslationFileName )
-            Lingualizer.DefaultranslationFileName = config.defaultranslationFileName;
+        if ( typeof Lingualizer.config.defaultTranslationFileName != undefined )
+            Lingualizer.DefaultranslationFileName = Lingualizer.config.defaultTranslationFileName;
 
-        if ( config.defaultranslationFileExt )
-            Lingualizer.DefaultranslationFileExt = config.defaultranslationFileExt;
+        if ( typeof Lingualizer.config.defaultTranslationFileExt != undefined )
+            Lingualizer.DefaultranslationFileExt = Lingualizer.config.defaultTranslationFileExt;
 
-        if ( config.cmdCwd )
-            Lingualizer.CmdCwd = config.cmdCwd;
+        if ( typeof Lingualizer.config.cmdCwd != undefined )
+            Lingualizer.CmdCwd = Lingualizer.config.cmdCwd;
 
-        if ( config.cwd )
-            Lingualizer.Cwd = config.cwd;
+        if ( typeof Lingualizer.config.cwd != undefined )
+            Lingualizer.Cwd = Lingualizer.config.cwd;
 
-        return config;
+        return Lingualizer.config;
     }
 
     /**
@@ -301,7 +321,14 @@ export class Lingualizer
      */
     static printDefaults ()
     {
-        console.log( chalk.gray( `${ app } ${ chalk.bold.green( 'Default Settings' ) } locale: ${ chalk.cyan( Lingualizer.DefaultLocale ) } directory: ${ chalk.cyan( Lingualizer.DefaulLocalizationDirName ) } file: ${ chalk.cyan( getLocalizationFileName( false ) ) } ext: '${ chalk.cyan( Lingualizer.DefaultranslationFileExt ) }'` ) );
+        console.log( chalk.gray( `${ app } ${ chalk.bold.green( 'Default Settings' ) } 
+        locale    : ${ chalk.cyan( Lingualizer.DefaultLocale ) } 
+        directory : ${ chalk.cyan( Lingualizer.DefaulLocalizationDirName ) } 
+        file      : ${ chalk.cyan( getLocalizationFileName( false ) ) } 
+        ext       : '${ chalk.cyan( Lingualizer.DefaultranslationFileExt ) }'
+        cwd       : '${ chalk.cyan( Lingualizer.Cwd ) }'
+        cmd cwd   : '${ chalk.cyan( Lingualizer.CmdCwd ) }'
+        ` ) );
     }
 }
 

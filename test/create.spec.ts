@@ -9,7 +9,7 @@ import { IArgV } from '../lib/common';
 var expect = chai.expect;
 
 //before( helper.createTestDirStructure )
-after( helper.cleanup )
+//after( helper.cleanup )
 beforeEach( helper.cleanup )
 
 describe( 'create command', () =>
