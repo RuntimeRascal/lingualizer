@@ -87,7 +87,7 @@ function handler(argv) {
                                 case 1:
                                     contents = _a.sent();
                                     fse.writeJSONSync(filePath, contents, { encoding: 'utf8' });
-                                    resolve(common_1.log("created file: '" + common_1.chalk.cyan(fileName) + "'"));
+                                    resolve(common_1.log("created file: '" + common_1.chalk.cyan(filePath) + "'"));
                                     return [2 /*return*/];
                             }
                         });
@@ -138,7 +138,7 @@ function getContents(argv, defaultFilePath) {
 function ensureLocalizationDirectory() {
     var locDir = common_1.getLocalizationDirectoryPath(true);
     if (!fse.existsSync(locDir))
-        common_1.log("created '" + common_1.chalk.cyanBright(_1.Lingualizer.DefaulLocalizationDirName) + "' directory");
+        common_1.log("created '" + common_1.chalk.cyanBright(locDir) + "' directory");
     fse.ensureDirSync(locDir);
     if (!fse.existsSync(locDir))
         throw new Error(common_1.terminalPrefix + " cannot create '" + common_1.chalk.cyanBright(_1.Lingualizer.DefaulLocalizationDirName) + "' directory at '" + common_1.chalk.red(locDir) + "'");
