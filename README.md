@@ -63,10 +63,11 @@ create a `.lingualizerrc` or `.lingualizerrc.json` file in your project
 ``` json
 {
     "defaultLocale": "en-US",
-    "defaultTranslationFileName": "%project%",
+        "defaultTranslationFileName": "%project%", /*project means look up the project directory name and use that*/
     "defaulLocalizationDirName": "localization",
     "defaultTranslationFileExt": "json",
-    "cwd": "" /* this will be joined using path.join to the current cwd. its to allow choosing a different directory path */
+    "cwd": "./common", /* runtime cwd, this will be joined using path.join to the current cwd. its to allow choosing a different directory path */
+    "cmdCwd" : "" /*like cwd but the path will be used only in cli. lets have a different stucture while developing then runtime*/
 }
 ```  
 
@@ -75,10 +76,11 @@ create a `lingualizer` node in the `package.json` configuration
     "lingualizer":
     {
         "defaultLocale": "en-US",
-        "defaultTranslationFileName": "%project%",
+        "defaultTranslationFileName": "%project%", /*project means look up the project directory name and use that*/
         "defaulLocalizationDirName": "localization",
         "defaultTranslationFileExt": "json",
-        "cwd": "" /* this will be joined using path.join to the current cwd. its to allow choosing a different directory path */
+        "cwd": "./common", /* runtime cwd, this will be joined using path.join to the current cwd. its to allow choosing a different directory path */
+        "cmdCwd" : "" /*like cwd but the path will be used only in cli. lets have a different stucture while developing then runtime*/
     },
 ```   
 
