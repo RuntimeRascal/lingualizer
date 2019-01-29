@@ -56,7 +56,7 @@ export async function handler ( argv: IArgV )
 
         fse.writeJSONSync( filePath, contents, { encoding: 'utf8' } );
 
-        resolve( log( `created file: '${ chalk.cyan( fileName ) }'` ) );
+        resolve( log( `created file: '${ chalk.cyan( filePath ) }'` ) );
     } );
 
     return await argv.asyncResult;
@@ -101,7 +101,7 @@ function ensureLocalizationDirectory ()
 {
     let locDir = getLocalizationDirectoryPath( true );
     if ( !fse.existsSync( locDir ) )
-        log( `created '${ chalk.cyanBright( Lingualizer.DefaulLocalizationDirName ) }' directory` );
+        log( `created '${ chalk.cyanBright( locDir ) }' directory` );
 
     fse.ensureDirSync( locDir );
     if ( !fse.existsSync( locDir ) )
