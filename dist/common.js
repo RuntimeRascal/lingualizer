@@ -39,7 +39,6 @@ var _1 = require(".");
 var path = require("path");
 var fse = require("fs-extra");
 var request = require("request");
-var root = require("app-root-path");
 var chalkpack = require("chalk");
 exports.chalk = chalkpack.default;
 exports.terminalPrefix = exports.chalk.white('lingualizer->');
@@ -66,28 +65,16 @@ function valueSearch(obj, searchWholeKey, lastKey, wholeKey, foundVal) {
         }
     }
 }
-function projectDir(cmd, projectRoot) {
-    if (projectRoot === void 0) { projectRoot = null; }
-    if (projectRoot)
-        return projectRoot;
-    if (_1.Lingualizer.ProjectRoot != null && _1.Lingualizer.ProjectRoot != '')
-        return _1.Lingualizer.ProjectRoot;
-    _1.Lingualizer.ProjectRoot = process.cwd();
-    if (!cmd && _1.Lingualizer.IsElectron)
-        _1.Lingualizer.ProjectRoot = root.path;
-    return _1.Lingualizer.ProjectRoot;
-}
-function projectDirWithConfig(cmd, projectRoot) {
-    if (projectRoot === void 0) { projectRoot = null; }
+function projectDirWithConfig(cmd) {
     var myPath = null;
     if (cmd && _1.Lingualizer.CmdCwd)
-        myPath = path.join(projectDir(cmd, projectRoot), _1.Lingualizer.CmdCwd);
+        myPath = path.join(_1.Lingualizer.ProjectRoot, _1.Lingualizer.CmdCwd);
     if (!cmd && _1.Lingualizer.Cwd)
-        myPath = path.join(projectDir(cmd, projectRoot), _1.Lingualizer.Cwd);
+        myPath = path.join(_1.Lingualizer.ProjectRoot, _1.Lingualizer.Cwd);
     if (myPath != null && myPath != '')
         return myPath;
     else
-        return projectDir(cmd, projectRoot);
+        return _1.Lingualizer.ProjectRoot;
 }
 function log(message) {
     if (message === void 0) { message = ''; }
@@ -111,9 +98,8 @@ function getLocalizationFileName(cmd) {
     return _1.Lingualizer.DefaultranslationFileName;
 }
 exports.getLocalizationFileName = getLocalizationFileName;
-function getLocalizationDirectoryPath(cmd, projectRoot) {
-    if (projectRoot === void 0) { projectRoot = null; }
-    var myPath = projectDirWithConfig(cmd, projectRoot);
+function getLocalizationDirectoryPath(cmd) {
+    var myPath = projectDirWithConfig(cmd);
     return path.join(myPath, _1.Lingualizer.DefaulLocalizationDirName);
 }
 exports.getLocalizationDirectoryPath = getLocalizationDirectoryPath;

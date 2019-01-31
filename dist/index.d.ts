@@ -14,7 +14,6 @@ export declare type LocaleChangedEventArgs = {
  */
 export declare class Lingualizer {
     private _errorMessages;
-    private _projectRoot;
     /**
      * #### Default locale or config's `defaultLocale` if found.
      *
@@ -126,7 +125,6 @@ export declare class Lingualizer {
      * @memberof Lingualizer
      */
     static readonly default: Lingualizer;
-    static instance(projectRoot: string): Lingualizer;
     /**
      * #### Get the localeChanged event
      * > subscribe to event to get notified of locale changing.
@@ -179,8 +177,6 @@ export declare class Lingualizer {
      * @memberof Lingualizer
      */
     static setProjectDir(projectDir: string): void;
-    setProjectDir(projectDir: string): void;
-    getProjectDir(cmd: boolean): string;
     /**
      * # for internal use
      * > sets all @{link Lingualizer} static defaults with provided `configu` or:
