@@ -365,10 +365,12 @@ export class Lingualizer
      */
     static setProjectDir ( projectDir: string )
     {
-        if ( fse.existsSync( projectDir ) )
-            Lingualizer.ProjectRoot = projectDir;
-        else
-            log( chalk.red( `cannot set project root directory to a directory that does not exist. '${ projectDir }'` ) );
+        Lingualizer.ProjectRoot = projectDir;
+
+        // if ( fse.existsSync( projectDir ) )
+        //     Lingualizer.ProjectRoot = projectDir;
+        // else
+        //     log( chalk.red( `cannot set project root directory to a directory that does not exist. '${ projectDir }'` ) );
     }
 
     /**

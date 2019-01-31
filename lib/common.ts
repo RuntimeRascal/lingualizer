@@ -61,12 +61,11 @@ function valueSearch ( obj: object, searchWholeKey: string, lastKey: string, who
 
 function projectDir ( cmd: boolean )
 {
-    if ( Lingualizer.ProjectRoot != null && Lingualizer.ProjectRoot )
+    if ( Lingualizer.ProjectRoot != null && Lingualizer.ProjectRoot != '' )
         return Lingualizer.ProjectRoot;
 
-    if ( cmd || !Lingualizer.IsElectron )
-        Lingualizer.ProjectRoot = process.cwd();
-    else
+    Lingualizer.ProjectRoot = process.cwd();
+    if ( !cmd && Lingualizer.IsElectron )
         Lingualizer.ProjectRoot = root.path;
 
     return Lingualizer.ProjectRoot;
@@ -81,7 +80,7 @@ function projectDirWithConfig ( cmd: boolean )
     if ( !cmd && Lingualizer.Cwd )
         myPath = path.join( projectDir( cmd ), Lingualizer.Cwd );
 
-    if ( myPath )
+    if ( myPath != null && myPath != '' )
         return myPath;
     else
         return projectDir( cmd );
