@@ -53,7 +53,7 @@ var Lingualizer = /** @class */ (function () {
         this._onLocaleChanged = new ste_events_1.EventDispatcher();
         Lingualizer.updateDefaults();
         this._locale = Lingualizer.DefaultLocale;
-        this.initTranslations();
+        //this.initTranslations();
     }
     Object.defineProperty(Lingualizer, "default", {
         /**
@@ -159,8 +159,11 @@ var Lingualizer = /** @class */ (function () {
     Lingualizer.prototype.initTranslations = function (oldLocale) {
         if (oldLocale === void 0) { oldLocale = this._locale; }
         var translationsPath = common_1.getLocalizationDirectoryPath(false);
-        if (!fse.existsSync(translationsPath))
-            throw new Error(util_1.format(this._errorMessages[0], translationsPath));
+        if (!fse.existsSync(translationsPath)) {
+            return;
+            //throw new Error( format( this._errorMessages[ 0 ], translationsPath ) );
+        }
+        ;
         var defaultFile = path.join(translationsPath, common_1.getLocalizationFileName(false) + "." + Lingualizer.DefaultTranslationFileExt);
         var localeFile = path.join(translationsPath, common_1.getLocalizationFileName(false) + "." + this.locale + "." + Lingualizer.DefaultTranslationFileExt);
         // allways try load the default locale translations as we dish them if translated cant be found and it's the most common
