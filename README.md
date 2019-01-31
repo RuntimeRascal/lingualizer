@@ -67,7 +67,8 @@ create a `.lingualizerrc` or `.lingualizerrc.json` file in your project
     "defaulLocalizationDirName": "localization",
     "defaultTranslationFileExt": "json",
     "cwd": "./common", /* runtime cwd, this will be joined using path.join to the current cwd. its to allow choosing a different directory path */
-    "cmdCwd" : "" /*like cwd but the path will be used only in cli. lets have a different stucture while developing then runtime*/
+    "cmdCwd" : "", /*like cwd but the path will be used only in cli. lets have a different stucture while developing then runtime*/
+    "isElectron" : false
 }
 ```  
 
@@ -80,7 +81,8 @@ create a `lingualizer` node in the `package.json` configuration
         "defaulLocalizationDirName": "localization",
         "defaultTranslationFileExt": "json",
         "cwd": "./common", /* runtime cwd, this will be joined using path.join to the current cwd. its to allow choosing a different directory path */
-        "cmdCwd" : "" /*like cwd but the path will be used only in cli. lets have a different stucture while developing then runtime*/
+        "cmdCwd" : "", /*like cwd but the path will be used only in cli. lets have a different stucture while developing then runtime*/
+        "isElectron" : false
     },
 ```   
 

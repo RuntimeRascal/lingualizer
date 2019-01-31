@@ -94,6 +94,7 @@ export class Lingualizer
     public static DefaultranslationFileName = '%project%';
     public static DefaulLocalizationDirName = 'localization';
     public static DefaultranslationFileExt = 'json';
+    public static IsElectron = false;
     public static Cwd = '';
     public static CmdCwd = '';
     private static _instance: Lingualizer = null;
@@ -307,6 +308,9 @@ export class Lingualizer
         if ( typeof Lingualizer.config.cwd != undefined )
             Lingualizer.Cwd = Lingualizer.config.cwd;
 
+        if ( typeof Lingualizer.config.isElectron != undefined )
+            Lingualizer.IsElectron = Lingualizer.config.isElectron;
+
         return Lingualizer.config;
     }
 
@@ -329,9 +333,15 @@ export class Lingualizer
         Ext       : '${ chalk.cyan( Lingualizer.DefaultranslationFileExt ) }'
         Cwd       : '${ chalk.cyan( Lingualizer.Cwd ) }'
         Cmd Cwd   : '${ chalk.cyan( Lingualizer.CmdCwd ) }'
+        Electron  : '${ chalk.cyan( Lingualizer.IsElectron.toString() ) }'
 
+        Project ------------
         Directory : '${ chalk.cyan( getLocalizationDirectoryPath( false ) ) }'
         Filename  : '${ chalk.cyan( `${ getLocalizationFileName( false ) }.${ Lingualizer.DefaultranslationFileExt }` ) }'
+       
+        Terminal -----------
+        Directory : '${ chalk.cyan( getLocalizationDirectoryPath( true ) ) }'
+        Filename  : '${ chalk.cyan( `${ getLocalizationFileName( true ) }.${ Lingualizer.DefaultranslationFileExt }` ) }'
         ${chalk.bold.green( '--------------------------------' ) }` ) );
     }
 }

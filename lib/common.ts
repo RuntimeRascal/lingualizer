@@ -24,10 +24,13 @@ export interface IArgV
     value?: string;
     force?: boolean;
     defaultLocale?: string;
-    defaultranslationFileName?: string;
-    defaulLocalizationDirName?: string;
-    defaultranslationFileExt?: string;
+    defaultTranslationFileName?: string;
+    defaultLocalizationDirName?: string;
+    defaultTranslationFileExt?: string;
+    isElectron?: boolean;
     key?: string;
+    cwd?: string;
+    cmdCwd?: string;
     k?: string;
     fileName?: string;
     locale?: string;
@@ -54,15 +57,9 @@ export function getLocalizationFileName ( cmd: boolean )
 {
     if ( shouldUseProjectName() )
     {
-        let mypath = process.cwd();
-        if ( cmd && Lingualizer.CmdCwd )
-            mypath = path.join( mypath, Lingualizer.CmdCwd );
-
-        if ( !cmd && Lingualizer.Cwd )
-            mypath = path.join( mypath, Lingualizer.Cwd );
-
-        if ( !mypath )
-            mypath = process.cwd();
+        let mypath = getLocalizationDirectoryPath( cmd );
+        if ( mypath.endsWith( Lingualizer.DefaultranslationFileName ) )
+            mypath = mypath.substring( 0, mypath.lastIndexOf( Lingualizer.DefaultranslationFileName ) )
 
         return path.basename( mypath );
     }
@@ -76,17 +73,26 @@ export function getLocalizationFileName ( cmd: boolean )
  */
 export function getLocalizationDirectoryPath ( cmd: boolean )
 {
-    let mypath = process.cwd();
+    // wow this is ugly. need to refactor
+    let myPath: string = null;
+    if ( Lingualizer.IsElectron )
+        myPath = root.path;
+    else
+        myPath = process.cwd();
+
     if ( cmd && Lingualizer.CmdCwd )
-        mypath = path.join( mypath, Lingualizer.CmdCwd );
+        myPath = path.join( myPath, Lingualizer.CmdCwd );
 
     if ( !cmd && Lingualizer.Cwd )
-        mypath = path.join( mypath, Lingualizer.Cwd );
+        myPath = path.join( myPath, Lingualizer.Cwd );
 
-    if ( !mypath )
-        mypath = process.cwd();
+    if ( !myPath )
+        if ( Lingualizer.IsElectron )
+            myPath = process.cwd();
+        else
+            myPath = process.cwd();
 
-    return path.join( mypath, Lingualizer.DefaulLocalizationDirName );
+    return path.join( myPath, Lingualizer.DefaulLocalizationDirName );
 }
 
 /**

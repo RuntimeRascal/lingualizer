@@ -4,5 +4,6 @@
     "defaulLocalizationDirName": "localization",
     "defaultTranslationFileExt": "json",
     "cmdCwd": "",
-    "cwd": ""
+    "cwd": "",
+    isElectron: true
 }
