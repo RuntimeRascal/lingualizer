@@ -5,5 +5,5 @@
     "defaultTranslationFileExt": "json",
     "cmdCwd": "",
     "cwd": "",
-    isElectron: true
+    isElectron: false
 }

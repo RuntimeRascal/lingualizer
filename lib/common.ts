@@ -3,17 +3,9 @@ import * as path from 'path';
 import * as fse from 'fs-extra';
 import * as request from 'request';
 import * as root from 'app-root-path';
-
 import chalkpack = require( 'chalk' );
-
 export const chalk: chalkpack.Chalk = chalkpack.default;
 export const terminalPrefix = chalk.white( 'lingualizer->' );
-
-export function log ( message: any = '' )
-{
-    console.log( chalk.gray( `${ terminalPrefix } ${ message }` ) );
-    return message;
-}
 
 export interface IArgV
 {
@@ -40,30 +32,31 @@ export interface IArgV
     asyncResult: Promise<any>;
 }
 
-export function getLocale ( argv: IArgV )
+function valueSearch ( obj: object, searchWholeKey: string, lastKey: string, wholeKey = '', foundVal = null ): boolean
 {
-    return argv.locale || Lingualizer.DefaultLocale;
-}
-
-export function shouldUseProjectName ()
-{
-    return Lingualizer.DefaultranslationFileName == '%project%';
-}
-
-/**
- * gets the name of the localization directory considering project dir name lookup
- */
-export function getLocalizationFileName ( cmd: boolean )
-{
-    if ( shouldUseProjectName() )
+    if ( !searchWholeKey )
+    // there isnt any nesting to do so just update addKey on root
     {
-        let mypath = projectDirWithConfig( cmd );
-
-        return path.basename( mypath );
+        foundVal = obj[ lastKey ];
+        return foundVal;
     }
 
-    return Lingualizer.DefaultranslationFileName;
-
+    for ( const key in obj ) 
+    {
+        let thisKey = `${ wholeKey }${ key }`;
+        if ( thisKey == searchWholeKey )
+        {
+            foundVal = obj[ key ][ lastKey ];
+            if ( foundVal != null )
+                return foundVal;
+        }
+        else if ( typeof obj[ key ] == 'object' )
+        {
+            foundVal = valueSearch( obj[ key ], searchWholeKey, lastKey, `${ key }.` );
+            if ( foundVal != null )
+                return foundVal;
+        }
+    }
 }
 
 function projectDir ( cmd: boolean )
@@ -94,10 +87,35 @@ function projectDirWithConfig ( cmd: boolean )
         return projectDir( cmd );
 }
 
-/**
- * gets the path to the localization directory according to the default directory name
- * and the relative cmdCwd or cwd config args
- */
+export function log ( message: any = '' )
+{
+    console.log( chalk.gray( `${ terminalPrefix } ${ message }` ) );
+    return message;
+}
+
+export function getLocale ( argv: IArgV )
+{
+    return argv.locale || Lingualizer.DefaultLocale;
+}
+
+export function shouldUseProjectName ()
+{
+    return Lingualizer.DefaultranslationFileName == '%project%';
+}
+
+export function getLocalizationFileName ( cmd: boolean )
+{
+    if ( shouldUseProjectName() )
+    {
+        let mypath = projectDirWithConfig( cmd );
+
+        return path.basename( mypath );
+    }
+
+    return Lingualizer.DefaultranslationFileName;
+
+}
+
 export function getLocalizationDirectoryPath ( cmd: boolean )
 {
     let myPath: string = projectDirWithConfig( cmd );
@@ -105,10 +123,6 @@ export function getLocalizationDirectoryPath ( cmd: boolean )
     return path.join( myPath, Lingualizer.DefaulLocalizationDirName );
 }
 
-/**
- * given the locale will return the file name
- * @param locale the given locale, if none then assume default
- */
 export function getFileNameWithExtention ( argv: IArgV, cmd: boolean )
 {
     let locale = getLocale( argv );
@@ -133,11 +147,6 @@ export function isValidUrl ( url: string )
     return true;
 }
 
-/**
- * get json contents from a file or from a url
- * @param url a url that will return a json file
- * @param filePath a complete filepath to a valid json file
- */
 export async function getJsonFile ( url: string = null, filePath: string = null ): Promise<string>
 {
     let urlGood = url != null && url && url != '' && isValidUrl( url );
@@ -209,30 +218,3 @@ export function getNestedValueFromJson ( obj: object, dotSeperatedKey: string )
 
     return value;
 };
-
-function valueSearch ( obj: object, searchWholeKey: string, lastKey: string, wholeKey = '', foundVal = null ): boolean
-{
-    if ( !searchWholeKey )
-    // there isnt any nesting to do so just update addKey on root
-    {
-        foundVal = obj[ lastKey ];
-        return foundVal;
-    }
-
-    for ( const key in obj ) 
-    {
-        let thisKey = `${ wholeKey }${ key }`;
-        if ( thisKey == searchWholeKey )
-        {
-            foundVal = obj[ key ][ lastKey ];
-            if ( foundVal != null )
-                return foundVal;
-        }
-        else if ( typeof obj[ key ] == 'object' )
-        {
-            foundVal = valueSearch( obj[ key ], searchWholeKey, lastKey, `${ key }.` );
-            if ( foundVal != null )
-                return foundVal;
-        }
-    }
-}

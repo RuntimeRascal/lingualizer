@@ -18,7 +18,14 @@
 
 > `yarn run test`  
 > or  
-> `npm run test`  
+> `npm run test`    
+
+The tests are like smoke tests and perfrom I/O.
+They will create directory and test file struture before test that need them and cleanup/ delete created resources on test finish.
+
+So if you plan to run the tests please observe the code.
+
+> Not all the tests do io.  
 
 # Getting started
 *a very simple javascript based api to get translated strings from localization files*  
@@ -37,7 +44,7 @@ Lingualizer.default.setLocale( 'es-MX' );
 /* [Optional] set the project root directory. notice its static not a instance member */
 Lingualizer.setProjectDir( process.cwd() );
 
-/* get a localized string */
+/* get a localized string. will return from current set locale if exists, or from defualt locale if current set locale doesnt exist and if key cannot be found anywhere returns null */
 let okBtnText = Lingualizer.default.get( 'okBtn' );
 ```
 
