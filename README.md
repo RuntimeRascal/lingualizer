@@ -34,6 +34,9 @@ import {Lingualizer} from 'lingualizer';
 /* set the locale */
 Lingualizer.default.setLocale( 'es-MX' );
 
+/* [Optional] set the project root directory. notice its static not a instance member */
+Lingualizer.setProjectDir( process.cwd() );
+
 /* get a localized string */
 let okBtnText = Lingualizer.default.get( 'okBtn' );
 ```

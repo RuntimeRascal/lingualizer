@@ -68,10 +68,15 @@ export function getLocalizationFileName ( cmd: boolean )
 
 function projectDir ( cmd: boolean )
 {
+    if ( Lingualizer.ProjectRoot != null && Lingualizer.ProjectRoot )
+        return Lingualizer.ProjectRoot;
+
     if ( cmd || !Lingualizer.IsElectron )
-        return process.cwd();
+        Lingualizer.ProjectRoot = process.cwd();
     else
-        return root.path;
+        Lingualizer.ProjectRoot = root.path;
+
+    return Lingualizer.ProjectRoot;
 }
 
 function projectDirWithConfig ( cmd: boolean )

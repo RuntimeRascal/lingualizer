@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as fse from 'fs-extra';
 import * as findup from 'find-up';
 import { EventDispatcher, IEvent } from "ste-events";
-import { format } from 'util';
+import { format, log } from 'util';
 import chalk from 'chalk';
 import { getLocalizationDirectoryPath, getLocalizationFileName, getNestedValueFromJson } from './common';
 
@@ -97,6 +97,7 @@ export class Lingualizer
     public static IsElectron = false;
     public static Cwd = '';
     public static CmdCwd = '';
+    public static ProjectRoot = '';
     private static _instance: Lingualizer = null;
     private _defaultLocaleTranslations = {};
     private _translations = {};
@@ -249,6 +250,14 @@ export class Lingualizer
     }
 
     private static config: any;
+
+    static setProjectDir ( projectDir: string )
+    {
+        if ( fse.existsSync( projectDir ) )
+            Lingualizer.ProjectRoot = projectDir;
+        else
+            log( chalk.red( `cannot set project root directory to a directory that does not exist. '${ projectDir }'` ) );
+    }
 
     /**
      * # for internal use
