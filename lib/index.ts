@@ -197,6 +197,7 @@ export class Lingualizer
     private _translations = {};
     private _locale: Locale | null = null;
     private _onLocaleChanged: EventDispatcher<Lingualizer, LocaleChangedEventArgs>;
+    private _projectRoot = null;
 
     private constructor ()
     {
@@ -204,6 +205,16 @@ export class Lingualizer
         Lingualizer.updateDefaults();
         this._locale = Lingualizer.DefaultLocale;
         //this.initTranslations();
+    }
+
+    public get root ()
+    {
+        return this._projectRoot;
+    }
+
+    public set root ( root: string )
+    {
+        this._projectRoot = root;
     }
 
     /**
@@ -317,7 +328,7 @@ export class Lingualizer
      */
     public initTranslations ( oldLocale: Locale = this._locale )
     {
-        let translationsPath = getLocalizationDirectoryPath( false );
+        let translationsPath = getLocalizationDirectoryPath( false, this._projectRoot );
 
         if ( !fse.existsSync( translationsPath ) )
         {

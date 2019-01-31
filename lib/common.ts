@@ -58,19 +58,19 @@ function valueSearch ( obj: object, searchWholeKey: string, lastKey: string, who
     }
 }
 
-function projectDirWithConfig ( cmd: boolean )
+function projectDirWithConfig ( cmd: boolean, optionalRoot = null )
 {
     let myPath: string = null;
     if ( cmd && Lingualizer.CmdCwd )
-        myPath = path.join( Lingualizer.ProjectRoot, Lingualizer.CmdCwd );
+        myPath = path.join( optionalRoot != null ? optionalRoot : Lingualizer.ProjectRoot, Lingualizer.CmdCwd );
 
     if ( !cmd && Lingualizer.Cwd )
-        myPath = path.join( Lingualizer.ProjectRoot, Lingualizer.Cwd );
+        myPath = path.join( optionalRoot != null ? optionalRoot : Lingualizer.ProjectRoot, Lingualizer.Cwd );
 
     if ( myPath != null && myPath != '' )
         return myPath;
     else
-        return Lingualizer.ProjectRoot;
+        return optionalRoot != null ? optionalRoot : Lingualizer.ProjectRoot;
 }
 
 export function log ( message: any = '' )
@@ -102,9 +102,9 @@ export function getLocalizationFileName ( cmd: boolean )
 
 }
 
-export function getLocalizationDirectoryPath ( cmd: boolean )
+export function getLocalizationDirectoryPath ( cmd: boolean, optionalRoot = null )
 {
-    let myPath: string = projectDirWithConfig( cmd );
+    let myPath: string = projectDirWithConfig( cmd, optionalRoot );
 
     return path.join( myPath, Lingualizer.DefaulLocalizationDirName );
 }
