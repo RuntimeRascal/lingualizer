@@ -2,7 +2,6 @@ import { Lingualizer } from ".";
 import * as path from 'path';
 import * as fse from 'fs-extra';
 import * as request from 'request';
-import * as root from 'app-root-path';
 import chalkpack = require( 'chalk' );
 export const chalk: chalkpack.Chalk = chalkpack.default;
 export const terminalPrefix = chalk.white( 'lingualizer->' );
@@ -59,34 +58,19 @@ function valueSearch ( obj: object, searchWholeKey: string, lastKey: string, who
     }
 }
 
-function projectDir ( cmd: boolean, projectRoot = null )
-{
-    if ( projectRoot )
-        return projectRoot;
-
-    if ( Lingualizer.ProjectRoot != null && Lingualizer.ProjectRoot != '' )
-        return Lingualizer.ProjectRoot;
-
-    Lingualizer.ProjectRoot = process.cwd();
-    if ( !cmd && Lingualizer.IsElectron )
-        Lingualizer.ProjectRoot = root.path;
-
-    return Lingualizer.ProjectRoot;
-}
-
-function projectDirWithConfig ( cmd: boolean, projectRoot = null )
+function projectDirWithConfig ( cmd: boolean )
 {
     let myPath: string = null;
     if ( cmd && Lingualizer.CmdCwd )
-        myPath = path.join( projectDir( cmd, projectRoot ), Lingualizer.CmdCwd );
+        myPath = path.join( Lingualizer.ProjectRoot, Lingualizer.CmdCwd );
 
     if ( !cmd && Lingualizer.Cwd )
-        myPath = path.join( projectDir( cmd, projectRoot ), Lingualizer.Cwd );
+        myPath = path.join( Lingualizer.ProjectRoot, Lingualizer.Cwd );
 
     if ( myPath != null && myPath != '' )
         return myPath;
     else
-        return projectDir( cmd, projectRoot );
+        return Lingualizer.ProjectRoot;
 }
 
 export function log ( message: any = '' )
@@ -118,9 +102,9 @@ export function getLocalizationFileName ( cmd: boolean )
 
 }
 
-export function getLocalizationDirectoryPath ( cmd: boolean, projectRoot = null )
+export function getLocalizationDirectoryPath ( cmd: boolean )
 {
-    let myPath: string = projectDirWithConfig( cmd, projectRoot );
+    let myPath: string = projectDirWithConfig( cmd );
 
     return path.join( myPath, Lingualizer.DefaulLocalizationDirName );
 }
