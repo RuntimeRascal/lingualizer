@@ -18,6 +18,7 @@ export declare class Lingualizer {
     static DefaultranslationFileName: string;
     static DefaulLocalizationDirName: string;
     static DefaultranslationFileExt: string;
+    static IsElectron: boolean;
     static Cwd: string;
     static CmdCwd: string;
     private static _instance;

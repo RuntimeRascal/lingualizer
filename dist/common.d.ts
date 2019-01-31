@@ -10,10 +10,13 @@ export interface IArgV {
     value?: string;
     force?: boolean;
     defaultLocale?: string;
-    defaultranslationFileName?: string;
-    defaulLocalizationDirName?: string;
-    defaultranslationFileExt?: string;
+    defaultTranslationFileName?: string;
+    defaultLocalizationDirName?: string;
+    defaultTranslationFileExt?: string;
+    isElectron?: boolean;
     key?: string;
+    cwd?: string;
+    cmdCwd?: string;
     k?: string;
     fileName?: string;
     locale?: string;

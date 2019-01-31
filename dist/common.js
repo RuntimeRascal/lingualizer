@@ -39,6 +39,7 @@ var _1 = require(".");
 var path = require("path");
 var fse = require("fs-extra");
 var request = require("request");
+var root = require("app-root-path");
 var chalkpack = require("chalk");
 exports.chalk = chalkpack.default;
 exports.terminalPrefix = exports.chalk.white('lingualizer->');
@@ -61,13 +62,9 @@ exports.shouldUseProjectName = shouldUseProjectName;
  */
 function getLocalizationFileName(cmd) {
     if (shouldUseProjectName()) {
-        var mypath = process.cwd();
-        if (cmd && _1.Lingualizer.CmdCwd)
-            mypath = path.join(mypath, _1.Lingualizer.CmdCwd);
-        if (!cmd && _1.Lingualizer.Cwd)
-            mypath = path.join(mypath, _1.Lingualizer.Cwd);
-        if (!mypath)
-            mypath = process.cwd();
+        var mypath = getLocalizationDirectoryPath(cmd);
+        if (mypath.endsWith(_1.Lingualizer.DefaultranslationFileName))
+            mypath = mypath.substring(0, mypath.lastIndexOf(_1.Lingualizer.DefaultranslationFileName));
         return path.basename(mypath);
     }
     return _1.Lingualizer.DefaultranslationFileName;
@@ -77,14 +74,22 @@ exports.getLocalizationFileName = getLocalizationFileName;
  * gets the path to the localization directory according to the default directory name
  */
 function getLocalizationDirectoryPath(cmd) {
-    var mypath = process.cwd();
+    // wow this is ugly. need to refactor
+    var myPath = null;
+    if (_1.Lingualizer.IsElectron)
+        myPath = root.path;
+    else
+        myPath = process.cwd();
     if (cmd && _1.Lingualizer.CmdCwd)
-        mypath = path.join(mypath, _1.Lingualizer.CmdCwd);
+        myPath = path.join(myPath, _1.Lingualizer.CmdCwd);
     if (!cmd && _1.Lingualizer.Cwd)
-        mypath = path.join(mypath, _1.Lingualizer.Cwd);
-    if (!mypath)
-        mypath = process.cwd();
-    return path.join(mypath, _1.Lingualizer.DefaulLocalizationDirName);
+        myPath = path.join(myPath, _1.Lingualizer.Cwd);
+    if (!myPath)
+        if (_1.Lingualizer.IsElectron)
+            myPath = process.cwd();
+        else
+            myPath = process.cwd();
+    return path.join(myPath, _1.Lingualizer.DefaulLocalizationDirName);
 }
 exports.getLocalizationDirectoryPath = getLocalizationDirectoryPath;
 /**

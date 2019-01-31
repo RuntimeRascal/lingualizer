@@ -220,6 +220,8 @@ var Lingualizer = /** @class */ (function () {
             Lingualizer.CmdCwd = Lingualizer.config.cmdCwd;
         if (typeof Lingualizer.config.cwd != undefined)
             Lingualizer.Cwd = Lingualizer.config.cwd;
+        if (typeof Lingualizer.config.isElectron != undefined)
+            Lingualizer.IsElectron = Lingualizer.config.isElectron;
         return Lingualizer.config;
     };
     /**
@@ -232,13 +234,14 @@ var Lingualizer = /** @class */ (function () {
      * @memberof Lingualizer
      */
     Lingualizer.printDefaults = function () {
-        console.log(chalk_1.default.gray(app + " \n        " + chalk_1.default.bold.green('------- Default Settings -------') + " \n        Locale    : '" + chalk_1.default.cyan(Lingualizer.DefaultLocale) + "' \n        Directory : '" + chalk_1.default.cyan(Lingualizer.DefaulLocalizationDirName) + "'\n        File      : '" + chalk_1.default.cyan(common_1.getLocalizationFileName(false)) + "' \n        Ext       : '" + chalk_1.default.cyan(Lingualizer.DefaultranslationFileExt) + "'\n        Cwd       : '" + chalk_1.default.cyan(Lingualizer.Cwd) + "'\n        Cmd Cwd   : '" + chalk_1.default.cyan(Lingualizer.CmdCwd) + "'\n\n        Directory : '" + chalk_1.default.cyan(common_1.getLocalizationDirectoryPath(false)) + "'\n        Filename  : '" + chalk_1.default.cyan(common_1.getLocalizationFileName(false) + "." + Lingualizer.DefaultranslationFileExt) + "'\n        " + chalk_1.default.bold.green('--------------------------------')));
+        console.log(chalk_1.default.gray(app + " \n        " + chalk_1.default.bold.green('------- Default Settings -------') + " \n        Locale    : '" + chalk_1.default.cyan(Lingualizer.DefaultLocale) + "' \n        Directory : '" + chalk_1.default.cyan(Lingualizer.DefaulLocalizationDirName) + "'\n        File      : '" + chalk_1.default.cyan(common_1.getLocalizationFileName(false)) + "' \n        Ext       : '" + chalk_1.default.cyan(Lingualizer.DefaultranslationFileExt) + "'\n        Cwd       : '" + chalk_1.default.cyan(Lingualizer.Cwd) + "'\n        Cmd Cwd   : '" + chalk_1.default.cyan(Lingualizer.CmdCwd) + "'\n        Electron  : '" + chalk_1.default.cyan(Lingualizer.IsElectron.toString()) + "'\n\n        Project ------------\n        Directory : '" + chalk_1.default.cyan(common_1.getLocalizationDirectoryPath(false)) + "'\n        Filename  : '" + chalk_1.default.cyan(common_1.getLocalizationFileName(false) + "." + Lingualizer.DefaultranslationFileExt) + "'\n       \n        Terminal -----------\n        Directory : '" + chalk_1.default.cyan(common_1.getLocalizationDirectoryPath(true)) + "'\n        Filename  : '" + chalk_1.default.cyan(common_1.getLocalizationFileName(true) + "." + Lingualizer.DefaultranslationFileExt) + "'\n        " + chalk_1.default.bold.green('--------------------------------')));
     };
     /* if config provided, these defaults will be set to config upon file load */
     Lingualizer.DefaultLocale = 'en-US';
     Lingualizer.DefaultranslationFileName = '%project%';
     Lingualizer.DefaulLocalizationDirName = 'localization';
     Lingualizer.DefaultranslationFileExt = 'json';
+    Lingualizer.IsElectron = false;
     Lingualizer.Cwd = '';
     Lingualizer.CmdCwd = '';
     Lingualizer._instance = null;
