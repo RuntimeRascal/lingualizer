@@ -57,9 +57,7 @@ export function getLocalizationFileName ( cmd: boolean )
 {
     if ( shouldUseProjectName() )
     {
-        let mypath = getLocalizationDirectoryPath( cmd );
-        if ( mypath.endsWith( Lingualizer.DefaultranslationFileName ) )
-            mypath = mypath.substring( 0, mypath.lastIndexOf( Lingualizer.DefaultranslationFileName ) )
+        let mypath = projectDirWithConfig( cmd );
 
         return path.basename( mypath );
     }
@@ -68,29 +66,36 @@ export function getLocalizationFileName ( cmd: boolean )
 
 }
 
+function projectDir ( cmd: boolean )
+{
+    if ( cmd || !Lingualizer.IsElectron )
+        return process.cwd();
+    else
+        return root.path;
+}
+
+function projectDirWithConfig ( cmd: boolean )
+{
+    let myPath: string = null;
+    if ( cmd && Lingualizer.CmdCwd )
+        myPath = path.join( projectDir( cmd ), Lingualizer.CmdCwd );
+
+    if ( !cmd && Lingualizer.Cwd )
+        myPath = path.join( projectDir( cmd ), Lingualizer.Cwd );
+
+    if ( myPath )
+        return myPath;
+    else
+        return projectDir( cmd );
+}
+
 /**
  * gets the path to the localization directory according to the default directory name
+ * and the relative cmdCwd or cwd config args
  */
 export function getLocalizationDirectoryPath ( cmd: boolean )
 {
-    // wow this is ugly. need to refactor
-    let myPath: string = null;
-    if ( Lingualizer.IsElectron )
-        myPath = root.path;
-    else
-        myPath = process.cwd();
-
-    if ( cmd && Lingualizer.CmdCwd )
-        myPath = path.join( myPath, Lingualizer.CmdCwd );
-
-    if ( !cmd && Lingualizer.Cwd )
-        myPath = path.join( myPath, Lingualizer.Cwd );
-
-    if ( !myPath )
-        if ( Lingualizer.IsElectron )
-            myPath = process.cwd();
-        else
-            myPath = process.cwd();
+    let myPath: string = projectDirWithConfig( cmd );
 
     return path.join( myPath, Lingualizer.DefaulLocalizationDirName );
 }
