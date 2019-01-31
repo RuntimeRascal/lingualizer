@@ -62,33 +62,35 @@ exports.shouldUseProjectName = shouldUseProjectName;
  */
 function getLocalizationFileName(cmd) {
     if (shouldUseProjectName()) {
-        var mypath = getLocalizationDirectoryPath(cmd);
-        if (mypath.endsWith(_1.Lingualizer.DefaultranslationFileName))
-            mypath = mypath.substring(0, mypath.lastIndexOf(_1.Lingualizer.DefaultranslationFileName));
+        var mypath = projectDirWithConfig(cmd);
         return path.basename(mypath);
     }
     return _1.Lingualizer.DefaultranslationFileName;
 }
 exports.getLocalizationFileName = getLocalizationFileName;
+function projectDir(cmd) {
+    if (cmd || !_1.Lingualizer.IsElectron)
+        return process.cwd();
+    else
+        return root.path;
+}
+function projectDirWithConfig(cmd) {
+    var myPath = null;
+    if (cmd && _1.Lingualizer.CmdCwd)
+        myPath = path.join(projectDir(cmd), _1.Lingualizer.CmdCwd);
+    if (!cmd && _1.Lingualizer.Cwd)
+        myPath = path.join(projectDir(cmd), _1.Lingualizer.Cwd);
+    if (myPath)
+        return myPath;
+    else
+        return projectDir(cmd);
+}
 /**
  * gets the path to the localization directory according to the default directory name
+ * and the relative cmdCwd or cwd config args
  */
 function getLocalizationDirectoryPath(cmd) {
-    // wow this is ugly. need to refactor
-    var myPath = null;
-    if (_1.Lingualizer.IsElectron)
-        myPath = root.path;
-    else
-        myPath = process.cwd();
-    if (cmd && _1.Lingualizer.CmdCwd)
-        myPath = path.join(myPath, _1.Lingualizer.CmdCwd);
-    if (!cmd && _1.Lingualizer.Cwd)
-        myPath = path.join(myPath, _1.Lingualizer.Cwd);
-    if (!myPath)
-        if (_1.Lingualizer.IsElectron)
-            myPath = process.cwd();
-        else
-            myPath = process.cwd();
+    var myPath = projectDirWithConfig(cmd);
     return path.join(myPath, _1.Lingualizer.DefaulLocalizationDirName);
 }
 exports.getLocalizationDirectoryPath = getLocalizationDirectoryPath;

@@ -33,6 +33,7 @@ export declare function shouldUseProjectName(): boolean;
 export declare function getLocalizationFileName(cmd: boolean): string;
 /**
  * gets the path to the localization directory according to the default directory name
+ * and the relative cmdCwd or cwd config args
  */
 export declare function getLocalizationDirectoryPath(cmd: boolean): string;
 /**
