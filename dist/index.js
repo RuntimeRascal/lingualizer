@@ -42,9 +42,6 @@ var Lookup = [
  * @class Lingualizer
  */
 var Lingualizer = /** @class */ (function () {
-    /**
-     * initialize a the single new instance of Lingualizer
-     */
     function Lingualizer() {
         this._errorMessages = [
             "unable to find a translations directory  at '%s'.",
@@ -59,6 +56,15 @@ var Lingualizer = /** @class */ (function () {
         this.initTranslations();
     }
     Object.defineProperty(Lingualizer, "default", {
+        /**
+         * #### Lingualizer singleton instance
+         * > use to access the members of the `Lingualizer` module.
+         *
+         * @readonly
+         * @static
+         * @type {Lingualizer}
+         * @memberof Lingualizer
+         */
         get: function () {
             if (Lingualizer._instance == null)
                 Lingualizer._instance = new Lingualizer();
@@ -70,8 +76,10 @@ var Lingualizer = /** @class */ (function () {
     });
     Object.defineProperty(Lingualizer.prototype, "onLocaleChanged", {
         /**
-         * subscribe to get notified when the locale changes
+         * #### Get the localeChanged event
+         * > subscribe to event to get notified of locale changing.
          *
+         * @property {IEvent<Lingualizer, LocaleChangedEventArgs>} Lingualizer.default.onLocaleChanged
          * @readonly
          * @type {IEvent<Lingualizer, LocaleChangedEventArgs>} gives the Lingualizer instance that raised the event and a object containing the old and new locales
          * @memberof Lingualizer
@@ -84,19 +92,20 @@ var Lingualizer = /** @class */ (function () {
     });
     Object.defineProperty(Lingualizer.prototype, "locale", {
         /**
-         * gets the currently set locale. will return `null` if locale has not been set
-         * and can assume to use default locale
-         *
-         * @type {Locale}
-         * @memberof Lingualizer
+         * #### Gets the current locale.
+         * > will return `null` if locale has not been set
+         * > if not set, @{link Lingualizer.default.get()} will use @{link Lingualizer#DefaultLocale}
          */
         get: function () {
             return this._locale;
         },
         /**
-         * set the current locale. will trigger the `localeChanged` event so subscribers
-         * can get translations from the newly set locale
+         * #### Set the current locale.
+         * > will trigger the `localeChanged` event so subscribers can get translations from the newly set locale
          *
+         * @fires onLocaleChanged
+         * @type {Locale}
+         * @property {Locale} Lingualizer.default.locale
          * @memberof Lingualizer
          */
         set: function (locale) {
@@ -104,19 +113,22 @@ var Lingualizer = /** @class */ (function () {
             if (oldLocale == locale)
                 return;
             this._locale = locale;
-            this.initTranslations(oldLocale);
-            //console.log( `set locale to ${ this._locale }` );
+            try {
+                this.initTranslations(oldLocale);
+            }
+            catch (error) {
+                util_1.log("failed to initialize translations. error: " + error.message);
+            }
         },
         enumerable: true,
         configurable: true
     });
     /**
-     * get a keys value from translated locale or default locale if non-default locale is set and the key cannot be found
+     * #### Get a translation
+     * > get a keys value from translated locale or default locale if non-default locale is set and the key cannot be found
      *
-     * @author tsimper
-     * @date 2019-01-24
-     * @param {string} key the name of the string to look up
-     * @returns {string} the tranlated string or default if no translation found or default locale set and if no default returns null
+     * @param {string} key the name _[key]_ of the string to look up
+     * @returns {string} get a keys value from translated locale or default locale if non-default locale is set and the key cannot be found
      * @memberof Lingualizer
      */
     Lingualizer.prototype.get = function (key) {
@@ -138,10 +150,9 @@ var Lingualizer = /** @class */ (function () {
         return value;
     };
     /**
-     * set `_translations` to json read from translations.json file according to the currently set locale
+     * #### Initialize translations.
+     * > reads the translation file json into memory for future get requests
      *
-     * @author tsimper
-     * @date 2019-01-15
      * @export
      * @returns
      */
@@ -150,8 +161,8 @@ var Lingualizer = /** @class */ (function () {
         var translationsPath = common_1.getLocalizationDirectoryPath(false);
         if (!fse.existsSync(translationsPath))
             throw new Error(util_1.format(this._errorMessages[0], translationsPath));
-        var defaultFile = path.join(translationsPath, common_1.getLocalizationFileName(false) + "." + Lingualizer.DefaultranslationFileExt);
-        var localeFile = path.join(translationsPath, common_1.getLocalizationFileName(false) + "." + this.locale + "." + Lingualizer.DefaultranslationFileExt);
+        var defaultFile = path.join(translationsPath, common_1.getLocalizationFileName(false) + "." + Lingualizer.DefaultTranslationFileExt);
+        var localeFile = path.join(translationsPath, common_1.getLocalizationFileName(false) + "." + this.locale + "." + Lingualizer.DefaultTranslationFileExt);
         // allways try load the default locale translations as we dish them if translated cant be found and it's the most common
         //  as in what would be loaded at starup only changing if set locale to non-default
         if (fse.existsSync(defaultFile)) {
@@ -176,13 +187,31 @@ var Lingualizer = /** @class */ (function () {
         }
     };
     /**
-     * # for internal use
+     * #### Set the project's absolute path
+     * > use if default's are not working for your configuration.
+     * > the path must exist to successfully set the ProjectRoot.
      *
-     * @author tsimper
-     * @date 2019-01-18
      * @static
-     * @param {*} [configu]
-     * @returns {*}
+     * @param {string} projectDir the absolute path to use for determining Lingualizer related paths.
+     * @memberof Lingualizer
+     */
+    Lingualizer.setProjectDir = function (projectDir) {
+        if (fse.existsSync(projectDir))
+            Lingualizer.ProjectRoot = projectDir;
+        else
+            util_1.log(chalk_1.default.red("cannot set project root directory to a directory that does not exist. '" + projectDir + "'"));
+    };
+    /**
+     * # for internal use
+     * > sets all @{link Lingualizer} static defaults with provided `configu` or:
+     * > - looks up any `.lingualizerrc` | `.lingualizerrc.json` and uses this if found
+     * > - looks up any `lingualizer` in `package.json` and uses this if found
+     *
+     * > if no `configu` argument is provided and the configuration has allready been looked up, it will not be looked up again.
+     *
+     * @static
+     * @param {*} [configu] configuration object to use to set all defaults with
+     * @returns {*} the current determined configuration object
      * @memberof Lingualizer
      */
     Lingualizer.updateDefaults = function (configu) {
@@ -215,7 +244,7 @@ var Lingualizer = /** @class */ (function () {
         if (typeof Lingualizer.config.defaultTranslationFileName != undefined)
             Lingualizer.DefaultranslationFileName = Lingualizer.config.defaultTranslationFileName;
         if (typeof Lingualizer.config.defaultTranslationFileExt != undefined)
-            Lingualizer.DefaultranslationFileExt = Lingualizer.config.defaultTranslationFileExt;
+            Lingualizer.DefaultTranslationFileExt = Lingualizer.config.defaultTranslationFileExt;
         if (typeof Lingualizer.config.cmdCwd != undefined)
             Lingualizer.CmdCwd = Lingualizer.config.cmdCwd;
         if (typeof Lingualizer.config.cwd != undefined)
@@ -226,24 +255,109 @@ var Lingualizer = /** @class */ (function () {
     };
     /**
      * # for internal use
+     * > prints to console all the configuration and current defaults as determined.
      *
-     * @author tsimper
-     * @date 2019-01-18
      * @static
      * @returns
      * @memberof Lingualizer
      */
     Lingualizer.printDefaults = function () {
-        console.log(chalk_1.default.gray(app + " \n        " + chalk_1.default.bold.green('------- Default Settings -------') + " \n        Locale    : '" + chalk_1.default.cyan(Lingualizer.DefaultLocale) + "' \n        Directory : '" + chalk_1.default.cyan(Lingualizer.DefaulLocalizationDirName) + "'\n        File      : '" + chalk_1.default.cyan(common_1.getLocalizationFileName(false)) + "' \n        Ext       : '" + chalk_1.default.cyan(Lingualizer.DefaultranslationFileExt) + "'\n        Cwd       : '" + chalk_1.default.cyan(Lingualizer.Cwd) + "'\n        Cmd Cwd   : '" + chalk_1.default.cyan(Lingualizer.CmdCwd) + "'\n        Electron  : '" + chalk_1.default.cyan(Lingualizer.IsElectron.toString()) + "'\n\n        Project ------------\n        Directory : '" + chalk_1.default.cyan(common_1.getLocalizationDirectoryPath(false)) + "'\n        Filename  : '" + chalk_1.default.cyan(common_1.getLocalizationFileName(false) + "." + Lingualizer.DefaultranslationFileExt) + "'\n       \n        Terminal -----------\n        Directory : '" + chalk_1.default.cyan(common_1.getLocalizationDirectoryPath(true)) + "'\n        Filename  : '" + chalk_1.default.cyan(common_1.getLocalizationFileName(true) + "." + Lingualizer.DefaultranslationFileExt) + "'\n        " + chalk_1.default.bold.green('--------------------------------')));
+        console.log(chalk_1.default.gray(app + " \n        " + chalk_1.default.bold.green('------- Default Settings -------') + " \n        Locale    : '" + chalk_1.default.cyan(Lingualizer.DefaultLocale) + "' \n        Directory : '" + chalk_1.default.cyan(Lingualizer.DefaulLocalizationDirName) + "'\n        File      : '" + chalk_1.default.cyan(common_1.getLocalizationFileName(false)) + "' \n        Ext       : '" + chalk_1.default.cyan(Lingualizer.DefaultTranslationFileExt) + "'\n        Cwd       : '" + chalk_1.default.cyan(Lingualizer.Cwd) + "'\n        Cmd Cwd   : '" + chalk_1.default.cyan(Lingualizer.CmdCwd) + "'\n        Electron  : '" + chalk_1.default.cyan(Lingualizer.IsElectron.toString()) + "'\n\n        Project ------------\n        Directory : '" + chalk_1.default.cyan(common_1.getLocalizationDirectoryPath(false)) + "'\n        Filename  : '" + chalk_1.default.cyan(common_1.getLocalizationFileName(false) + "." + Lingualizer.DefaultTranslationFileExt) + "'\n       \n        Terminal -----------\n        Directory : '" + chalk_1.default.cyan(common_1.getLocalizationDirectoryPath(true)) + "'\n        Filename  : '" + chalk_1.default.cyan(common_1.getLocalizationFileName(true) + "." + Lingualizer.DefaultTranslationFileExt) + "'\n        " + chalk_1.default.bold.green('--------------------------------')));
     };
-    /* if config provided, these defaults will be set to config upon file load */
+    /**
+     * #### Default locale or config's `defaultLocale` if found.
+     *
+     * |config|name|
+     * |:------|:----|
+     * |.lingualizerrc|`defaultLocale`|
+     * |package.json|`lingualizer.defaultLocale`|
+     * @static
+     * @type {Locale}
+     * @memberof Lingualizer
+     */
     Lingualizer.DefaultLocale = 'en-US';
+    /**
+     * #### Translation file name _[without extention]_.
+     * > If `%project%` then the @{link Lingualizer#ProjectRoot} dir **basename** name is used.
+     *
+     * |config|name|
+     * |:------|:----|
+     * |.lingualizerrc|`defaultranslationFileName`|
+     * |package.json|`lingualizer.defaultranslationFileName`|
+     * @static
+     * @memberof Lingualizer
+     */
     Lingualizer.DefaultranslationFileName = '%project%';
+    /**
+     * #### Name of localization directory where translation files are stored.
+     *
+     * |config|name|
+     * |:------|:----|
+     * |.lingualizerrc|`defaulLocalizationDirName`|
+     * |package.json|`lingualizer.defaulLocalizationDirName`|
+     * @static
+     * @memberof Lingualizer
+     */
     Lingualizer.DefaulLocalizationDirName = 'localization';
-    Lingualizer.DefaultranslationFileExt = 'json';
+    /**
+     * #### Translation file extention to use.
+     * > currently only `json` is supported.
+     *
+     * |config|name|
+     * |:------|:----|
+     * |.lingualizerrc|`defaultTranslationFileExt`|
+     * |package.json|`lingualizer.defaultTranslationFileExt`|
+     * @static
+     * @memberof Lingualizer
+     */
+    Lingualizer.DefaultTranslationFileExt = 'json';
+    /**
+     * #### Is an `electron` application.
+     * _ignored if set abs path with @{link Lingualizer#setProjectRoot}_
+     *
+     * > this is used to try different methods of determining project root.
+     * > for instance may be in `.asar` at runtime.
+     *
+     * |config|name|
+     * |:------|:----|
+     * |.lingualizerrc|`isElectron`|
+     * |package.json|`lingualizer.isElectron`|
+     * @static
+     * @memberof Lingualizer
+     */
     Lingualizer.IsElectron = false;
+    /**
+     * #### Alternative directory path relative to @{link Linugalizer#ProjectRoot}
+     * > use this to specify a directory path from the project root directory of the directory to create the `localization` directory in.
+     *
+     * |config|name|
+     * |:------|:----|
+     * |.lingualizerrc|`cwd`|
+     * |package.json|`lingualizer.cwd`|
+     * @static
+     * @memberof Lingualizer
+     */
     Lingualizer.Cwd = '';
+    /**
+     * #### _(for terminal use)_ Alternative directory path relative to @{link Linugalizer#ProjectRoot}
+     * > use this to specify a directory path from the project root directory of the directory to create the `localization` directory in.
+     *
+     * |config|name|
+     * |:------|:----|
+     * |.lingualizerrc|`cmdCwd`|
+     * |package.json|`lingualizer.cmdCwd`|
+     * @static
+     * @memberof Lingualizer
+     */
     Lingualizer.CmdCwd = '';
+    /**
+     * #### The project directory's absolute path.
+     * > please use @{link Lingualizer#setProjectDir} to modify root
+     *
+     * @static
+     * @memberof Lingualizer
+     */
+    Lingualizer.ProjectRoot = '';
     Lingualizer._instance = null;
     return Lingualizer;
 }());

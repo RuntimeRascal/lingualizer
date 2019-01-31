@@ -43,6 +43,49 @@ var root = require("app-root-path");
 var chalkpack = require("chalk");
 exports.chalk = chalkpack.default;
 exports.terminalPrefix = exports.chalk.white('lingualizer->');
+function valueSearch(obj, searchWholeKey, lastKey, wholeKey, foundVal) {
+    if (wholeKey === void 0) { wholeKey = ''; }
+    if (foundVal === void 0) { foundVal = null; }
+    if (!searchWholeKey) 
+    // there isnt any nesting to do so just update addKey on root
+    {
+        foundVal = obj[lastKey];
+        return foundVal;
+    }
+    for (var key in obj) {
+        var thisKey = "" + wholeKey + key;
+        if (thisKey == searchWholeKey) {
+            foundVal = obj[key][lastKey];
+            if (foundVal != null)
+                return foundVal;
+        }
+        else if (typeof obj[key] == 'object') {
+            foundVal = valueSearch(obj[key], searchWholeKey, lastKey, key + ".");
+            if (foundVal != null)
+                return foundVal;
+        }
+    }
+}
+function projectDir(cmd) {
+    if (_1.Lingualizer.ProjectRoot != null && _1.Lingualizer.ProjectRoot)
+        return _1.Lingualizer.ProjectRoot;
+    if (cmd || !_1.Lingualizer.IsElectron)
+        _1.Lingualizer.ProjectRoot = process.cwd();
+    else
+        _1.Lingualizer.ProjectRoot = root.path;
+    return _1.Lingualizer.ProjectRoot;
+}
+function projectDirWithConfig(cmd) {
+    var myPath = null;
+    if (cmd && _1.Lingualizer.CmdCwd)
+        myPath = path.join(projectDir(cmd), _1.Lingualizer.CmdCwd);
+    if (!cmd && _1.Lingualizer.Cwd)
+        myPath = path.join(projectDir(cmd), _1.Lingualizer.Cwd);
+    if (myPath)
+        return myPath;
+    else
+        return projectDir(cmd);
+}
 function log(message) {
     if (message === void 0) { message = ''; }
     console.log(exports.chalk.gray(exports.terminalPrefix + " " + message));
@@ -57,9 +100,6 @@ function shouldUseProjectName() {
     return _1.Lingualizer.DefaultranslationFileName == '%project%';
 }
 exports.shouldUseProjectName = shouldUseProjectName;
-/**
- * gets the name of the localization directory considering project dir name lookup
- */
 function getLocalizationFileName(cmd) {
     if (shouldUseProjectName()) {
         var mypath = projectDirWithConfig(cmd);
@@ -68,36 +108,11 @@ function getLocalizationFileName(cmd) {
     return _1.Lingualizer.DefaultranslationFileName;
 }
 exports.getLocalizationFileName = getLocalizationFileName;
-function projectDir(cmd) {
-    if (cmd || !_1.Lingualizer.IsElectron)
-        return process.cwd();
-    else
-        return root.path;
-}
-function projectDirWithConfig(cmd) {
-    var myPath = null;
-    if (cmd && _1.Lingualizer.CmdCwd)
-        myPath = path.join(projectDir(cmd), _1.Lingualizer.CmdCwd);
-    if (!cmd && _1.Lingualizer.Cwd)
-        myPath = path.join(projectDir(cmd), _1.Lingualizer.Cwd);
-    if (myPath)
-        return myPath;
-    else
-        return projectDir(cmd);
-}
-/**
- * gets the path to the localization directory according to the default directory name
- * and the relative cmdCwd or cwd config args
- */
 function getLocalizationDirectoryPath(cmd) {
     var myPath = projectDirWithConfig(cmd);
     return path.join(myPath, _1.Lingualizer.DefaulLocalizationDirName);
 }
 exports.getLocalizationDirectoryPath = getLocalizationDirectoryPath;
-/**
- * given the locale will return the file name
- * @param locale the given locale, if none then assume default
- */
 function getFileNameWithExtention(argv, cmd) {
     var locale = getLocale(argv);
     var fileName = getLocalizationFileName(cmd);
@@ -118,11 +133,6 @@ function isValidUrl(url) {
     return true;
 }
 exports.isValidUrl = isValidUrl;
-/**
- * get json contents from a file or from a url
- * @param url a url that will return a json file
- * @param filePath a complete filepath to a valid json file
- */
 function getJsonFile(url, filePath) {
     if (url === void 0) { url = null; }
     if (filePath === void 0) { filePath = null; }
@@ -188,26 +198,3 @@ function getNestedValueFromJson(obj, dotSeperatedKey) {
 }
 exports.getNestedValueFromJson = getNestedValueFromJson;
 ;
-function valueSearch(obj, searchWholeKey, lastKey, wholeKey, foundVal) {
-    if (wholeKey === void 0) { wholeKey = ''; }
-    if (foundVal === void 0) { foundVal = null; }
-    if (!searchWholeKey) 
-    // there isnt any nesting to do so just update addKey on root
-    {
-        foundVal = obj[lastKey];
-        return foundVal;
-    }
-    for (var key in obj) {
-        var thisKey = "" + wholeKey + key;
-        if (thisKey == searchWholeKey) {
-            foundVal = obj[key][lastKey];
-            if (foundVal != null)
-                return foundVal;
-        }
-        else if (typeof obj[key] == 'object') {
-            foundVal = valueSearch(obj[key], searchWholeKey, lastKey, key + ".");
-            if (foundVal != null)
-                return foundVal;
-        }
-    }
-}
