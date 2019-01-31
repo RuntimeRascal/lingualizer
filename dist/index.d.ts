@@ -114,7 +114,9 @@ export declare class Lingualizer {
     private _translations;
     private _locale;
     private _onLocaleChanged;
+    private _projectRoot;
     private constructor();
+    root: string;
     /**
      * #### Lingualizer singleton instance
      * > use to access the members of the `Lingualizer` module.

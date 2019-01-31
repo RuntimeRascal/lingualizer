@@ -65,16 +65,17 @@ function valueSearch(obj, searchWholeKey, lastKey, wholeKey, foundVal) {
         }
     }
 }
-function projectDirWithConfig(cmd) {
+function projectDirWithConfig(cmd, optionalRoot) {
+    if (optionalRoot === void 0) { optionalRoot = null; }
     var myPath = null;
     if (cmd && _1.Lingualizer.CmdCwd)
-        myPath = path.join(_1.Lingualizer.ProjectRoot, _1.Lingualizer.CmdCwd);
+        myPath = path.join(optionalRoot != null ? optionalRoot : _1.Lingualizer.ProjectRoot, _1.Lingualizer.CmdCwd);
     if (!cmd && _1.Lingualizer.Cwd)
-        myPath = path.join(_1.Lingualizer.ProjectRoot, _1.Lingualizer.Cwd);
+        myPath = path.join(optionalRoot != null ? optionalRoot : _1.Lingualizer.ProjectRoot, _1.Lingualizer.Cwd);
     if (myPath != null && myPath != '')
         return myPath;
     else
-        return _1.Lingualizer.ProjectRoot;
+        return optionalRoot != null ? optionalRoot : _1.Lingualizer.ProjectRoot;
 }
 function log(message) {
     if (message === void 0) { message = ''; }
@@ -98,8 +99,9 @@ function getLocalizationFileName(cmd) {
     return _1.Lingualizer.DefaultranslationFileName;
 }
 exports.getLocalizationFileName = getLocalizationFileName;
-function getLocalizationDirectoryPath(cmd) {
-    var myPath = projectDirWithConfig(cmd);
+function getLocalizationDirectoryPath(cmd, optionalRoot) {
+    if (optionalRoot === void 0) { optionalRoot = null; }
+    var myPath = projectDirWithConfig(cmd, optionalRoot);
     return path.join(myPath, _1.Lingualizer.DefaulLocalizationDirName);
 }
 exports.getLocalizationDirectoryPath = getLocalizationDirectoryPath;

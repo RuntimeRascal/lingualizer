@@ -28,7 +28,7 @@ export declare function log(message?: any): any;
 export declare function getLocale(argv: IArgV): string;
 export declare function shouldUseProjectName(): boolean;
 export declare function getLocalizationFileName(cmd: boolean): string;
-export declare function getLocalizationDirectoryPath(cmd: boolean): string;
+export declare function getLocalizationDirectoryPath(cmd: boolean, optionalRoot?: any): string;
 export declare function getFileNameWithExtention(argv: IArgV, cmd: boolean): string;
 export declare function isValidUrl(url: string): boolean;
 export declare function getJsonFile(url?: string, filePath?: string): Promise<string>;

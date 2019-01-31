@@ -50,11 +50,22 @@ var Lingualizer = /** @class */ (function () {
         this._defaultLocaleTranslations = {};
         this._translations = {};
         this._locale = null;
+        this._projectRoot = null;
         this._onLocaleChanged = new ste_events_1.EventDispatcher();
         Lingualizer.updateDefaults();
         this._locale = Lingualizer.DefaultLocale;
         //this.initTranslations();
     }
+    Object.defineProperty(Lingualizer.prototype, "root", {
+        get: function () {
+            return this._projectRoot;
+        },
+        set: function (root) {
+            this._projectRoot = root;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(Lingualizer, "default", {
         /**
          * #### Lingualizer singleton instance
@@ -158,7 +169,7 @@ var Lingualizer = /** @class */ (function () {
      */
     Lingualizer.prototype.initTranslations = function (oldLocale) {
         if (oldLocale === void 0) { oldLocale = this._locale; }
-        var translationsPath = common_1.getLocalizationDirectoryPath(false);
+        var translationsPath = common_1.getLocalizationDirectoryPath(false, this._projectRoot);
         if (!fse.existsSync(translationsPath)) {
             // return;
             throw new Error(util_1.format(this._errorMessages[0], translationsPath));
