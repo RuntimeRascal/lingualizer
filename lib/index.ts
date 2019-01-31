@@ -203,7 +203,7 @@ export class Lingualizer
         this._onLocaleChanged = new EventDispatcher<Lingualizer, LocaleChangedEventArgs>();
         Lingualizer.updateDefaults();
         this._locale = Lingualizer.DefaultLocale;
-        this.initTranslations();
+        //this.initTranslations();
     }
 
     /**
@@ -319,7 +319,10 @@ export class Lingualizer
     {
         let translationsPath = getLocalizationDirectoryPath( false );
         if ( !fse.existsSync( translationsPath ) )
-            throw new Error( format( this._errorMessages[ 0 ], translationsPath ) );
+        {
+            return;
+            //throw new Error( format( this._errorMessages[ 0 ], translationsPath ) );
+        };
 
         let defaultFile: string = path.join( translationsPath, `${ getLocalizationFileName( false ) }.${ Lingualizer.DefaultTranslationFileExt }` );
         let localeFile: string = path.join( translationsPath, `${ getLocalizationFileName( false ) }.${ this.locale }.${ Lingualizer.DefaultTranslationFileExt }` );
