@@ -47,6 +47,7 @@ var Lingualizer = /** @class */ (function () {
             "unable to find a translations directory  at '%s'.",
             "unable to find a translations file for '%s' at %s" /* initTranslations sub 1 */
         ];
+        this._projectRoot = '';
         this._defaultLocaleTranslations = {};
         this._translations = {};
         this._locale = null;
@@ -74,6 +75,13 @@ var Lingualizer = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
+    Lingualizer.instance = function (projectRoot) {
+        if (Lingualizer._instance == null)
+            Lingualizer._instance = new Lingualizer();
+        Lingualizer._instance.setProjectDir(projectRoot);
+        //TODO: look for and read in `.lingualizerrc settings
+        return Lingualizer._instance;
+    };
     Object.defineProperty(Lingualizer.prototype, "onLocaleChanged", {
         /**
          * #### Get the localeChanged event
@@ -158,7 +166,11 @@ var Lingualizer = /** @class */ (function () {
      */
     Lingualizer.prototype.initTranslations = function (oldLocale) {
         if (oldLocale === void 0) { oldLocale = this._locale; }
-        var translationsPath = common_1.getLocalizationDirectoryPath(false);
+        var translationsPath;
+        if (this._projectRoot)
+            translationsPath = common_1.getLocalizationDirectoryPath(false, this._projectRoot);
+        else
+            translationsPath = common_1.getLocalizationDirectoryPath(false);
         if (!fse.existsSync(translationsPath)) {
             return;
             //throw new Error( format( this._errorMessages[ 0 ], translationsPath ) );
@@ -204,6 +216,24 @@ var Lingualizer = /** @class */ (function () {
         //     Lingualizer.ProjectRoot = projectDir;
         // else
         //     log( chalk.red( `cannot set project root directory to a directory that does not exist. '${ projectDir }'` ) );
+    };
+    Lingualizer.prototype.setProjectDir = function (projectDir) {
+        Lingualizer.ProjectRoot = projectDir;
+        this._projectRoot = projectDir;
+        // if ( fse.existsSync( projectDir ) )
+        //     Lingualizer.ProjectRoot = projectDir;
+        // else
+        //     log( chalk.red( `cannot set project root directory to a directory that does not exist. '${ projectDir }'` ) );
+    };
+    Lingualizer.prototype.getProjectDir = function (cmd) {
+        if (this._projectRoot != null && this._projectRoot != '')
+            return this._projectRoot;
+        if (Lingualizer.ProjectRoot != null && Lingualizer.ProjectRoot != '')
+            return Lingualizer.ProjectRoot;
+        Lingualizer.ProjectRoot = this._projectRoot = process.cwd();
+        if (!cmd && Lingualizer.IsElectron)
+            Lingualizer.ProjectRoot = this._projectRoot = process.cwd();
+        return Lingualizer.ProjectRoot;
     };
     /**
      * # for internal use
