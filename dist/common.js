@@ -67,11 +67,10 @@ function valueSearch(obj, searchWholeKey, lastKey, wholeKey, foundVal) {
     }
 }
 function projectDir(cmd) {
-    if (_1.Lingualizer.ProjectRoot != null && _1.Lingualizer.ProjectRoot)
+    if (_1.Lingualizer.ProjectRoot != null && _1.Lingualizer.ProjectRoot != '')
         return _1.Lingualizer.ProjectRoot;
-    if (cmd || !_1.Lingualizer.IsElectron)
-        _1.Lingualizer.ProjectRoot = process.cwd();
-    else
+    _1.Lingualizer.ProjectRoot = process.cwd();
+    if (!cmd && _1.Lingualizer.IsElectron)
         _1.Lingualizer.ProjectRoot = root.path;
     return _1.Lingualizer.ProjectRoot;
 }
@@ -81,7 +80,7 @@ function projectDirWithConfig(cmd) {
         myPath = path.join(projectDir(cmd), _1.Lingualizer.CmdCwd);
     if (!cmd && _1.Lingualizer.Cwd)
         myPath = path.join(projectDir(cmd), _1.Lingualizer.Cwd);
-    if (myPath)
+    if (myPath != null && myPath != '')
         return myPath;
     else
         return projectDir(cmd);

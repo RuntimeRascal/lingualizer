@@ -196,10 +196,11 @@ var Lingualizer = /** @class */ (function () {
      * @memberof Lingualizer
      */
     Lingualizer.setProjectDir = function (projectDir) {
-        if (fse.existsSync(projectDir))
-            Lingualizer.ProjectRoot = projectDir;
-        else
-            util_1.log(chalk_1.default.red("cannot set project root directory to a directory that does not exist. '" + projectDir + "'"));
+        Lingualizer.ProjectRoot = projectDir;
+        // if ( fse.existsSync( projectDir ) )
+        //     Lingualizer.ProjectRoot = projectDir;
+        // else
+        //     log( chalk.red( `cannot set project root directory to a directory that does not exist. '${ projectDir }'` ) );
     };
     /**
      * # for internal use
