@@ -88,6 +88,7 @@ export class Lingualizer
         `unable to find a translations directory  at '%s'.`, /* initTranslations sub 0 */
         `unable to find a translations file for '%s' at %s` /* initTranslations sub 1 */
     ];
+    private _projectRoot = '';
 
     /**
      * #### Default locale or config's `defaultLocale` if found.  
@@ -224,6 +225,16 @@ export class Lingualizer
         return Lingualizer._instance;
     }
 
+    public static instance ( projectRoot: string ): Lingualizer
+    {
+        if ( Lingualizer._instance == null )
+            Lingualizer._instance = new Lingualizer();
+
+        Lingualizer._instance.setProjectDir( projectRoot );
+        //TODO: look for and read in `.lingualizerrc settings
+        return Lingualizer._instance;
+    }
+
     /**
      * #### Get the localeChanged event  
      * > subscribe to event to get notified of locale changing.  
@@ -317,7 +328,12 @@ export class Lingualizer
      */
     public initTranslations ( oldLocale: Locale = this._locale )
     {
-        let translationsPath = getLocalizationDirectoryPath( false );
+        let translationsPath: string;
+        if ( this._projectRoot )
+            translationsPath = getLocalizationDirectoryPath( false, this._projectRoot );
+        else
+            translationsPath = getLocalizationDirectoryPath( false );
+
         if ( !fse.existsSync( translationsPath ) )
         {
             return;
@@ -374,6 +390,31 @@ export class Lingualizer
         //     Lingualizer.ProjectRoot = projectDir;
         // else
         //     log( chalk.red( `cannot set project root directory to a directory that does not exist. '${ projectDir }'` ) );
+    }
+    public setProjectDir ( projectDir: string )
+    {
+        Lingualizer.ProjectRoot = projectDir;
+        this._projectRoot = projectDir;
+
+        // if ( fse.existsSync( projectDir ) )
+        //     Lingualizer.ProjectRoot = projectDir;
+        // else
+        //     log( chalk.red( `cannot set project root directory to a directory that does not exist. '${ projectDir }'` ) );
+    }
+
+    getProjectDir ( cmd: boolean )
+    {
+        if ( this._projectRoot != null && this._projectRoot != '' )
+            return this._projectRoot;
+
+        if ( Lingualizer.ProjectRoot != null && Lingualizer.ProjectRoot != '' )
+            return Lingualizer.ProjectRoot;
+
+        Lingualizer.ProjectRoot = this._projectRoot = process.cwd();
+        if ( !cmd && Lingualizer.IsElectron )
+            Lingualizer.ProjectRoot = this._projectRoot = process.cwd();
+
+        return Lingualizer.ProjectRoot;
     }
 
     /**
