@@ -34,23 +34,14 @@ var Lookup = [
     { locale: 'tr-TR', tag: 'Turkish', language: 'Turkey' },
 ];
 /**
- * singleton lingualizer type to offer all functionality of module
+ *  lingualizer class to offer all functionality of module
  *
- * @author tsimper
- * @date 2019-01-17
  * @export
  * @class Lingualizer
  */
 var Lingualizer = /** @class */ (function () {
     function Lingualizer() {
     }
-    // private constructor ()
-    // {
-    //     this._onLocaleChanged = new EventDispatcher<Lingualizer, LocaleChangedEventArgs>();
-    //     Lingualizer.updateDefaults();
-    //     this._locale = Lingualizer.DefaultLocale;
-    //     //this.initTranslations();
-    // }
     Lingualizer.logInfo = function () {
         var params = [];
         for (var _i = 0; _i < arguments.length; _i++) {
@@ -86,59 +77,6 @@ var Lingualizer = /** @class */ (function () {
     });
     Object.defineProperty(Lingualizer, "onLocaleChanged", {
         /**
-         * #### Lingualizer singleton instance
-         * > use to access the members of the `Lingualizer` module.
-         *
-         * @readonly
-         * @static
-         * @type {Lingualizer}
-         * @memberof Lingualizer
-         */
-        // public static get default (): Lingualizer
-        // {
-        //     if ( Lingualizer._instance == null )
-        //     {
-        //         if ( typeof process.versions[ 'electron' ] !== 'undefined' && process.versions[ 'electron' ] )
-        //         {
-        //             // try to get module using remote from main proccess if exists else create it and set it globally
-        //             try 
-        //             {
-        //                 let electron = require( 'electron' );
-        //                 if ( typeof electron != 'undefined' && electron )
-        //                 {
-        //                     if ( typeof electron.remote != 'undefined' )
-        //                     {
-        //                         let remote = electron.remote;
-        //                         if ( typeof remote != 'undefined' && typeof remote.getGlobal != 'undefined' && typeof remote.getGlobal == 'function' )
-        //                         {
-        //                             let lingualizer = null;
-        //                             try
-        //                             {
-        //                                 lingualizer = remote.getGlobal( 'lingualizer' );
-        //                             } catch ( error )
-        //                             {
-        //                             }
-        //                             if ( typeof lingualizer != 'undefined' && lingualizer != null )
-        //                                 Lingualizer._instance = lingualizer;
-        //                         }
-        //                     }
-        //                 }
-        //             } catch ( error ) 
-        //             {
-        //             }
-        //             if ( Lingualizer._instance == null )
-        //                 Lingualizer._instance = new Lingualizer();
-        //             // set it electron global so can access from renderer proccess.
-        //             ( global as any ).lingualizer = Lingualizer._instance;
-        //         } else
-        //         {
-        //             Lingualizer._instance = new Lingualizer();
-        //         }
-        //     }
-        //     //TODO: look for and read in `.lingualizerrc settings
-        //     return Lingualizer._instance;
-        // }
-        /**
          * #### Get the localeChanged event
          * > subscribe to event to get notified of locale changing.
          *
@@ -172,6 +110,7 @@ var Lingualizer = /** @class */ (function () {
          * @memberof Lingualizer
          */
         set: function (locale) {
+            Lingualizer.logInfo(common_1.terminalPrefix + " setting locale to: '" + locale + "'");
             var oldLocale = Lingualizer._locale;
             if (oldLocale == locale)
                 return;
@@ -198,14 +137,14 @@ var Lingualizer = /** @class */ (function () {
     Lingualizer.get = function (key) {
         if (Lingualizer._defaultLocaleTranslations == null && Lingualizer._translations == null) {
             Lingualizer.logError(common_1.terminalPrefix + " cannot get key: '" + key + "' since there are no translations found or loaded");
-            return '';
+            return null;
         }
         var value = null;
+        // case non-default locale
         if (Lingualizer.locale !== Lingualizer.DefaultLocale && Lingualizer._translations !== null) {
             var getVal = common_1.getNestedValueFromJson(Lingualizer._translations, key);
-            if (typeof getVal !== 'undefined') {
+            if (typeof getVal !== 'undefined')
                 return getVal;
-            }
         }
         // allways try to return the string from default tranlation file even if cant find a translated one
         if (Lingualizer._defaultLocaleTranslations !== null) {
@@ -226,22 +165,28 @@ var Lingualizer = /** @class */ (function () {
         if (oldLocale === void 0) { oldLocale = Lingualizer._locale; }
         var translationsPath = common_1.getLocalizationDirectoryPath(false, Lingualizer._projectRoot);
         if (!fse.existsSync(translationsPath)) {
-            // return;
-            Lingualizer.logError(common_1.terminalPrefix + " attempt to init translations from '" + translationsPath + "' directory failed as the directory does not exist.");
-            throw new Error(util_1.format(Lingualizer._errorMessages[0], translationsPath));
+            var message = util_1.format(Lingualizer._errorMessages[0], translationsPath);
+            Lingualizer.logError(common_1.terminalPrefix + " " + message);
+            throw new Error(message);
         }
         ;
         var defaultFile = path.join(translationsPath, common_1.getLocalizationFileName(false) + "." + Lingualizer.DefaultTranslationFileExt);
         var localeFile = path.join(translationsPath, common_1.getLocalizationFileName(false) + "." + Lingualizer.locale + "." + Lingualizer.DefaultTranslationFileExt);
+        var defaultLoaded = Lingualizer._defaultLocaleTranslations && Lingualizer._defaultLocaleTranslations !== null;
         // allways try load the default locale translations as we dish them if translated cant be found and it's the most common
         //  as in what would be loaded at starup only changing if set locale to non-default
-        if (fse.existsSync(defaultFile)) {
+        if (!defaultLoaded && fse.existsSync(defaultFile)) {
             Lingualizer._defaultLocaleTranslations = JSON.parse(fse.readFileSync(defaultFile, "utf8"));
-            Lingualizer._onLocaleChanged.dispatch(Lingualizer, { oldLocale: oldLocale, newLocale: Lingualizer._locale });
+            if (Lingualizer._onLocaleChanged)
+                Lingualizer._onLocaleChanged.dispatch(Lingualizer, { oldLocale: oldLocale, newLocale: Lingualizer._locale });
         }
-        else {
+        else 
+        // error out if not asking for non-default since default doesnt exist
+        {
             if (Lingualizer.locale == Lingualizer.DefaultLocale) {
-                throw new Error(util_1.format(Lingualizer._errorMessages[1], Lingualizer._locale, defaultFile));
+                var message = util_1.format(Lingualizer._errorMessages[1], Lingualizer._locale, defaultFile);
+                Lingualizer.logError(common_1.terminalPrefix + " " + message);
+                throw new Error(message);
             }
         }
         if (Lingualizer.locale !== Lingualizer.DefaultLocale) 
@@ -249,11 +194,13 @@ var Lingualizer = /** @class */ (function () {
         {
             if (fse.existsSync(localeFile)) {
                 Lingualizer._translations = JSON.parse(fse.readFileSync(localeFile, "utf8"));
-                Lingualizer._onLocaleChanged.dispatch(Lingualizer, { oldLocale: oldLocale, newLocale: Lingualizer._locale });
+                if (Lingualizer._onLocaleChanged)
+                    Lingualizer._onLocaleChanged.dispatch(Lingualizer, { oldLocale: oldLocale, newLocale: Lingualizer._locale });
             }
             else {
-                //console.log( `${ terminalPrefix } requested locale translation file cannot be found.` );
-                throw new Error(util_1.format(Lingualizer._errorMessages[1], Lingualizer._locale, defaultFile));
+                var message = util_1.format(Lingualizer._errorMessages[1], Lingualizer._locale, localeFile);
+                Lingualizer.logError(common_1.terminalPrefix + " " + message);
+                throw new Error(util_1.format(message));
             }
         }
     };
@@ -266,6 +213,7 @@ var Lingualizer = /** @class */ (function () {
      */
     Lingualizer.setLogger = function (logger) {
         Lingualizer._logger = logger;
+        Lingualizer.logInfo(common_1.terminalPrefix + " setting logger");
     };
     /**
      * #### Set the project's absolute path
@@ -278,10 +226,7 @@ var Lingualizer = /** @class */ (function () {
      */
     Lingualizer.setProjectDir = function (projectDir) {
         Lingualizer.ProjectRoot = projectDir;
-        // if ( fse.existsSync( projectDir ) )
-        //     Lingualizer.ProjectRoot = projectDir;
-        // else
-        //     log( chalk.red( `cannot set project root directory to a directory that does not exist. '${ projectDir }'` ) );
+        Lingualizer.logInfo(common_1.terminalPrefix + " setting project directory to: " + projectDir);
     };
     /**
      * # for internal use
@@ -344,7 +289,11 @@ var Lingualizer = /** @class */ (function () {
      * @memberof Lingualizer
      */
     Lingualizer.printDefaults = function () {
-        console.log(chalk_1.default.gray(app + " \n        " + chalk_1.default.bold.green('------- Default Settings -------') + " \n        Locale    : '" + chalk_1.default.cyan(Lingualizer.DefaultLocale) + "' \n        Directory : '" + chalk_1.default.cyan(Lingualizer.DefaulLocalizationDirName) + "'\n        File      : '" + chalk_1.default.cyan(common_1.getLocalizationFileName(false)) + "' \n        Ext       : '" + chalk_1.default.cyan(Lingualizer.DefaultTranslationFileExt) + "'\n        Cwd       : '" + chalk_1.default.cyan(Lingualizer.Cwd) + "'\n        Cmd Cwd   : '" + chalk_1.default.cyan(Lingualizer.CmdCwd) + "'\n        Electron  : '" + chalk_1.default.cyan(Lingualizer.IsElectron.toString()) + "'\n\n        Project ------------\n        Directory : '" + chalk_1.default.cyan(common_1.getLocalizationDirectoryPath(false)) + "'\n        Filename  : '" + chalk_1.default.cyan(common_1.getLocalizationFileName(false) + "." + Lingualizer.DefaultTranslationFileExt) + "'\n       \n        Terminal -----------\n        Directory : '" + chalk_1.default.cyan(common_1.getLocalizationDirectoryPath(true)) + "'\n        Filename  : '" + chalk_1.default.cyan(common_1.getLocalizationFileName(true) + "." + Lingualizer.DefaultTranslationFileExt) + "'\n        " + chalk_1.default.bold.green('--------------------------------')));
+        var message = chalk_1.default.gray(app + " \n        " + chalk_1.default.bold.green('------- Default Settings -------') + " \n        Locale    : '" + chalk_1.default.cyan(Lingualizer.DefaultLocale) + "' \n        Directory : '" + chalk_1.default.cyan(Lingualizer.DefaulLocalizationDirName) + "'\n        File      : '" + chalk_1.default.cyan(common_1.getLocalizationFileName(false)) + "' \n        Ext       : '" + chalk_1.default.cyan(Lingualizer.DefaultTranslationFileExt) + "'\n        Cwd       : '" + chalk_1.default.cyan(Lingualizer.Cwd) + "'\n        Cmd Cwd   : '" + chalk_1.default.cyan(Lingualizer.CmdCwd) + "'\n        Electron  : '" + chalk_1.default.cyan(Lingualizer.IsElectron.toString()) + "'\n\n        Project ------------\n        Directory : '" + chalk_1.default.cyan(common_1.getLocalizationDirectoryPath(false)) + "'\n        Filename  : '" + chalk_1.default.cyan(common_1.getLocalizationFileName(false) + "." + Lingualizer.DefaultTranslationFileExt) + "'\n       \n        Terminal -----------\n        Directory : '" + chalk_1.default.cyan(common_1.getLocalizationDirectoryPath(true)) + "'\n        Filename  : '" + chalk_1.default.cyan(common_1.getLocalizationFileName(true) + "." + Lingualizer.DefaultTranslationFileExt) + "'\n        " + chalk_1.default.bold.green('--------------------------------'));
+        console.log(message);
+        Lingualizer.logInfo(common_1.terminalPrefix + " printing verbose defaults");
+        Lingualizer.logInfo(message);
+        return message;
     };
     Lingualizer._errorMessages = [
         "unable to find a translations directory  at '%s'.",
@@ -444,7 +393,6 @@ var Lingualizer = /** @class */ (function () {
      * @memberof Lingualizer
      */
     Lingualizer.ProjectRoot = process.cwd();
-    //private static _instance: Lingualizer = null;
     Lingualizer._defaultLocaleTranslations = {};
     Lingualizer._translations = {};
     Lingualizer._locale = null;

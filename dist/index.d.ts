@@ -13,10 +13,8 @@ export interface ILogger {
     log?(...params: any[]): void;
 }
 /**
- * singleton lingualizer type to offer all functionality of module
+ *  lingualizer class to offer all functionality of module
  *
- * @author tsimper
- * @date 2019-01-17
  * @export
  * @class Lingualizer
  */
@@ -128,15 +126,6 @@ export declare class Lingualizer {
     private static logError;
     static root: string;
     /**
-     * #### Lingualizer singleton instance
-     * > use to access the members of the `Lingualizer` module.
-     *
-     * @readonly
-     * @static
-     * @type {Lingualizer}
-     * @memberof Lingualizer
-     */
-    /**
      * #### Get the localeChanged event
      * > subscribe to event to get notified of locale changing.
      *
@@ -218,5 +207,5 @@ export declare class Lingualizer {
      * @returns
      * @memberof Lingualizer
      */
-    static printDefaults(): void;
+    static printDefaults(): string;
 }
