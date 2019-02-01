@@ -276,7 +276,7 @@ export class Lingualizer
         Lingualizer.logInfo( `${ terminalPrefix } setting locale to: '${ locale }'` );
 
         let oldLocale = Lingualizer._locale;
-        if ( oldLocale == locale )
+        if ( oldLocale == locale && this._defaultLocaleTranslations !== null )
             return;
 
         Lingualizer._locale = locale;
