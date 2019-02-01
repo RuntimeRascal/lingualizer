@@ -393,8 +393,8 @@ var Lingualizer = /** @class */ (function () {
      * @memberof Lingualizer
      */
     Lingualizer.ProjectRoot = process.cwd();
-    Lingualizer._defaultLocaleTranslations = {};
-    Lingualizer._translations = {};
+    Lingualizer._defaultLocaleTranslations = null;
+    Lingualizer._translations = null;
     Lingualizer._locale = null;
     Lingualizer._projectRoot = null;
     Lingualizer.__ctor__ = (function () {
