@@ -10,9 +10,7 @@ One requirement is that it works in a vanilla web environment as well in a `Node
 
 The different project types handle paths and such differently and so we have tried to accomodate each project type.  
 
-Within an `Electron` application we wanted the module to be importable from both the **main** proccess and the **renderer** process without any special `Electron`.`remote` calls needed from code using `Lingualizer`.  
-
-`Lingualizer` api is accessed though a singleton class instance and so simply importing the class and using the instance should return the same instance regardless of proccess.  
+Within an `Electron` application we wanted the module to be importable from both the **main** proccess and the **renderer** process.   
 
 
 ## Installation 
@@ -23,6 +21,10 @@ Within an `Electron` application we wanted the module to be importable from both
 > `npm i lingualizer --save`  
 > or  
 > `bower install lingualizer --save`  
+ to install globally as well so can call cli without specifying node dir .bin cmd
+ > `yarn global add lingualizer ; yarn add lingualizer`  
+> or  
+> `npm -g i lingualizer --save ; npm i lingualizer --save`  
 
 ## Test 
 *to run the tests just run*   
@@ -41,22 +43,22 @@ So if you plan to run the tests please observe the code.
 # Getting started
 *a very simple javascript based api to get translated strings from localization files*  
  
-The module can be accessed through a singleton so just import the modules and call into the instance.
+The module can be accessed through `Lingualizer` so just import the modules and call into the class.
 
 > the modules is written in `typescript` and includes all definitions so discovering members of the `Lingualizer` class should be pretty easy.
 
 ``` javascript
-/* import the module's singlton */
+/* import the module */
 import {Lingualizer} from 'lingualizer';
 
 /* set the locale */
-Lingualizer.default.setLocale( 'es-MX' );
+Lingualizer.setLocale( 'es-MX' );
 
-/* [Optional] set the project root directory. notice its static not a instance member */
+/* [Optional] set the project root directory */
 Lingualizer.setProjectDir( process.cwd() );
 
 /* get a localized string. will return from current set locale if exists, or from defualt locale if current set locale doesnt exist and if key cannot be found anywhere returns null */
-let okBtnText = Lingualizer.default.get( 'okBtn' );
+let okBtnText = Lingualizer.get( 'okBtn' );
 ```
 
 There is a `localeChanged` event that you may subscribe to in order to get notified when the locale changes.
@@ -68,14 +70,25 @@ function onLocalChanged( lingualizer, args )
     let okBtnText = lingualizer.get( 'okBtn' );
 }
 
-Lingualizer.default.localeChanged.subscribe( onLocalChanged );
+Lingualizer.localeChanged.subscribe( onLocalChanged );
 ```  
 
 you can organize your translations by category or page or whatever by createing nested keys and getting then as so:  
 
 ``` javascript
-    var optionsTitle = Lingualizer.default.get( 'options.title' );
+    var optionsTitle = Lingualizer.get( 'options.title' );
 ```
+
+for `Electron` you can use the `remote` in order to essentially use same module in both main and renderer processess
+``` javascript
+/* from main process import and setup like normal */
+import {Lingualizer} from 'lingualizer';
+Lingualizer.setLocale( 'es-MX' ); // access like this
+
+/* from renderer process import using electron remote */
+const loc = remote.require( 'lingualizer' ).Lingualizer;
+let okBtnText = loc.get( 'okBtn' ); // access like this
+```  
 
 
 ### Logging
