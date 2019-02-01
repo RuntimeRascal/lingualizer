@@ -4,6 +4,14 @@ export declare type LocaleChangedEventArgs = {
     oldLocale: Locale;
     newLocale: Locale;
 };
+export interface ILogger {
+    error?(...params: any[]): void;
+    warn?(...params: any[]): void;
+    info?(...params: any[]): void;
+    verbose?(...params: any[]): void;
+    debug?(...params: any[]): void;
+    log?(...params: any[]): void;
+}
 /**
  * singleton lingualizer type to offer all functionality of module
  *
@@ -14,6 +22,7 @@ export declare type LocaleChangedEventArgs = {
  */
 export declare class Lingualizer {
     private _errorMessages;
+    private static _logger;
     /**
      * #### Default locale or config's `defaultLocale` if found.
      *
@@ -116,6 +125,8 @@ export declare class Lingualizer {
     private _onLocaleChanged;
     private _projectRoot;
     private constructor();
+    private logInfo;
+    private logError;
     root: string;
     /**
      * #### Lingualizer singleton instance
@@ -169,6 +180,14 @@ export declare class Lingualizer {
      * @returns
      */
     initTranslations(oldLocale?: Locale): void;
+    /**
+     * #### Set the Lingualizer logger.
+     * > all logging messages will try to log using set logger with info and error functions if they exist.
+     *
+     * @param {ILogger} logger a logger object that contains at least a info and error logging methods
+     * @memberof Lingualizer
+     */
+    static setLogger(logger: ILogger): void;
     /**
      * #### Set the project's absolute path
      * > use if default's are not working for your configuration.

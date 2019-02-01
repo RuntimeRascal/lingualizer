@@ -232,13 +232,13 @@ export class Lingualizer
 
     private logError ( ...params: any[] )
     {
-        if ( !this._logger || this._logger === null )
+        if ( !Lingualizer._logger || Lingualizer._logger === null )
             return;
 
-        if ( typeof this._logger.error == 'undefined' || typeof this._logger.error !== 'function' )
+        if ( typeof Lingualizer._logger.error == 'undefined' || typeof Lingualizer._logger.error !== 'function' )
             return;
 
-        this._logger.error( params );
+        Lingualizer._logger.error( params );
     }
 
     public get root ()

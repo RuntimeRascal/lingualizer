@@ -56,12 +56,35 @@ var Lingualizer = /** @class */ (function () {
         this._locale = Lingualizer.DefaultLocale;
         //this.initTranslations();
     }
+    Lingualizer.prototype.logInfo = function () {
+        var params = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            params[_i] = arguments[_i];
+        }
+        if (!Lingualizer._logger || Lingualizer._logger === null)
+            return;
+        if (typeof Lingualizer._logger.info == 'undefined' || typeof Lingualizer._logger.info !== 'function')
+            return;
+        Lingualizer._logger.info(params);
+    };
+    Lingualizer.prototype.logError = function () {
+        var params = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            params[_i] = arguments[_i];
+        }
+        if (!Lingualizer._logger || Lingualizer._logger === null)
+            return;
+        if (typeof Lingualizer._logger.error == 'undefined' || typeof Lingualizer._logger.error !== 'function')
+            return;
+        Lingualizer._logger.error(params);
+    };
     Object.defineProperty(Lingualizer.prototype, "root", {
         get: function () {
             return this._projectRoot;
         },
         set: function (root) {
             this._projectRoot = root;
+            this.logInfo(common_1.terminalPrefix + " setting project root to: '" + root + "'");
         },
         enumerable: true,
         configurable: true
@@ -77,8 +100,38 @@ var Lingualizer = /** @class */ (function () {
          * @memberof Lingualizer
          */
         get: function () {
-            if (Lingualizer._instance == null)
-                Lingualizer._instance = new Lingualizer();
+            if (this._instance == null) {
+                if (typeof process.versions['electron'] !== 'undefined' && process.versions['electron']) {
+                    // try to get module using remote from main proccess if exists else create it and set it globally
+                    try {
+                        var electron = require('electron');
+                        if (typeof electron != 'undefined' && electron) {
+                            if (typeof electron.remote != 'undefined') {
+                                var remote = electron.remote;
+                                if (typeof remote != 'undefined' && typeof remote.getGlobal != 'undefined' && typeof remote.getGlobal == 'function') {
+                                    var lingualizer = null;
+                                    try {
+                                        lingualizer = remote.getGlobal('lingualizer');
+                                    }
+                                    catch (error) {
+                                    }
+                                    if (typeof lingualizer != 'undefined' && lingualizer != null)
+                                        Lingualizer._instance = lingualizer;
+                                }
+                            }
+                        }
+                    }
+                    catch (error) {
+                    }
+                    if (Lingualizer._instance == null)
+                        Lingualizer._instance = new Lingualizer();
+                    // set it electron global so can access from renderer proccess.
+                    global.lingualizer = Lingualizer._instance;
+                }
+                else {
+                    Lingualizer._instance = new Lingualizer();
+                }
+            }
             //TODO: look for and read in `.lingualizerrc settings
             return Lingualizer._instance;
         },
@@ -129,6 +182,7 @@ var Lingualizer = /** @class */ (function () {
             }
             catch (error) {
                 util_1.log("failed to initialize translations. error: " + error.message);
+                this.logError(common_1.terminalPrefix + " failed to initialize translations. error: " + error.message);
             }
         },
         enumerable: true,
@@ -143,8 +197,10 @@ var Lingualizer = /** @class */ (function () {
      * @memberof Lingualizer
      */
     Lingualizer.prototype.get = function (key) {
-        if (this._defaultLocaleTranslations == null && this._translations == null)
+        if (this._defaultLocaleTranslations == null && this._translations == null) {
+            this.logError(common_1.terminalPrefix + " cannot get key: '" + key + "' since there are no translations found or loaded");
             return '';
+        }
         var value = null;
         if (this.locale !== Lingualizer.DefaultLocale && this._translations !== null) {
             var getVal = common_1.getNestedValueFromJson(this._translations, key);
@@ -172,6 +228,7 @@ var Lingualizer = /** @class */ (function () {
         var translationsPath = common_1.getLocalizationDirectoryPath(false, this._projectRoot);
         if (!fse.existsSync(translationsPath)) {
             // return;
+            this.logError(common_1.terminalPrefix + " attempt to init translations from '" + translationsPath + "' directory failed as the directory does not exist.");
             throw new Error(util_1.format(this._errorMessages[0], translationsPath));
         }
         ;
@@ -184,8 +241,9 @@ var Lingualizer = /** @class */ (function () {
             this._onLocaleChanged.dispatch(this, { oldLocale: oldLocale, newLocale: this._locale });
         }
         else {
-            if (this.locale == Lingualizer.DefaultLocale)
+            if (this.locale == Lingualizer.DefaultLocale) {
                 throw new Error(util_1.format(this._errorMessages[1], this._locale, defaultFile));
+            }
         }
         if (this.locale !== Lingualizer.DefaultLocale) 
         // try load non-default locale
@@ -199,6 +257,16 @@ var Lingualizer = /** @class */ (function () {
                 throw new Error(util_1.format(this._errorMessages[1], this._locale, defaultFile));
             }
         }
+    };
+    /**
+     * #### Set the Lingualizer logger.
+     * > all logging messages will try to log using set logger with info and error functions if they exist.
+     *
+     * @param {ILogger} logger a logger object that contains at least a info and error logging methods
+     * @memberof Lingualizer
+     */
+    Lingualizer.setLogger = function (logger) {
+        Lingualizer._logger = logger;
     };
     /**
      * #### Set the project's absolute path
