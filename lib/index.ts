@@ -202,8 +202,8 @@ export class Lingualizer
     public static ProjectRoot = process.cwd();
 
     private static config: any;
-    private static _defaultLocaleTranslations = {};
-    private static _translations = {};
+    private static _defaultLocaleTranslations = null;
+    private static _translations = null;
     private static _locale: Locale | null = null;
     private static _onLocaleChanged: EventDispatcher<Lingualizer, LocaleChangedEventArgs>;
     private static _projectRoot = null;
