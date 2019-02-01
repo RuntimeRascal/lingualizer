@@ -112,7 +112,7 @@ var Lingualizer = /** @class */ (function () {
         set: function (locale) {
             Lingualizer.logInfo(common_1.terminalPrefix + " setting locale to: '" + locale + "'");
             var oldLocale = Lingualizer._locale;
-            if (oldLocale == locale)
+            if (oldLocale == locale && this._defaultLocaleTranslations !== null)
                 return;
             Lingualizer._locale = locale;
             try {
