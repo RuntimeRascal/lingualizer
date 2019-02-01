@@ -21,7 +21,7 @@ export interface ILogger {
  * @class Lingualizer
  */
 export declare class Lingualizer {
-    private _errorMessages;
+    private static _errorMessages;
     private static _logger;
     /**
      * #### Default locale or config's `defaultLocale` if found.
@@ -118,16 +118,15 @@ export declare class Lingualizer {
      */
     static ProjectRoot: string;
     private static config;
-    private static _instance;
-    private _defaultLocaleTranslations;
-    private _translations;
-    private _locale;
-    private _onLocaleChanged;
-    private _projectRoot;
-    private constructor();
-    private logInfo;
-    private logError;
-    root: string;
+    private static _defaultLocaleTranslations;
+    private static _translations;
+    private static _locale;
+    private static _onLocaleChanged;
+    private static _projectRoot;
+    static __ctor__: void;
+    private static logInfo;
+    private static logError;
+    static root: string;
     /**
      * #### Lingualizer singleton instance
      * > use to access the members of the `Lingualizer` module.
@@ -137,7 +136,6 @@ export declare class Lingualizer {
      * @type {Lingualizer}
      * @memberof Lingualizer
      */
-    static readonly default: Lingualizer;
     /**
      * #### Get the localeChanged event
      * > subscribe to event to get notified of locale changing.
@@ -147,7 +145,7 @@ export declare class Lingualizer {
      * @type {IEvent<Lingualizer, LocaleChangedEventArgs>} gives the Lingualizer instance that raised the event and a object containing the old and new locales
      * @memberof Lingualizer
      */
-    readonly onLocaleChanged: IEvent<Lingualizer, LocaleChangedEventArgs>;
+    static readonly onLocaleChanged: IEvent<Lingualizer, LocaleChangedEventArgs>;
     /**
      * #### Set the current locale.
      * > will trigger the `localeChanged` event so subscribers can get translations from the newly set locale
@@ -162,7 +160,7 @@ export declare class Lingualizer {
     * > will return `null` if locale has not been set
     * > if not set, @{link Lingualizer.default.get()} will use @{link Lingualizer#DefaultLocale}
     */
-    locale: Locale;
+    static locale: Locale;
     /**
      * #### Get a translation
      * > get a keys value from translated locale or default locale if non-default locale is set and the key cannot be found
@@ -171,7 +169,7 @@ export declare class Lingualizer {
      * @returns {string} get a keys value from translated locale or default locale if non-default locale is set and the key cannot be found
      * @memberof Lingualizer
      */
-    get(key: string): string;
+    static get(key: string): string;
     /**
      * #### Initialize translations.
      * > reads the translation file json into memory for future get requests
@@ -179,7 +177,7 @@ export declare class Lingualizer {
      * @export
      * @returns
      */
-    initTranslations(oldLocale?: Locale): void;
+    static initTranslations(oldLocale?: Locale): void;
     /**
      * #### Set the Lingualizer logger.
      * > all logging messages will try to log using set logger with info and error functions if they exist.

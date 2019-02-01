@@ -94,7 +94,7 @@ export interface ILogger
  */
 export class Lingualizer
 {
-    private _errorMessages = [
+    private static _errorMessages = [
         `unable to find a translations directory  at '%s'.`, /* initTranslations sub 0 */
         `unable to find a translations file for '%s' at %s` /* initTranslations sub 1 */
     ];
@@ -204,22 +204,20 @@ export class Lingualizer
     public static ProjectRoot = process.cwd();
 
     private static config: any;
-    private static _instance: Lingualizer = null;
-    private _defaultLocaleTranslations = {};
-    private _translations = {};
-    private _locale: Locale | null = null;
-    private _onLocaleChanged: EventDispatcher<Lingualizer, LocaleChangedEventArgs>;
-    private _projectRoot = null;
+    private static _defaultLocaleTranslations = {};
+    private static _translations = {};
+    private static _locale: Locale | null = null;
+    private static _onLocaleChanged: EventDispatcher<Lingualizer, LocaleChangedEventArgs>;
+    private static _projectRoot = null;
 
-    private constructor ()
+    static __ctor__ = ( () =>
     {
-        this._onLocaleChanged = new EventDispatcher<Lingualizer, LocaleChangedEventArgs>();
+        Lingualizer._onLocaleChanged = new EventDispatcher<Lingualizer, LocaleChangedEventArgs>();
         Lingualizer.updateDefaults();
-        this._locale = Lingualizer.DefaultLocale;
-        //this.initTranslations();
-    }
+        Lingualizer._locale = Lingualizer.DefaultLocale;
+    } )();
 
-    private logInfo ( ...params: any[] )
+    private static logInfo ( ...params: any[] )
     {
         if ( !Lingualizer._logger || Lingualizer._logger === null )
             return;
@@ -230,7 +228,7 @@ export class Lingualizer
         Lingualizer._logger.info( params );
     }
 
-    private logError ( ...params: any[] )
+    private static logError ( ...params: any[] )
     {
         if ( !Lingualizer._logger || Lingualizer._logger === null )
             return;
@@ -241,74 +239,15 @@ export class Lingualizer
         Lingualizer._logger.error( params );
     }
 
-    public get root ()
+    public static get root ()
     {
-        return this._projectRoot;
+        return Lingualizer._projectRoot;
     }
 
-    public set root ( root: string )
+    public static set root ( root: string )
     {
-        this._projectRoot = root;
-        this.logInfo( `${ terminalPrefix } setting project root to: '${ root }'` );
-    }
-
-    /**
-     * #### Lingualizer singleton instance  
-     * > use to access the members of the `Lingualizer` module.  
-     * 
-     * @readonly
-     * @static
-     * @type {Lingualizer}
-     * @memberof Lingualizer
-     */
-    public static get default (): Lingualizer
-    {
-        if ( this._instance == null )
-        {
-            if ( typeof process.versions[ 'electron' ] !== 'undefined' && process.versions[ 'electron' ] )
-            {
-                // try to get module using remote from main proccess if exists else create it and set it globally
-                try 
-                {
-                    let electron = require( 'electron' );
-                    if ( typeof electron != 'undefined' && electron )
-                    {
-                        if ( typeof electron.remote != 'undefined' )
-                        {
-                            let remote = electron.remote;
-                            if ( typeof remote != 'undefined' && typeof remote.getGlobal != 'undefined' && typeof remote.getGlobal == 'function' )
-                            {
-                                let lingualizer = null;
-                                try
-                                {
-                                    lingualizer = remote.getGlobal( 'lingualizer' );
-                                } catch ( error )
-                                {
-                                }
-
-                                if ( typeof lingualizer != 'undefined' && lingualizer != null )
-                                    Lingualizer._instance = lingualizer;
-
-                            }
-                        }
-                    }
-                } catch ( error ) 
-                {
-                }
-
-                if ( Lingualizer._instance == null )
-                    Lingualizer._instance = new Lingualizer();
-
-                // set it electron global so can access from renderer proccess.
-                ( global as any ).lingualizer = Lingualizer._instance;
-            } else
-            {
-                Lingualizer._instance = new Lingualizer();
-            }
-        }
-
-        //TODO: look for and read in `.lingualizerrc settings
-        return Lingualizer._instance;
+        Lingualizer._projectRoot = root;
+        Lingualizer.logInfo( `${ terminalPrefix } setting project root to: '${ root }'` );
     }
 
     /**
@@ -320,9 +259,9 @@ export class Lingualizer
      * @type {IEvent<Lingualizer, LocaleChangedEventArgs>} gives the Lingualizer instance that raised the event and a object containing the old and new locales
      * @memberof Lingualizer
      */
-    public get onLocaleChanged (): IEvent<Lingualizer, LocaleChangedEventArgs>
+    public static get onLocaleChanged (): IEvent<Lingualizer, LocaleChangedEventArgs>
     {
-        return this._onLocaleChanged.asEvent();
+        return Lingualizer._onLocaleChanged.asEvent();
     }
 
     /**
@@ -334,20 +273,22 @@ export class Lingualizer
      * @property {Locale} Lingualizer.default.locale
      * @memberof Lingualizer
      */
-    public set locale ( locale: Locale )
+    public static set locale ( locale: Locale )
     {
-        let oldLocale = this._locale;
+        Lingualizer.logInfo( `${ terminalPrefix } setting locale to: '${ locale }'` );
+
+        let oldLocale = Lingualizer._locale;
         if ( oldLocale == locale )
             return;
 
-        this._locale = locale;
+        Lingualizer._locale = locale;
         try
         {
-            this.initTranslations( oldLocale );
+            Lingualizer.initTranslations( oldLocale );
         } catch ( error )
         {
             log( `failed to initialize translations. error: ${ error.message }` );
-            this.logError( `${ terminalPrefix } failed to initialize translations. error: ${ error.message }` );
+            Lingualizer.logError( `${ terminalPrefix } failed to initialize translations. error: ${ error.message }` );
         }
     }
 
@@ -356,9 +297,9 @@ export class Lingualizer
      * > will return `null` if locale has not been set
      * > if not set, @{link Lingualizer.default.get()} will use @{link Lingualizer#DefaultLocale}
      */
-    public get locale (): Locale
+    public static get locale (): Locale
     {
-        return this._locale;
+        return Lingualizer._locale;
     }
 
     /**
@@ -369,28 +310,27 @@ export class Lingualizer
      * @returns {string} get a keys value from translated locale or default locale if non-default locale is set and the key cannot be found
      * @memberof Lingualizer
      */
-    public get ( key: string ): string
+    public static get ( key: string ): string
     {
-        if ( this._defaultLocaleTranslations == null && this._translations == null )
+        if ( Lingualizer._defaultLocaleTranslations == null && Lingualizer._translations == null )
         {
-            this.logError( `${ terminalPrefix } cannot get key: '${ key }' since there are no translations found or loaded` );
-            return '';
+            Lingualizer.logError( `${ terminalPrefix } cannot get key: '${ key }' since there are no translations found or loaded` );
+            return null;
         }
 
         let value: string = null;
-        if ( this.locale !== Lingualizer.DefaultLocale && this._translations !== null )
+        // case non-default locale
+        if ( Lingualizer.locale !== Lingualizer.DefaultLocale && Lingualizer._translations !== null )
         {
-            let getVal = getNestedValueFromJson( this._translations, key );
+            let getVal = getNestedValueFromJson( Lingualizer._translations, key );
             if ( typeof getVal !== 'undefined' )
-            {
                 return getVal;
-            }
         }
 
         // allways try to return the string from default tranlation file even if cant find a translated one
-        if ( this._defaultLocaleTranslations !== null )
+        if ( Lingualizer._defaultLocaleTranslations !== null )
         {
-            let getVal = getNestedValueFromJson( this._defaultLocaleTranslations, key );
+            let getVal = getNestedValueFromJson( Lingualizer._defaultLocaleTranslations, key );
 
             if ( typeof getVal !== 'undefined' )
                 value = getVal;
@@ -406,50 +346,56 @@ export class Lingualizer
      * @export
      * @returns 
      */
-    public initTranslations ( oldLocale: Locale = this._locale )
+    public static initTranslations ( oldLocale: Locale = Lingualizer._locale )
     {
-        let translationsPath = getLocalizationDirectoryPath( false, this._projectRoot );
+        let translationsPath = getLocalizationDirectoryPath( false, Lingualizer._projectRoot );
 
         if ( !fse.existsSync( translationsPath ) )
         {
-            // return;
-            this.logError( `${ terminalPrefix } attempt to init translations from '${ translationsPath }' directory failed as the directory does not exist.` );
-
-            throw new Error( format( this._errorMessages[ 0 ], translationsPath ) );
+            let message = format( Lingualizer._errorMessages[ 0 ], translationsPath );
+            Lingualizer.logError( `${ terminalPrefix } ${ message }` );
+            throw new Error( message );
         };
 
         let defaultFile: string = path.join( translationsPath, `${ getLocalizationFileName( false ) }.${ Lingualizer.DefaultTranslationFileExt }` );
-        let localeFile: string = path.join( translationsPath, `${ getLocalizationFileName( false ) }.${ this.locale }.${ Lingualizer.DefaultTranslationFileExt }` );
+        let localeFile: string = path.join( translationsPath, `${ getLocalizationFileName( false ) }.${ Lingualizer.locale }.${ Lingualizer.DefaultTranslationFileExt }` );
 
-
+        let defaultLoaded = Lingualizer._defaultLocaleTranslations && Lingualizer._defaultLocaleTranslations !== null;
         // allways try load the default locale translations as we dish them if translated cant be found and it's the most common
         //  as in what would be loaded at starup only changing if set locale to non-default
-        if ( fse.existsSync( defaultFile ) )
+        if ( !defaultLoaded && fse.existsSync( defaultFile ) )
         {
-            this._defaultLocaleTranslations = JSON.parse( fse.readFileSync( defaultFile, "utf8" ) );
-            this._onLocaleChanged.dispatch( this, { oldLocale: oldLocale, newLocale: this._locale } );
+            Lingualizer._defaultLocaleTranslations = JSON.parse( fse.readFileSync( defaultFile, "utf8" ) );
+            if ( Lingualizer._onLocaleChanged )
+                Lingualizer._onLocaleChanged.dispatch( Lingualizer, { oldLocale: oldLocale, newLocale: Lingualizer._locale } );
         }
         else
+        // error out if not asking for non-default since default doesnt exist
         {
-            if ( this.locale == Lingualizer.DefaultLocale )
+            if ( Lingualizer.locale == Lingualizer.DefaultLocale )
             {
+                let message = format( Lingualizer._errorMessages[ 1 ], Lingualizer._locale, defaultFile );
+                Lingualizer.logError( `${ terminalPrefix } ${ message }` );
 
-                throw new Error( format( this._errorMessages[ 1 ], this._locale, defaultFile ) );
+                throw new Error( message );
             }
         }
 
 
-        if ( this.locale !== Lingualizer.DefaultLocale )
+        if ( Lingualizer.locale !== Lingualizer.DefaultLocale )
         // try load non-default locale
         {
             if ( fse.existsSync( localeFile ) )
             {
-                this._translations = JSON.parse( fse.readFileSync( localeFile, "utf8" ) );
-                this._onLocaleChanged.dispatch( this, { oldLocale: oldLocale, newLocale: this._locale } );
+                Lingualizer._translations = JSON.parse( fse.readFileSync( localeFile, "utf8" ) );
+                if ( Lingualizer._onLocaleChanged )
+                    Lingualizer._onLocaleChanged.dispatch( Lingualizer, { oldLocale: oldLocale, newLocale: Lingualizer._locale } );
             } else
             {
-                //console.log( `${ terminalPrefix } requested locale translation file cannot be found.` );
-                throw new Error( format( this._errorMessages[ 1 ], this._locale, defaultFile ) );
+                let message = format( Lingualizer._errorMessages[ 1 ], Lingualizer._locale, localeFile );
+                Lingualizer.logError( `${ terminalPrefix } ${ message }` );
+
+                throw new Error( format( message ) );
             }
         }
     }
@@ -464,6 +410,7 @@ export class Lingualizer
     public static setLogger ( logger: ILogger )
     {
         Lingualizer._logger = logger;
+        Lingualizer.logInfo( `${ terminalPrefix } setting logger` );
     }
 
     /**
@@ -478,11 +425,7 @@ export class Lingualizer
     static setProjectDir ( projectDir: string )
     {
         Lingualizer.ProjectRoot = projectDir;
-
-        // if ( fse.existsSync( projectDir ) )
-        //     Lingualizer.ProjectRoot = projectDir;
-        // else
-        //     log( chalk.red( `cannot set project root directory to a directory that does not exist. '${ projectDir }'` ) );
+        Lingualizer.logInfo( `${ terminalPrefix } setting project directory to: ${ projectDir }` );
     }
 
     /**
@@ -562,7 +505,7 @@ export class Lingualizer
      */
     static printDefaults ()
     {
-        console.log( chalk.gray( `${ app } 
+        let message = chalk.gray( `${ app } 
         ${ chalk.bold.green( '------- Default Settings -------' ) } 
         Locale    : '${ chalk.cyan( Lingualizer.DefaultLocale ) }' 
         Directory : '${ chalk.cyan( Lingualizer.DefaulLocalizationDirName ) }'
@@ -579,7 +522,14 @@ export class Lingualizer
         Terminal -----------
         Directory : '${ chalk.cyan( getLocalizationDirectoryPath( true ) ) }'
         Filename  : '${ chalk.cyan( `${ getLocalizationFileName( true ) }.${ Lingualizer.DefaultTranslationFileExt }` ) }'
-        ${chalk.bold.green( '--------------------------------' ) }` ) );
+        ${chalk.bold.green( '--------------------------------' ) }` );
+
+        console.log( message );
+
+        Lingualizer.logInfo( `${ terminalPrefix } printing verbose defaults` );
+        Lingualizer.logInfo( message );
+
+        return message;
     }
 }
 
