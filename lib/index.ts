@@ -274,12 +274,49 @@ export class Lingualizer
      */
     public static get default (): Lingualizer
     {
-        if ( typeof process.versions[ 'electron' ] !== 'undefined' && process.versions[ 'electron' ] )
+        if ( this._instance == null )
         {
-        }
+            if ( typeof process.versions[ 'electron' ] !== 'undefined' && process.versions[ 'electron' ] )
+            {
+                // try to get module using remote from main proccess if exists else create it and set it globally
+                try 
+                {
+                    let electron = require( 'electron' );
+                    if ( typeof electron != 'undefined' && electron )
+                    {
+                        if ( typeof electron.remote != 'undefined' )
+                        {
+                            let remote = electron.remote;
+                            if ( typeof remote != 'undefined' && typeof remote.getGlobal != 'undefined' && typeof remote.getGlobal == 'function' )
+                            {
+                                let lingualizer = null;
+                                try
+                                {
+                                    lingualizer = remote.getGlobal( 'lingualizer' );
+                                } catch ( error )
+                                {
+                                }
 
-        if ( Lingualizer._instance == null )
-            Lingualizer._instance = new Lingualizer();
+                                if ( typeof lingualizer != 'undefined' && lingualizer != null )
+                                    Lingualizer._instance = lingualizer;
+
+                            }
+                        }
+                    }
+                } catch ( error ) 
+                {
+                }
+
+                if ( Lingualizer._instance == null )
+                    Lingualizer._instance = new Lingualizer();
+
+                // set it electron global so can access from renderer proccess.
+                ( global as any ).lingualizer = Lingualizer._instance;
+            } else
+            {
+                Lingualizer._instance = new Lingualizer();
+            }
+        }
 
         //TODO: look for and read in `.lingualizerrc settings
         return Lingualizer._instance;
