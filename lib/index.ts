@@ -85,10 +85,8 @@ export interface ILogger
 }
 
 /**
- * singleton lingualizer type to offer all functionality of module
+ *  lingualizer class to offer all functionality of module
  *
- * @author tsimper
- * @date 2019-01-17
  * @export
  * @class Lingualizer
  */
