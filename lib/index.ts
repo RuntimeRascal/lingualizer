@@ -99,6 +99,8 @@ export class Lingualizer
         `unable to find a translations file for '%s' at %s` /* initTranslations sub 1 */
     ];
 
+    private static _logger: ILogger;
+
     /**
      * #### Default locale or config's `defaultLocale` if found.  
      *
@@ -208,7 +210,6 @@ export class Lingualizer
     private _locale: Locale | null = null;
     private _onLocaleChanged: EventDispatcher<Lingualizer, LocaleChangedEventArgs>;
     private _projectRoot = null;
-    private _logger: ILogger;
 
     private constructor ()
     {
@@ -218,27 +219,15 @@ export class Lingualizer
         //this.initTranslations();
     }
 
-    /**
-     * #### Set the Lingualizer instance logger.
-     * > all logging messages will try to log using set logger with info and error functions if they exist.
-     *
-     * @param {ILogger} logger a logger instance object that contains at least a info and error logging methods
-     * @memberof Lingualizer
-     */
-    public setLogger ( logger: ILogger )
-    {
-        this._logger = logger;
-    }
-
     private logInfo ( ...params: any[] )
     {
-        if ( !this._logger || this._logger === null )
+        if ( !Lingualizer._logger || Lingualizer._logger === null )
             return;
 
-        if ( typeof this._logger.info == 'undefined' || typeof this._logger.info !== 'function' )
+        if ( typeof Lingualizer._logger.info == 'undefined' || typeof Lingualizer._logger.info !== 'function' )
             return;
 
-        this._logger.info( params );
+        Lingualizer._logger.info( params );
     }
 
     private logError ( ...params: any[] )
@@ -463,6 +452,18 @@ export class Lingualizer
                 throw new Error( format( this._errorMessages[ 1 ], this._locale, defaultFile ) );
             }
         }
+    }
+
+    /**
+     * #### Set the Lingualizer logger.
+     * > all logging messages will try to log using set logger with info and error functions if they exist.
+     *
+     * @param {ILogger} logger a logger object that contains at least a info and error logging methods
+     * @memberof Lingualizer
+     */
+    public static setLogger ( logger: ILogger )
+    {
+        Lingualizer._logger = logger;
     }
 
     /**

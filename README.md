@@ -79,7 +79,7 @@ you can organize your translations by category or page or whatever by createing 
 
 
 ### Logging
-the `Lingualizer.default` instance has a `setLogger` function that you can use to pass it a object that looks like a logger and if set we will call the `info` and `error` functions on it to log messages.  
+the `Lingualizer` has a `setLogger` function that you can use to pass it a object that looks like a logger and if set we will call the `info` and `error` functions on it to log messages.  
 
 the `setLogger` accepts a object containg any or none of the following:  
 ```
