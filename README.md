@@ -4,6 +4,17 @@
 *Github* repo: [lingualizer](https://github.com/simpert/lingualizer)  
 *Github* issues: [lingualizer](https://github.com/simpert/lingualizer/issues)  
 
+This project is developed for handling all translations from within several different project types.  
+
+One requirement is that it works in a vanilla web environment as well in a `Node Webkit` application and finally within an `Electron` application.  
+
+The different project types handle paths and such differently and so we have tried to accomodate each project type.  
+
+Within an `Electron` application we wanted the module to be importable from both the **main** proccess and the **renderer** process without any special `Electron`.`remote` calls needed from code using `Lingualizer`.  
+
+`Lingualizer` api is accessed though a singleton class instance and so simply importing the class and using the instance should return the same instance regardless of proccess.  
+
+
 ## Installation 
 *to install just run*   
 
@@ -65,6 +76,26 @@ you can organize your translations by category or page or whatever by createing 
 ``` javascript
     var optionsTitle = Lingualizer.default.get( 'options.title' );
 ```
+
+
+### Logging
+the `Lingualizer.default` instance has a `setLogger` function that you can use to pass it a object that looks like a logger and if set we will call the `info` and `error` functions on it to log messages.  
+
+the `setLogger` accepts a object containg any or none of the following:  
+```
+    interface ILogger
+    {
+        error?( ...params: any[] ): void;
+        warn?( ...params: any[] ): void;
+        info?( ...params: any[] ): void;
+        verbose?( ...params: any[] ): void;
+        debug?( ...params: any[] ): void;
+        log?( ...params: any[] ): void;
+    }
+``` 
+
+but really only `info` and `error` will be used right now.
+
 
 # Configuration
 > Lingualizer support common rc config pattern and config in *package.json* as per `yargs` module.  

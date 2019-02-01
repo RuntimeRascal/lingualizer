@@ -4,7 +4,7 @@ import * as findup from 'find-up';
 import { EventDispatcher, IEvent } from "ste-events";
 import { format, log } from 'util';
 import chalk from 'chalk';
-import { getLocalizationDirectoryPath, getLocalizationFileName, getNestedValueFromJson } from './common';
+import { getLocalizationDirectoryPath, getLocalizationFileName, getNestedValueFromJson, terminalPrefix } from './common';
 
 
 const app = chalk.white( 'lingualizer->' );
@@ -72,6 +72,16 @@ var Lookup: ILocale[] = [
 export type LocaleChangedEventArgs = {
     oldLocale: Locale;
     newLocale: Locale;
+}
+
+export interface ILogger
+{
+    error?( ...params: any[] ): void;
+    warn?( ...params: any[] ): void;
+    info?( ...params: any[] ): void;
+    verbose?( ...params: any[] ): void;
+    debug?( ...params: any[] ): void;
+    log?( ...params: any[] ): void;
 }
 
 /**
@@ -198,6 +208,7 @@ export class Lingualizer
     private _locale: Locale | null = null;
     private _onLocaleChanged: EventDispatcher<Lingualizer, LocaleChangedEventArgs>;
     private _projectRoot = null;
+    private _logger: ILogger;
 
     private constructor ()
     {
@@ -205,6 +216,40 @@ export class Lingualizer
         Lingualizer.updateDefaults();
         this._locale = Lingualizer.DefaultLocale;
         //this.initTranslations();
+    }
+
+    /**
+     * #### Set the Lingualizer instance logger.
+     * > all logging messages will try to log using set logger with info and error functions if they exist.
+     *
+     * @param {ILogger} logger a logger instance object that contains at least a info and error logging methods
+     * @memberof Lingualizer
+     */
+    public setLogger ( logger: ILogger )
+    {
+        this._logger = logger;
+    }
+
+    private logInfo ( ...params: any[] )
+    {
+        if ( !this._logger || this._logger === null )
+            return;
+
+        if ( typeof this._logger.info == 'undefined' || typeof this._logger.info !== 'function' )
+            return;
+
+        this._logger.info( params );
+    }
+
+    private logError ( ...params: any[] )
+    {
+        if ( !this._logger || this._logger === null )
+            return;
+
+        if ( typeof this._logger.error == 'undefined' || typeof this._logger.error !== 'function' )
+            return;
+
+        this._logger.error( params );
     }
 
     public get root ()
@@ -215,6 +260,7 @@ export class Lingualizer
     public set root ( root: string )
     {
         this._projectRoot = root;
+        this.logInfo( `${ terminalPrefix } setting project root to: '${ root }'` );
     }
 
     /**
@@ -228,6 +274,10 @@ export class Lingualizer
      */
     public static get default (): Lingualizer
     {
+        if ( typeof process.versions[ 'electron' ] !== 'undefined' && process.versions[ 'electron' ] )
+        {
+        }
+
         if ( Lingualizer._instance == null )
             Lingualizer._instance = new Lingualizer();
 
@@ -271,6 +321,7 @@ export class Lingualizer
         } catch ( error )
         {
             log( `failed to initialize translations. error: ${ error.message }` );
+            this.logError( `${ terminalPrefix } failed to initialize translations. error: ${ error.message }` );
         }
     }
 
@@ -295,7 +346,10 @@ export class Lingualizer
     public get ( key: string ): string
     {
         if ( this._defaultLocaleTranslations == null && this._translations == null )
+        {
+            this.logError( `${ terminalPrefix } cannot get key: '${ key }' since there are no translations found or loaded` );
             return '';
+        }
 
         let value: string = null;
         if ( this.locale !== Lingualizer.DefaultLocale && this._translations !== null )
@@ -333,6 +387,8 @@ export class Lingualizer
         if ( !fse.existsSync( translationsPath ) )
         {
             // return;
+            this.logError( `${ terminalPrefix } attempt to init translations from '${ translationsPath }' directory failed as the directory does not exist.` );
+
             throw new Error( format( this._errorMessages[ 0 ], translationsPath ) );
         };
 
@@ -350,7 +406,10 @@ export class Lingualizer
         else
         {
             if ( this.locale == Lingualizer.DefaultLocale )
+            {
+
                 throw new Error( format( this._errorMessages[ 1 ], this._locale, defaultFile ) );
+            }
         }
 
 
