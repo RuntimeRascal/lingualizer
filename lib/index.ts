@@ -359,6 +359,19 @@ export class Lingualizer
         let localeFile: string = path.join( translationsPath, `${ getLocalizationFileName( false ) }.${ Lingualizer.locale }.${ Lingualizer.DefaultTranslationFileExt }` );
 
         let defaultLoaded = Lingualizer._defaultLocaleTranslations && Lingualizer._defaultLocaleTranslations !== null;
+
+        if ( Lingualizer.locale === Lingualizer.DefaultLocale && defaultLoaded )
+        // ask for default and default is loaded so just raise ev and get out
+        {
+            if ( Lingualizer._onLocaleChanged )
+                Lingualizer._onLocaleChanged.dispatch( Lingualizer,
+                    {
+                        oldLocale: oldLocale,
+                        newLocale: Lingualizer._locale
+                    } );
+            return;
+        }
+
         // allways try load the default locale translations as we dish them if translated cant be found and it's the most common
         //  as in what would be loaded at starup only changing if set locale to non-default
         if ( !defaultLoaded && fse.existsSync( defaultFile ) )
