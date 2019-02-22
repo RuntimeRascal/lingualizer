@@ -1,5 +1,5 @@
 import { IEvent } from "ste-events";
-export declare type Locale = 'en-US' | 'es-MX' | 'fr-FR' | 'nl-NL' | 'de-DE' | 'it-IT' | 'pol' | 'el-GR' | 'pt-BR' | 'pt-PT' | 'ar-SA' | 'zh-CHT' | 'ko-KR' | 'ja-JP' | 'vi-VN' | 'ro-RO' | 'ru-RU' | 'bg-BG' | 'id-ID' | 'mk-MK' | 'th-TH' | 'zh-CHS' | 'tr-TR' | null;
+import { Locale } from './common';
 export declare type LocaleChangedEventArgs = {
     oldLocale: Locale;
     newLocale: Locale;

@@ -43,10 +43,35 @@ var defaultTranslationContents = { "Testing": "We are testing a default tranlate
 exports.command = 'create [locale] [based-off] [force]';
 exports.describe = 'create a translation file and the localization directory if needed';
 exports.builder = function (yargs) {
+    //LOOKUP: gotta be a way in typescript to hand a type to param expecting array so dont have to redeclare this
     return yargs
         .positional('locale', {
         describe: "The locale",
-        choices: ['es-MX', 'en-US'],
+        choices: common_1.Lookup.map(function (l) { return l.locale; }),
+        // choices: [ 'es-MX',
+        //     'en-US',
+        //     'fr-FR',
+        //     'nl-NL',
+        //     'de-DE',
+        //     'it-IT',
+        //     'pol',
+        //     'el-GR',
+        //     'pt-BR',
+        //     'pt-PT',
+        //     'ar-SA',
+        //     'zh-CHT',
+        //     'ko-KR',
+        //     'ja-JP',
+        //     'vi-VN',
+        //     'ro-RO',
+        //     'ru-RU',
+        //     'bg-BG',
+        //     'id-ID',
+        //     'mk-MK',
+        //     'th-TH',
+        //     'zh-CHS',
+        //     'tr-TR'
+        // ],
         alias: ['l'],
     })
         .positional('based-off', {

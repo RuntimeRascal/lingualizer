@@ -49,7 +49,7 @@ exports.builder = function (yargs) {
     })
         .positional('locale', {
         describe: "The locale",
-        choices: ['es-MX', 'en-US'],
+        choices: common_1.Lookup.map(function (l) { return l.locale; }),
         alias: ['l', 'loc'],
     })
         .option('verbose', {
