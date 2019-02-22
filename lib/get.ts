@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as fse from 'fs-extra';
-import { getLocale, getFileNameWithExtention, IArgV, getLocalizationDirectoryPath, chalk, terminalPrefix, log, getNestedValueFromJson } from "./common";
+import { getLocale, getFileNameWithExtention, IArgV, getLocalizationDirectoryPath, chalk, terminalPrefix, log, getNestedValueFromJson, Lookup } from "./common";
 
 export var command = 'get [key] [locale]';
 export var describe = 'get a key from a certain locale or default in no locale';
@@ -16,7 +16,7 @@ export var builder = ( yargs ) =>
         .positional( 'locale',
             {
                 describe: "The locale",
-                choices: [ 'es-MX', 'en-US' ],
+                choices: Lookup.map( l => l.locale ),
                 alias: [ 'l', 'loc' ],
             } )
         .option( 'verbose',
