@@ -1,8 +1,9 @@
 
 
 import * as chai from 'chai';
-import { Lingualizer, Locale } from '../lib/index'
+import { Lingualizer } from '../lib/index'
 import * as helper from "./helper";
+import { Locale } from '../lib/common';
 
 var expect = chai.expect;
 var should = chai.should();
