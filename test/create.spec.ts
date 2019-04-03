@@ -3,7 +3,7 @@ import * as chai from 'chai';
 import * as fse from 'fs-extra';
 import * as path from 'path';
 import * as createC from '../lib/create'
-import * as helper from "./helper";
+import * as helper from './helper';
 import { IArgV } from '../lib/common';
 
 var expect = chai.expect;

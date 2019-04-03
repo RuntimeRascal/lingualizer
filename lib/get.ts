@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as fse from 'fs-extra';
-import { getLocale, getFileNameWithExtention, IArgV, getLocalizationDirectoryPath, chalk, terminalPrefix, log, getNestedValueFromJson, Lookup } from "./common";
+import { getLocale, getFileNameWithExtention, IArgV, getLocalizationDirectoryPath, chalk, log, getNestedValueFromJson } from './common';
+import { Lookup } from './ILocale';
 
 export var command = 'get [key] [locale]';
 export var describe = 'get a key from a certain locale or default in no locale';

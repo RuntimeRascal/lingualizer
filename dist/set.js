@@ -38,6 +38,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var path = require("path");
 var fse = require("fs-extra");
 var common_1 = require("./common");
+var ILocale_1 = require("./ILocale");
 exports.command = 'set [key] [value] [locale]';
 exports.describe = 'set a value to the key for a certain locale or default locale if no locale is provided';
 exports.builder = function (yargs) {
@@ -54,7 +55,7 @@ exports.builder = function (yargs) {
     })
         .positional('locale', {
         describe: "The locale",
-        choices: common_1.Lookup.map(function (l) { return l.locale; }),
+        choices: ILocale_1.Lookup.map(function (l) { return l.locale; }),
         alias: ['l', 'loc'],
     })
         .option('verbose', {

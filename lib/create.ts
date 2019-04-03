@@ -1,8 +1,9 @@
-import { Lingualizer } from ".";
+import { Lingualizer } from '.';
 import * as path from 'path';
 import * as fse from 'fs-extra';
 import * as yarg from 'yargs'
-import { IArgV, getLocalizationDirectoryPath, log, chalk, terminalPrefix, getFileNameWithExtention, getJsonFile, isValidUrl, getLocalizationFileName, Lookup } from "./common";
+import { IArgV, getLocalizationDirectoryPath, log, chalk, terminalPrefix, getFileNameWithExtention, getJsonFile, isValidUrl, getLocalizationFileName } from './common';
+import { Lookup } from './ILocale';
 
 const defaultTranslationContents = { "Testing": "We are testing a default tranlated string" };
 
@@ -16,30 +17,6 @@ export var builder = ( yargs: yarg.Argv<IArgV> ) =>
             {
                 describe: "The locale",
                 choices: Lookup.map( l => l.locale ),
-                // choices: [ 'es-MX',
-                //     'en-US',
-                //     'fr-FR',
-                //     'nl-NL',
-                //     'de-DE',
-                //     'it-IT',
-                //     'pol',
-                //     'el-GR',
-                //     'pt-BR',
-                //     'pt-PT',
-                //     'ar-SA',
-                //     'zh-CHT',
-                //     'ko-KR',
-                //     'ja-JP',
-                //     'vi-VN',
-                //     'ro-RO',
-                //     'ru-RU',
-                //     'bg-BG',
-                //     'id-ID',
-                //     'mk-MK',
-                //     'th-TH',
-                //     'zh-CHS',
-                //     'tr-TR'
-                // ],
                 alias: [ 'l' ],
             } )
         .positional( 'based-off',

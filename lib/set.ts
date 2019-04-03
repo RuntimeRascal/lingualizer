@@ -1,7 +1,8 @@
 import * as path from 'path';
 import * as fse from 'fs-extra';
 import * as yarg from 'yargs'
-import { getLocale, IArgV, getLocalizationDirectoryPath, getFileNameWithExtention, log, getJsonFile, chalk, terminalPrefix, writeFile, Lookup } from "./common";
+import { getLocale, IArgV, getLocalizationDirectoryPath, getFileNameWithExtention, log, getJsonFile, chalk, terminalPrefix, writeFile } from './common';
+import { Lookup } from './ILocale';
 
 export var command = 'set [key] [value] [locale]';
 export var describe = 'set a value to the key for a certain locale or default locale if no locale is provided';

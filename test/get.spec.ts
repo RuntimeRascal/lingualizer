@@ -2,7 +2,7 @@ import * as yargs from 'yargs'
 import * as chai from 'chai';
 import * as getC from '../lib/get'
 import { IArgV } from '../lib/common';
-import * as helper from "./helper";
+import * as helper from './helper';
 
 var expect = chai.expect;
 

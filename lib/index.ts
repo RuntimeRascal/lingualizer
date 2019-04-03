@@ -1,38 +1,21 @@
 import * as path from 'path';
 import * as fse from 'fs-extra';
 import * as findup from 'find-up';
-import { EventDispatcher, IEvent } from "ste-events";
+import { EventDispatcher, IEvent } from 'ste-events';
 import { format, log } from 'util';
 import chalk from 'chalk';
+import { Locale } from './ILocale';
 import
 {
     getLocalizationDirectoryPath,
     getLocalizationFileName,
     getNestedValueFromJson,
     terminalPrefix,
-    Locale
 } from './common';
-
+import { ILogger } from './ILogger';
+import { LocaleChangedEventArgs } from './LocaleChangedEventArgs';
 
 const app = chalk.white( 'lingualizer->' );
-
-
-
-/* specifies data args to pass to subscribers on locale changed event raised */
-export type LocaleChangedEventArgs = {
-    oldLocale: Locale;
-    newLocale: Locale;
-}
-
-export interface ILogger
-{
-    error?( ...params: any[] ): void;
-    warn?( ...params: any[] ): void;
-    info?( ...params: any[] ): void;
-    verbose?( ...params: any[] ): void;
-    debug?( ...params: any[] ): void;
-    log?( ...params: any[] ): void;
-}
 
 /**
  *  lingualizer class to offer all functionality of module
@@ -493,5 +476,3 @@ export class Lingualizer
         return message;
     }
 }
-
-

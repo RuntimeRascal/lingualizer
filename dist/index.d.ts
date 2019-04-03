@@ -1,17 +1,7 @@
-import { IEvent } from "ste-events";
-import { Locale } from './common';
-export declare type LocaleChangedEventArgs = {
-    oldLocale: Locale;
-    newLocale: Locale;
-};
-export interface ILogger {
-    error?(...params: any[]): void;
-    warn?(...params: any[]): void;
-    info?(...params: any[]): void;
-    verbose?(...params: any[]): void;
-    debug?(...params: any[]): void;
-    log?(...params: any[]): void;
-}
+import { IEvent } from 'ste-events';
+import { Locale } from './ILocale';
+import { ILogger } from './ILogger';
+import { LocaleChangedEventArgs } from './LocaleChangedEventArgs';
 /**
  *  lingualizer class to offer all functionality of module
  *
